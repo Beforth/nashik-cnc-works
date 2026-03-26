@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ShieldCheck, MapPin, ArrowRight, PlayCircle, Phone, MessageSquare } from 'lucide-react';
+import { ShieldCheck, MapPin, ArrowRight, PlayCircle, Phone } from 'lucide-react';
 import { COMPANY, INDIA_MART_IMAGES, CityData, GALLERY_ITEMS } from '../constants';
+import WhatsAppIcon from './WhatsAppIcon';
 
 export default function Hero({ city }: { city: CityData }) {
   const servingLine =
@@ -153,9 +154,9 @@ export default function Hero({ city }: { city: CityData }) {
               <div className="flex flex-wrap gap-3 text-sm font-semibold">
                 <a
                   href="https://wa.me/919876543210"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#128C7E]/10 px-5 py-2.5 text-[#128C7E] hover:bg-[#128C7E]/20 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 px-5 py-2.5 text-[#25D366] hover:bg-[#25D366]/20 transition-colors shadow-sm"
                 >
-                  <MessageSquare size={16} /> WhatsApp
+                  <WhatsAppIcon size={16} /> WhatsApp
                 </a>
                 <a
                   href="tel:+919876543210"

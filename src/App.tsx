@@ -9,7 +9,6 @@ import {
   ChevronRight, 
   Menu, 
   X, 
-  MessageSquare, 
   ArrowRight,
   Settings,
   ShieldCheck,
@@ -41,6 +40,7 @@ import SectionHeading from './components/SectionHeading';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import WhatsAppIcon from './components/WhatsAppIcon';
 
 
 const Infrastructure = () => {
@@ -360,8 +360,8 @@ const StickyActions = () => {
       <a href="tel:+919876543210" className="flex-1 bg-steel text-white font-bold py-4 rounded-xl shadow-2xl flex items-center justify-center gap-2">
         <Phone size={20} /> Call Now
       </a>
-      <a href="https://wa.me/919876543210" className="flex-1 bg-machine-green text-white font-bold py-4 rounded-xl shadow-2xl flex items-center justify-center gap-2">
-        <MessageSquare size={20} /> WhatsApp
+      <a href="https://wa.me/919876543210" className="flex-1 bg-[#25D366] text-white font-bold py-4 rounded-xl shadow-2xl flex items-center justify-center gap-2">
+        <WhatsAppIcon size={20} /> WhatsApp
       </a>
     </div>
   );
