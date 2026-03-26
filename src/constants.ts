@@ -20,7 +20,108 @@ export const COMPANY = {
   indiaMartUrl: 'https://www.indiamart.com/dinesh-eng/',
   tagline:
     'Manufacturer of job work & machined components in Nashik, Maharashtra.',
+  /** IndiaMART Open Graph / listing summary */
+  listingSummary:
+    'Job work, machined components & turning machine job — service provider from Nashik, Maharashtra, India.',
 } as const;
+
+/** Product photos from IndiaMART listing (5.imimg.com). Source: https://www.indiamart.com/dinesh-eng/ */
+export const INDIA_MART_IMAGES = {
+  turning: 'https://5.imimg.com/data5/AL/TH/UV/NSDMERP-20762121/20762121-product-1541063333096-500x500.jpg',
+  turningAlt: 'https://5.imimg.com/data5/VM/FL/HR/NSDMERP-20762121/20762121-product-1541063340341-500x500.jpg',
+  cncTurned: 'https://5.imimg.com/data5/VF/EG/EW/NSDMERP-20762121/20762121-product-1541063345687-500x500.jpg',
+  powerSector: 'https://5.imimg.com/data5/RM/AA/MY-20762121/components-for-power-sector-500x500.jpg',
+  milling: 'https://5.imimg.com/data5/LK/RX/UB/NSDMERP-20762121/20762121-product-1541063338370-500x500.jpg',
+  bush: 'https://5.imimg.com/data5/NV/BI/JM/NSDMERP-20762121/20762121-product-1541063343725-500x500.jpg',
+  cncJob: 'https://5.imimg.com/data5/TA/RH/RA/NSDMERP-20762121/20762121-product-1541063342172-500x500.jpg',
+  automobile: 'https://5.imimg.com/data5/KU/BL/MY-20762121/components-for-automobile-industry-500x500.jpg',
+  clampShaft: 'https://5.imimg.com/data5/UQ/RV/QZ/NSDMERP-20762121/20762121-product-1541063336555-500x500.jpg',
+} as const;
+
+export interface GalleryItem {
+  src: string;
+  title: string;
+  category: string;
+  href: string;
+}
+
+export const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    src: INDIA_MART_IMAGES.turning,
+    title: 'Turning Machine Job',
+    category: 'Job work',
+    href: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267930655',
+  },
+  {
+    src: INDIA_MART_IMAGES.milling,
+    title: 'Milling Machine Job',
+    category: 'Job work',
+    href: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267931088',
+  },
+  {
+    src: INDIA_MART_IMAGES.cncJob,
+    title: 'CNC Machine Job',
+    category: 'Job work',
+    href: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267931355',
+  },
+  {
+    src: INDIA_MART_IMAGES.cncTurned,
+    title: 'CNC Turned Components',
+    category: 'Machined components',
+    href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267931691',
+  },
+  {
+    src: INDIA_MART_IMAGES.powerSector,
+    title: 'Components for Power Sector',
+    category: 'Machined components',
+    href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#12691033355',
+  },
+  {
+    src: INDIA_MART_IMAGES.automobile,
+    title: 'Components for Automobile Industry',
+    category: 'Machined components',
+    href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#12691033212',
+  },
+  {
+    src: INDIA_MART_IMAGES.bush,
+    title: 'Bush',
+    category: 'Machined components',
+    href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267931533',
+  },
+  {
+    src: INDIA_MART_IMAGES.clampShaft,
+    title: 'Clamp Shaft',
+    category: 'Machined components',
+    href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267930862',
+  },
+];
+
+/** “Deals in HSN Code” from IndiaMART profile */
+export const HSN_CODES: { code: string; description: string }[] = [
+  {
+    code: '82031000',
+    description:
+      'Files, rasps, pliers, pincers, metal cutting shears, pipe-cutters, bolt croppers, perforating punches and similar hand tools.',
+  },
+  {
+    code: '82071300',
+    description:
+      'Interchangeable tools for hand or machine-tools — pressing, stamping, punching, tapping, threading, drilling, milling, turning, etc.',
+  },
+  {
+    code: '98010011',
+    description: 'For industrial plant project.',
+  },
+  {
+    code: '72071110',
+    description:
+      'Semi-finished products of iron or non-alloy steel — rectangular cross-section; electrical quality.',
+  },
+  {
+    code: '82021010',
+    description: 'Hand saws; blades for saws of all kinds — metal working hand saws.',
+  },
+];
 
 export const CITIES: CityData[] = [
   {
@@ -62,6 +163,7 @@ export const SERVICES = [
     id: 'turning',
     icon: '🔧',
     name: 'Turning Machine Job',
+    image: INDIA_MART_IMAGES.turning,
     description:
       'CNC and conventional turning job work for shafts, pins, and cylindrical parts as per your drawings.',
   },
@@ -69,6 +171,7 @@ export const SERVICES = [
     id: 'milling',
     icon: '🔩',
     name: 'Milling Machine Job',
+    image: INDIA_MART_IMAGES.milling,
     description:
       'Milling job work for flats, pockets, slots, and prismatic features with repeatable accuracy.',
   },
@@ -76,6 +179,7 @@ export const SERVICES = [
     id: 'cnc',
     icon: '⚙️',
     name: 'CNC Machine Job',
+    image: INDIA_MART_IMAGES.cncJob,
     description:
       'CNC machining job work for complex profiles and production batches from Nashik.',
   },
@@ -83,6 +187,7 @@ export const SERVICES = [
     id: 'components',
     icon: '🏗️',
     name: 'Machined Components',
+    image: INDIA_MART_IMAGES.powerSector,
     description:
       'Components for power sector and automobile industry; CNC turned components, bush, clamp shaft, and related parts.',
   },

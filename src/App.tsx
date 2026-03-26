@@ -16,10 +16,25 @@ import {
   Zap,
   Clock,
   Upload,
-  Send
+  Send,
+  ExternalLink,
+  Briefcase,
+  Landmark,
+  Hash
 } from 'lucide-react';
 import { cn } from './lib/utils';
-import { CITIES, SERVICES, MACHINES, INDUSTRIES, STEPS, CityData, COMPANY } from './constants';
+import {
+  CITIES,
+  SERVICES,
+  MACHINES,
+  INDUSTRIES,
+  STEPS,
+  CityData,
+  COMPANY,
+  GALLERY_ITEMS,
+  HSN_CODES,
+  INDIA_MART_IMAGES,
+} from './constants';
 
 // --- Components ---
 
@@ -95,82 +110,343 @@ const Navbar = () => {
 };
 
 const Hero = ({ city }: { city: CityData }) => {
+  const servingLine =
+    city.id === 'nashik'
+      ? 'Nashik, Maharashtra'
+      : `Serving ${city.name} · Based in Nashik, Maharashtra`;
+
+  const headlineAccent =
+    city.title.includes(' in ') && city.id !== 'nashik' ? (
+      <>
+        {city.title.split(' in ')[0]}{' '}
+        <span className="text-machine-orange block sm:inline">
+          in {city.title.split(' in ')[1]}
+        </span>
+      </>
+    ) : null;
+
   return (
     <section className="pt-32 pb-16 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="relative bg-white border-2 border-border-grey rounded-3xl p-8 md:p-16 overflow-hidden">
-          {/* Decorative Circles */}
+        <div className="relative bg-white border-2 border-border-grey rounded-3xl p-8 md:p-12 lg:p-14 overflow-hidden shadow-xl shadow-navy/5">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-light rounded-full opacity-50" />
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-bg-steel rounded-full opacity-50" />
 
-          <div className="relative z-10 max-w-2xl">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-block bg-orange-light border border-machine-orange/20 text-machine-orange text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
-            >
-              Nashik • Maharashtra • {COMPANY.yearsOnIndiaMART} Yrs
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl font-extrabold text-navy leading-tight mb-6"
-            >
-              {city.title.includes(' in ') ? (
-                <>
-                  {city.title.split(' in ')[0]}{' '}
-                  <span className="text-machine-orange block md:inline">
-                    in {city.title.split(' in ')[1]}
-                  </span>
-                </>
-              ) : (
-                city.title
-              )}
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-base text-muted-grey mb-8 leading-relaxed"
-            >
-              {COMPANY.tagline} Turning, milling, and CNC machine job work; machined components
-              including power sector, automobile industry, CNC turned parts, bush, and clamp shaft.
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-4"
-            >
-              <a href="#enquiry" className="flex items-center gap-2 bg-machine-orange text-white font-bold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
-                <Send size={18} /> Get Quote
+          {/* IndiaMART product strip — catalogue preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10 mb-8 lg:mb-10 rounded-2xl overflow-hidden border border-border-grey bg-gradient-to-br from-bg-steel via-white to-orange-light/30 p-4 md:p-5 shadow-sm"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div>
+                <p className="text-[10px] font-bold text-machine-orange uppercase tracking-[0.2em]">
+                  IndiaMART catalogue
+                </p>
+                <p className="text-sm font-bold text-navy mt-0.5">
+                  Real product photos from our listing
+                </p>
+              </div>
+              <a
+                href={COMPANY.indiaMartUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-machine-orange hover:underline shrink-0"
+              >
+                View all on IndiaMART <ExternalLink size={14} />
               </a>
-              <a href="https://wa.me/919876543210" className="flex items-center gap-2 bg-machine-green text-white font-bold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
-                <MessageSquare size={18} /> WhatsApp
-              </a>
-              <a href="tel:+919876543210" className="flex items-center gap-2 bg-steel text-white font-bold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
-                <Phone size={18} /> Call Now
-              </a>
-            </motion.div>
-
-            {/* Stats Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12">
-              {[
-                { n: `${COMPANY.yearsOnIndiaMART}`, l: 'Yrs on IndiaMART' },
-                { n: `${COMPANY.jobWorkProductCount}`, l: 'Job Work Lines' },
-                { n: `${COMPANY.machinedComponentCount}`, l: 'Component Types' },
-                { n: '2017', l: 'GST Registered' },
-              ].map((stat, i) => (
-                <div key={i} className="bg-bg-cloud border border-border-grey rounded-xl p-4 text-center">
-                  <div className="text-2xl font-extrabold text-machine-orange">{stat.n}</div>
-                  <div className="text-[10px] font-semibold text-muted-grey uppercase tracking-wider mt-1">{stat.l}</div>
-                </div>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
+              {GALLERY_ITEMS.slice(0, 6).map((item, i) => (
+                <a
+                  key={`${item.title}-${i}`}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group shrink-0 w-[132px] sm:w-[148px] snap-start rounded-xl border-2 border-border-grey bg-white overflow-hidden shadow-sm hover:border-machine-orange hover:shadow-md transition-all"
+                >
+                  <div className="aspect-square overflow-hidden bg-bg-cloud">
+                    <img
+                      src={item.src}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="p-2.5 border-t border-border-grey">
+                    <p className="text-[10px] font-bold text-machine-orange uppercase tracking-wide line-clamp-1">
+                      {item.category}
+                    </p>
+                    <p className="text-[11px] font-bold text-navy leading-tight line-clamp-2 mt-0.5">
+                      {item.title}
+                    </p>
+                  </div>
+                </a>
               ))}
             </div>
+          </motion.div>
+
+          <div className="relative z-10 grid lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+            <div className="lg:col-span-7 space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-wrap items-center gap-2"
+              >
+                <span className="inline-flex items-center gap-1.5 bg-navy text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full">
+                  <ShieldCheck size={12} className="shrink-0" />
+                  IndiaMART supplier
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-orange-light border border-machine-orange/20 text-machine-orange text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full">
+                  {COMPANY.yearsOnIndiaMART} yrs · Trusted seller
+                </span>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="space-y-1"
+              >
+                <p className="text-sm font-semibold text-muted-grey flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <MapPin size={16} className="text-machine-orange shrink-0" />
+                  {servingLine}
+                  <span className="hidden sm:inline text-border-grey">|</span>
+                  <span className="text-navy font-bold">GST — {COMPANY.gstin}</span>
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-navy leading-[1.15] tracking-tight">
+                  Karan Engineers <span className="text-machine-orange">And Fabrication</span>
+                </h1>
+                <p className="mt-3 text-lg font-bold text-navy/90">
+                  Service provider of job work &amp; machined components
+                </p>
+                {headlineAccent && (
+                  <p className="mt-2 text-base font-semibold text-muted-grey">{headlineAccent}</p>
+                )}
+              </motion.div>
+
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-base text-muted-grey leading-relaxed max-w-xl"
+              >
+                <span className="font-semibold text-navy">About us — </span>
+                {COMPANY.tagline} Turning, milling, and CNC machine job work; machined components for
+                power sector, automobile industry, CNC turned parts, bush, and clamp shaft.
+              </motion.p>
+
+              {/* IndiaMART-style product buckets */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid sm:grid-cols-2 gap-4"
+              >
+                <a
+                  href="#services"
+                  className="group rounded-2xl border-2 border-border-grey bg-bg-cloud/80 hover:border-machine-orange/50 hover:bg-white p-5 transition-all overflow-hidden"
+                >
+                  <div className="flex gap-3 mb-3">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden border border-border-grey shrink-0 shadow-sm">
+                      <img
+                        src={INDIA_MART_IMAGES.turning}
+                        alt="Job work"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <span className="text-xs font-extrabold text-machine-orange uppercase tracking-wider">
+                        Products &amp; services
+                      </span>
+                      <p className="font-bold text-navy mt-1">Job work</p>
+                    </div>
+                    <ChevronRight
+                      size={18}
+                      className="text-muted-grey group-hover:text-machine-orange transition-colors shrink-0 mt-1"
+                    />
+                  </div>
+                  <ul className="text-xs text-muted-grey space-y-1.5">
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> Turning machine job
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> Milling machine job
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> CNC machine job
+                    </li>
+                  </ul>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-machine-orange">
+                    View details <ArrowRight size={14} />
+                  </span>
+                </a>
+                <a
+                  href="#services"
+                  className="group rounded-2xl border-2 border-border-grey bg-bg-cloud/80 hover:border-machine-orange/50 hover:bg-white p-5 transition-all overflow-hidden"
+                >
+                  <div className="flex gap-3 mb-3">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden border border-border-grey shrink-0 shadow-sm">
+                      <img
+                        src={INDIA_MART_IMAGES.powerSector}
+                        alt="Machined components"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <span className="text-xs font-extrabold text-machine-orange uppercase tracking-wider">
+                        Products &amp; services
+                      </span>
+                      <p className="font-bold text-navy mt-1">Machined components</p>
+                    </div>
+                    <ChevronRight
+                      size={18}
+                      className="text-muted-grey group-hover:text-machine-orange transition-colors shrink-0 mt-1"
+                    />
+                  </div>
+                  <ul className="text-xs text-muted-grey space-y-1.5">
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> Power sector
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> Automobile industry
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-machine-orange font-bold">·</span> CNC turned · bush · clamp shaft
+                    </li>
+                  </ul>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-machine-orange">
+                    View details <ArrowRight size={14} />
+                  </span>
+                </a>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="flex flex-wrap gap-3"
+              >
+                <a
+                  href="#enquiry"
+                  className="inline-flex items-center gap-2 bg-machine-orange text-white font-bold px-6 py-3.5 rounded-xl hover:shadow-lg transition-all"
+                >
+                  <Send size={18} /> Contact supplier · Get quote
+                </a>
+                <a
+                  href={`${COMPANY.indiaMartUrl}enquiry.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-white border-2 border-machine-green text-machine-green font-bold px-6 py-3.5 rounded-xl hover:bg-green-light transition-all"
+                >
+                  <ExternalLink size={18} /> IndiaMART enquiry
+                </a>
+                <a
+                  href="https://wa.me/919876543210"
+                  className="inline-flex items-center gap-2 bg-machine-green text-white font-bold px-6 py-3.5 rounded-xl hover:shadow-lg transition-all"
+                >
+                  <MessageSquare size={18} /> WhatsApp
+                </a>
+                <a
+                  href="tel:+919876543210"
+                  className="inline-flex items-center gap-2 bg-steel text-white font-bold px-6 py-3.5 rounded-xl hover:shadow-lg transition-all"
+                >
+                  <Phone size={18} /> Call now
+                </a>
+              </motion.div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                {[
+                  { n: `${COMPANY.yearsOnIndiaMART}`, l: 'Yrs on IndiaMART' },
+                  { n: `${COMPANY.jobWorkProductCount}`, l: 'Job work lines' },
+                  { n: `${COMPANY.machinedComponentCount}`, l: 'Component types' },
+                  { n: '2017', l: 'GST registered' },
+                ].map((stat, i) => (
+                  <div
+                    key={i}
+                    className="bg-bg-cloud border border-border-grey rounded-xl p-3 sm:p-4 text-center"
+                  >
+                    <div className="text-xl sm:text-2xl font-extrabold text-machine-orange">{stat.n}</div>
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-muted-grey uppercase tracking-wider mt-1 leading-tight">
+                      {stat.l}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Factsheet column — IndiaMART “Nature of business / GST” style */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-5 lg:sticky lg:top-28 space-y-4"
+            >
+              <div className="rounded-2xl border-2 border-border-grey overflow-hidden shadow-md">
+                <div className="relative aspect-[16/10] max-h-48">
+                  <img
+                    src={INDIA_MART_IMAGES.cncTurned}
+                    alt="CNC turned components — Karan Engineers And Fabrication"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent" />
+                  <p className="absolute bottom-3 left-4 right-4 text-white text-sm font-bold drop-shadow-sm">
+                    Precision job work &amp; machined components — Nashik
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-2xl border-2 border-border-grey bg-bg-cloud/60 overflow-hidden">
+                <div className="bg-navy text-white px-5 py-4 flex items-center gap-2">
+                  <Landmark size={20} className="text-machine-orange shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                      Factsheet
+                    </p>
+                    <p className="font-bold text-sm sm:text-base">Legal &amp; business profile</p>
+                  </div>
+                </div>
+                <dl className="divide-y divide-border-grey text-sm">
+                  {[
+                    ['Nature of business', COMPANY.natureOfBusiness],
+                    ['Legal status of firm', COMPANY.legalStatus],
+                    ['CEO', COMPANY.ceo],
+                    ['Annual turnover', COMPANY.annualTurnover],
+                    ['GST registration date', COMPANY.gstRegistrationDate],
+                    ['GST number', COMPANY.gstin],
+                  ].map(([label, value]) => (
+                    <div key={label} className="px-5 py-3.5 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 bg-white">
+                      <dt className="text-muted-grey font-medium shrink-0">{label}</dt>
+                      <dd className="font-bold text-navy text-right sm:max-w-[60%]">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="p-5 bg-white border-t border-border-grey">
+                  <a
+                    href={COMPANY.indiaMartUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-navy text-navy font-bold text-sm hover:bg-navy hover:text-white transition-all"
+                  >
+                    <Briefcase size={18} /> View full IndiaMART profile
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -186,8 +462,7 @@ const Services = () => {
           <span className="text-xs font-bold text-machine-orange uppercase tracking-widest">02 — Services</span>
           <h2 className="text-3xl font-extrabold text-navy mt-2">Our Machining Expertise</h2>
           <p className="text-muted-grey mt-4 max-w-xl mx-auto">
-            Job work (turning, milling, CNC) and machined components — factory / manufacturing and works
-            contract from Nashik.
+            {COMPANY.listingSummary}
           </p>
         </div>
 
@@ -196,13 +471,32 @@ const Services = () => {
             <motion.div 
               whileHover={{ y: -5 }}
               key={svc.id} 
-              className="bg-white border-2 border-border-grey rounded-2xl p-8 shadow-sm hover:shadow-md transition-all"
+              className="bg-white border-2 border-border-grey rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-machine-orange/30 transition-all flex flex-col"
             >
-              <div className="w-14 h-14 bg-orange-light rounded-xl flex items-center justify-center text-3xl mb-6">
-                {svc.icon}
+              <div className="relative aspect-[4/3] bg-bg-cloud overflow-hidden">
+                <img
+                  src={svc.image}
+                  alt={svc.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute top-3 left-3 w-12 h-12 bg-white/95 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl shadow-md border border-white">
+                  {svc.icon}
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-navy mb-3">{svc.name}</h3>
-              <p className="text-sm text-muted-grey leading-relaxed">{svc.description}</p>
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="text-lg font-bold text-navy mb-3">{svc.name}</h3>
+                <p className="text-sm text-muted-grey leading-relaxed flex-1">{svc.description}</p>
+                <a
+                  href={`${COMPANY.indiaMartUrl}enquiry.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-machine-orange hover:underline"
+                >
+                  Get best quote <ExternalLink size={12} />
+                </a>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -240,22 +534,25 @@ const Infrastructure = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <img 
-              src="https://picsum.photos/seed/machine1/600/800" 
-              alt="CNC Machine" 
-              className="rounded-2xl border border-border-grey shadow-sm aspect-[3/4] object-cover"
+              src={INDIA_MART_IMAGES.turningAlt} 
+              alt="Turning machine job work" 
+              className="rounded-2xl border-2 border-border-grey shadow-md aspect-[3/4] object-cover hover:shadow-lg transition-shadow"
+              loading="lazy"
               referrerPolicy="no-referrer"
             />
             <div className="flex flex-col gap-4">
               <img 
-                src="https://picsum.photos/seed/machine2/600/400" 
-                alt="VMC Machine" 
-                className="rounded-2xl border border-border-grey shadow-sm aspect-square object-cover"
+                src={INDIA_MART_IMAGES.milling} 
+                alt="Milling machine job" 
+                className="rounded-2xl border-2 border-border-grey shadow-md aspect-square object-cover hover:shadow-lg transition-shadow"
+                loading="lazy"
                 referrerPolicy="no-referrer"
               />
               <img 
-                src="https://picsum.photos/seed/parts/600/400" 
-                alt="Machined Parts" 
-                className="rounded-2xl border border-border-grey shadow-sm aspect-square object-cover"
+                src={INDIA_MART_IMAGES.automobile} 
+                alt="Components for automobile industry" 
+                className="rounded-2xl border-2 border-border-grey shadow-md aspect-square object-cover hover:shadow-lg transition-shadow"
+                loading="lazy"
                 referrerPolicy="no-referrer"
               />
             </div>
@@ -265,6 +562,38 @@ const Infrastructure = () => {
     </section>
   );
 };
+
+const HsnCodes = () => (
+  <section className="py-20 px-4 bg-white border-y border-border-grey">
+    <div className="max-w-7xl mx-auto">
+      <div className="text-center mb-12">
+        <span className="inline-flex items-center justify-center gap-2 text-xs font-bold text-machine-orange uppercase tracking-widest">
+          <Hash size={14} className="shrink-0" />
+          Compliance &amp; sourcing
+        </span>
+        <h2 className="text-3xl font-extrabold text-navy mt-2">Deals in HSN Code</h2>
+        <p className="text-muted-grey mt-3 max-w-2xl mx-auto text-sm">
+          HSN classifications as listed on our IndiaMART profile — helpful for buyers, GST, and industrial
+          procurement.
+        </p>
+      </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {HSN_CODES.map((row) => (
+          <motion.div
+            key={row.code}
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-bg-cloud border border-border-grey rounded-2xl p-5 hover:border-machine-orange/40 hover:shadow-sm transition-all"
+          >
+            <p className="font-mono font-bold text-machine-orange text-lg">{row.code}</p>
+            <p className="text-xs text-muted-grey leading-relaxed mt-2">{row.description}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 const HowItWorks = () => {
   return (
@@ -568,31 +897,48 @@ const HomePage = () => {
         </div>
       </section>
 
+      <HsnCodes />
+
       <HowItWorks />
       
-      {/* Work Showcase (Gallery) */}
-      <section id="gallery" className="py-20 px-4">
+      {/* Work Showcase (Gallery) — IndiaMART product photos */}
+      <section id="gallery" className="py-20 px-4 bg-gradient-to-b from-bg-cloud/80 to-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <span className="text-xs font-bold text-machine-orange uppercase tracking-widest">06 — Gallery</span>
-            <h2 className="text-3xl font-extrabold text-navy mt-2">Our Recent Work</h2>
+            <h2 className="text-3xl font-extrabold text-navy mt-2">Product gallery</h2>
+            <p className="text-muted-grey mt-3 max-w-xl mx-auto text-sm">
+              Photos from our IndiaMART catalogue — job work and machined components. Click to open the
+              listing.
+            </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <div key={n} className="group relative aspect-square overflow-hidden rounded-2xl border border-border-grey">
+            {GALLERY_ITEMS.map((item, i) => (
+              <a
+                key={`${item.title}-${i}`}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-border-grey bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"
+              >
                 <img 
-                  src={`https://picsum.photos/seed/part${n}/600/600`} 
-                  alt={`Machined Part ${n}`} 
+                  src={item.src} 
+                  alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4 text-center">
-                  <div className="text-white">
-                    <div className="text-xs font-bold uppercase tracking-widest mb-1">Precision Part</div>
-                    <div className="text-[10px] opacity-80">Material: Aluminum · VMC</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-machine-orange mb-0.5">
+                    {item.category}
+                  </div>
+                  <div className="text-xs font-bold leading-tight">{item.title}</div>
+                  <div className="flex items-center gap-1 mt-1.5 text-[10px] font-semibold opacity-90">
+                    View on IndiaMART <ExternalLink size={10} />
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
