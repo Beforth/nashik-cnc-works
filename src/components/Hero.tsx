@@ -66,14 +66,14 @@ export default function Hero({ city }: { city: CityData }) {
   return (
     <section
       id="home"
-      className="relative pt-32 pb-20 px-4 overflow-hidden bg-gradient-to-b from-bg-cloud via-white to-orange-light/20 min-h-[90vh] flex items-center"
+      className="relative pt-32 pb-20 px-4 overflow-hidden bg-white min-h-[90vh] flex items-center"
       aria-labelledby="hero-main-title"
     >
-      {/* Background Gradients */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,96,10,0.08),transparent_50%)]" aria-hidden />
-      <div className="pointer-events-none absolute -right-24 top-32 h-[500px] w-[500px] rounded-full bg-machine-orange/15 blur-[100px]" aria-hidden />
-      <div className="pointer-events-none absolute -left-32 bottom-20 h-96 w-96 rounded-full bg-steel/10 blur-[80px]" aria-hidden />
-
+      {/* Refined Background Elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40" aria-hidden />
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-machine-orange/5 to-transparent pointer-events-none" aria-hidden />
+      <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-bg-cloud/50 to-transparent pointer-events-none" aria-hidden />
+      
       <div className="relative z-10 mx-auto max-w-7xl w-full">
         <div className="grid items-center gap-16 lg:grid-cols-12 min-h-[500px]">
           {/* LEFT CONTENT (Text Carousel) */}
@@ -110,7 +110,7 @@ export default function Hero({ city }: { city: CityData }) {
                   </h1>
 
                   <p className="mt-6 text-xl font-bold text-navy sm:text-2xl opacity-90 hidden sm:block">
-                    Karan Engineers <span className="text-machine-orange">And Fabrication</span>
+                    Karan Engineers <span className="text-machine-orange">& Fabrication</span>
                   </p>
 
                   {headlineAccent && (

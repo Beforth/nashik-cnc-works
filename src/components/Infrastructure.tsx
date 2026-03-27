@@ -12,7 +12,7 @@ const Infrastructure = () => {
           title="Infrastructure"
           kicker="Advanced Machine Shop"
           description="Equipped with heavy-duty machinery to handle complex geometries and large-scale production runs with absolute consistency."
-          align="left"
+          align="center"
           className="mb-12"
         />
         <div className="grid md:grid-cols-2 gap-12 items-start md:items-center">

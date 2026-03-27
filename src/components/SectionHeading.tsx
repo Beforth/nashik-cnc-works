@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '../lib/utils';
 
 type SectionHeadingProps = {
-  kicker: string;
+  kicker?: string;
   title: string;
   description?: string;
   align?: 'center' | 'left';
@@ -38,21 +38,6 @@ export default function SectionHeading({
         </div>
       ) : null}
 
-      <div className="flex items-center gap-3 mb-4">
-        <span className={cn(
-          "h-2.5 w-2.5 rounded-full shadow-[0_0_12px_rgba(232,96,10,0.8)]",
-          light ? "bg-white" : "bg-machine-orange"
-        )} />
-        <span
-          className={cn(
-            'text-[11px] md:text-xs font-black uppercase tracking-[0.25em]',
-            light ? 'text-white/90' : 'text-machine-orange'
-          )}
-        >
-          {title}
-        </span>
-      </div>
-
       <h2
         className={cn(
           compact
@@ -64,7 +49,7 @@ export default function SectionHeading({
             : 'text-navy'
         )}
       >
-        {kicker}
+        {title}
       </h2>
 
       <div 

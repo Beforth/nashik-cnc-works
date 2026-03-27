@@ -16,17 +16,11 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 py-3",
-      scrolled ? "bg-white/70 backdrop-blur-xl shadow-sm border-b border-white/20" : "bg-transparent"
-    )}>
-      <div className={cn(
-        "max-w-7xl mx-auto flex items-center justify-between transition-all duration-300",
-        scrolled ? "px-2 py-1" : "bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl px-6 py-3"
-      )}>
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl px-6 py-3">
         <Link href="/" className="text-lg md:text-xl font-extrabold text-navy leading-tight flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-machine-orange to-amber flex items-center justify-center text-white text-sm">KE</div>
-          <span>Karan Engineers <span className="text-machine-orange block sm:inline text-sm sm:text-lg">And Fabrications</span></span>
+          <span>Karan Engineers <span className="text-machine-orange block sm:inline text-sm sm:text-lg">& Fabrication</span></span>
         </Link>
 
         {/* Desktop Links */}

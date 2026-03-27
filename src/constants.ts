@@ -1,4 +1,17 @@
-import { Wrench, Settings, Cog, Factory } from 'lucide-react';
+import { 
+  Wrench, 
+  Settings, 
+  Cog, 
+  Factory, 
+  Zap, 
+  Car, 
+  Cpu, 
+  Layers, 
+  Building2, 
+  ClipboardCheck, 
+  Construction, 
+  Dna 
+} from 'lucide-react';
 
 export interface CityData {
   id: string;
@@ -25,6 +38,8 @@ export const COMPANY = {
   /** IndiaMART Open Graph / listing summary */
   listingSummary:
     'Job work, machined components & turning machine job — service provider from Nashik, Maharashtra, India.',
+  googleMapsUrl:
+    'https://www.google.com/maps/place/Karan+Engineers+%26+Fabrication+-+CNC+VMC+MACHINING+Jobwork+Nashik/@19.9597879,73.7467695,1640m/data=!3m1!1e3!4m6!3m5!1s0x3bddeca9b8ef1663:0x1bec7d08fd8b7fec!8m2!3d19.9585443!4d73.7463225!16s%2Fg%2F11f37gyxrq?entry=ttu&g_ep=EgoyMDI2MDMyMy4xIKXMDSoASAFQAw%3D%3D',
 } as const;
 
 /** Product photos from IndiaMART listing (5.imimg.com). Source: https://www.indiamart.com/dinesh-eng/ */
@@ -132,7 +147,7 @@ export const CITIES: CityData[] = [
     slug: 'cnc-job-work-nashik',
     title: 'Job Work & Machined Components in Nashik',
     description:
-      'Karan Engineers And Fabrication, Nashik — service provider of turning, milling, and CNC machine job work; machined components for power sector, automobile industry, CNC turned parts, bush, and more.',
+      'Karan Engineers & Fabrication, Nashik — service provider of turning, milling, and CNC machine job work; machined components for power sector, automobile industry, CNC turned parts, bush, and more.',
   },
   {
     id: 'pune',
@@ -216,14 +231,14 @@ export const MACHINES = [
 ];
 
 export const INDUSTRIES = [
-  'Power sector',
-  'Automobile industry',
-  'CNC turned components',
-  'Bush & clamp shaft',
-  'Factory / manufacturing',
-  'Works contract',
-  'Industrial plant & equipment',
-  'General engineering',
+  { name: 'Power sector', icon: Zap },
+  { name: 'Automobile industry', icon: Car },
+  { name: 'CNC turned components', icon: Cpu },
+  { name: 'Bush & clamp shaft', icon: Layers },
+  { name: 'Factory / manufacturing', icon: Factory },
+  { name: 'Works contract', icon: ClipboardCheck },
+  { name: 'Industrial plant & equipment', icon: Building2 },
+  { name: 'General engineering', icon: Construction },
 ];
 
 export const STEPS = [

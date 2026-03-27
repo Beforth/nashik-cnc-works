@@ -100,17 +100,21 @@ const HomePage = ({ slug }: HomePageProps) => {
             light
           />
           <div className="flex flex-wrap justify-center gap-4">
-            {INDUSTRIES.map((ind, i) => (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-                key={i}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 rounded-full text-sm font-semibold"
-              >
-                {ind}
-              </motion.div>
-            ))}
+            {INDUSTRIES.map((ind, i) => {
+              const Icon = ind.icon;
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  key={i}
+                  className="bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 rounded-full text-sm font-semibold flex items-center gap-2 group hover:bg-white/20 transition-colors cursor-default"
+                >
+                  <Icon size={18} className="text-machine-orange group-hover:scale-110 transition-transform" />
+                  {ind.name}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
