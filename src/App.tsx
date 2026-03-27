@@ -49,14 +49,6 @@ const Infrastructure = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-start md:items-center">
           <div>
-            <SectionHeading
-              align="left"
-              className="md:mb-10"
-              kicker="Infrastructure"
-              title="Advanced machine shop"
-              description={`${COMPANY.natureOfBusiness}; ${COMPANY.legalStatus.toLowerCase()} firm. Annual turnover ${COMPANY.annualTurnover}. We undertake turning, milling, and CNC machine job work and supply machined components to industrial buyers.`}
-            />
-
             <div className="space-y-4">
               {MACHINES.map((m, i) => (
                 <div key={i} className="flex items-start gap-4 p-4 bg-white border border-border-grey rounded-xl">
@@ -104,12 +96,6 @@ const Infrastructure = () => {
 const HsnCodes = () => (
   <section id="hsn" className="py-20 px-4 bg-white border-y border-border-grey">
     <div className="max-w-7xl mx-auto">
-      <SectionHeading
-        // topIcon={<Hash size={26} className="text-machine-orange md:w-7 md:h-7" strokeWidth={2} />}
-        kicker="HSN & compliance"
-        title="Deals in HSN code"
-        description="HSN classifications as listed on our IndiaMART profile — helpful for buyers, GST, and industrial procurement."
-      />
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {HSN_CODES.map((row) => (
           <motion.div
@@ -132,8 +118,6 @@ const HowItWorks = () => {
   return (
     <section id="process" className="py-20 px-4 bg-bg-steel/30">
       <div className="max-w-7xl mx-auto">
-        <SectionHeading kicker="Process" title="How we work" />
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {STEPS.map((step) => (
             <div key={step.num} className="relative bg-white border-2 border-border-grey rounded-2xl p-8">
@@ -162,12 +146,6 @@ const EnquiryForm = () => {
   return (
     <section id="enquiry" className="py-20 px-4">
       <div className="max-w-3xl mx-auto">
-        <SectionHeading
-          kicker="Enquiry"
-          title="Get a free quote"
-          description="Upload your drawing and get a response within 24 hours."
-          className="mb-10"
-        />
         <div className="bg-white border-2 border-border-grey rounded-3xl p-8 md:p-12 shadow-xl">
           {status === 'success' ? (
             <motion.div
@@ -189,46 +167,46 @@ const EnquiryForm = () => {
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-navy ml-1">Your Name *</label>
-                  <input required type="text" placeholder="e.g. Raju Patil" className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all" />
+              <div className="grid md:grid-cols-2 gap-6 pt-3">
+                <div className="relative">
+                  <input required type="text" id="name" placeholder=" " className="block w-full px-4 py-3.5 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors" />
+                  <label htmlFor="name" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Your Name *</label>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-navy ml-1">Phone Number *</label>
-                  <input required type="tel" placeholder="e.g. 98765 43210" className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all" />
+                <div className="relative">
+                  <input required type="tel" id="phone" placeholder=" " className="block w-full px-4 py-3.5 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors" />
+                  <label htmlFor="phone" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Phone Number *</label>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-navy ml-1">Email (Optional)</label>
-                <input type="email" placeholder="yourname@email.com" className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all" />
+              <div className="relative">
+                <input type="email" id="email" placeholder=" " className="block w-full px-4 py-3.5 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors" />
+                <label htmlFor="email" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Email (Optional)</label>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-navy ml-1">Material</label>
-                  <select className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all bg-white">
-                    <option>Select material...</option>
-                    <option>MS Steel</option>
-                    <option>Stainless Steel</option>
-                    <option>Aluminum</option>
-                    <option>Brass</option>
-                    <option>Other</option>
+                <div className="relative">
+                  <select id="material" defaultValue="" className="block w-full px-4 py-3.5 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors">
+                    <option value="" disabled hidden>Select material...</option>
+                    <option value="MS Steel">MS Steel</option>
+                    <option value="Stainless Steel">Stainless Steel</option>
+                    <option value="Aluminum">Aluminum</option>
+                    <option value="Brass">Brass</option>
+                    <option value="Other">Other</option>
                   </select>
+                  <label htmlFor="material" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-focus:text-machine-orange pointer-events-none">Material</label>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-navy ml-1">Quantity</label>
-                  <input type="number" placeholder="e.g. 100 pcs" className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all" />
+                <div className="relative">
+                  <input type="number" id="qty" placeholder=" " className="block w-full px-4 py-3.5 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors" />
+                  <label htmlFor="qty" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Quantity</label>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-navy ml-1">Message / Requirements</label>
-                <textarea rows={4} placeholder="Describe your part requirement..." className="w-full px-4 py-3 border-2 border-border-grey rounded-xl focus:border-machine-orange outline-none transition-all resize-none"></textarea>
+              <div className="relative">
+                <textarea rows={4} id="reqs" placeholder=" " className="block w-full px-4 py-4 text-navy bg-transparent border-2 border-border-grey rounded-xl appearance-none focus:outline-none focus:border-machine-orange peer transition-colors resize-none"></textarea>
+                <label htmlFor="reqs" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-3 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-6 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Message / Requirements</label>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mt-2">
                 <label className="text-sm font-bold text-navy ml-1">Upload Drawing (PDF, DXF, JPG)</label>
                 <div className="relative border-2 border-dashed border-border-grey rounded-xl p-8 text-center hover:border-machine-orange transition-all cursor-pointer">
                   <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
@@ -449,12 +427,6 @@ const HomePage = () => {
       <section id="industries" className="py-20 px-4 bg-navy text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-machine-orange/10 rounded-full -mr-32 -mt-32 blur-3xl" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <SectionHeading
-            light
-            kicker="Industries"
-            title="Sectors we serve"
-            description="Job work and machined components for power, automotive, engineering, and allied industries."
-          />
           <div className="flex flex-wrap justify-center gap-4">
             {INDUSTRIES.map((ind, i) => (
               <motion.div
@@ -478,12 +450,6 @@ const HomePage = () => {
       {/* Work Showcase (Gallery) — IndiaMART product photos */}
       <section id="gallery" className="py-20 px-4 bg-gradient-to-b from-bg-cloud/80 to-white">
         <div className="max-w-7xl mx-auto">
-          <SectionHeading
-            kicker="Gallery"
-            title="Product gallery"
-            description="Photos of our job work and machined components. Click to get a direct quote securely on WhatsApp."
-            className="mb-12 md:mb-14"
-          />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {GALLERY_ITEMS.map((item, i) => (
               <a

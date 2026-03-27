@@ -25,7 +25,7 @@ export default function Navbar() {
       )}>
         <Link to="/" className="text-lg md:text-xl font-extrabold text-navy leading-tight flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-machine-orange to-amber flex items-center justify-center text-white text-sm">KE</div>
-          <span>Karan Engineers <span className="text-machine-orange block sm:inline text-sm sm:text-lg">And Fab.</span></span>
+          <span>Karan Engineers <span className="text-machine-orange block sm:inline text-sm sm:text-lg">And Fabrications</span></span>
         </Link>
 
         {/* Desktop Links */}
@@ -38,7 +38,7 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:block">
-          <a href="#enquiry" className="bg-navy text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-machine-orange transition-colors shadow-sm">
+          <a href="#enquiry" className="bg-machine-orange text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-navy transition-colors shadow-sm">
             Get Quote
           </a>
         </div>

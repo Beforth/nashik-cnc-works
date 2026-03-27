@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, MapPin, ArrowRight, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShieldCheck, MapPin, PlayCircle } from 'lucide-react';
 import { COMPANY, CityData, GALLERY_ITEMS } from '../constants';
 import { cn } from '../lib/utils';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -59,9 +59,6 @@ export default function Hero({ city }: { city: CityData }) {
     }, 5000);
     return () => clearInterval(timer);
   }, []);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? SLIDES.length - 1 : prev - 1));
 
   const slide = SLIDES[currentSlide];
 
@@ -164,26 +161,6 @@ export default function Hero({ city }: { city: CityData }) {
                     </motion.p>
                   </AnimatePresence>
                 </div>
-              </div>
-
-              {/* Carousel Controls */}
-              <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-30">
-                <button 
-                  onClick={prevSlide}
-                  className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-navy hover:text-machine-orange hover:scale-110 transition-all border border-border-grey"
-                  aria-label="Previous Slide"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-              </div>
-              <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-30">
-                <button 
-                  onClick={nextSlide}
-                  className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-navy hover:text-machine-orange hover:scale-110 transition-all border border-border-grey"
-                  aria-label="Next Slide"
-                >
-                  <ChevronRight size={20} />
-                </button>
               </div>
             </div>
 
