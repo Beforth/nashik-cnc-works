@@ -27,90 +27,60 @@ export default function SectionHeading({
   return (
     <div
       className={cn(
-        'mb-14 md:mb-20',
-        align === 'center' ? 'text-center' : 'text-left',
+        'mb-16 md:mb-24 relative flex flex-col',
+        align === 'center' ? 'items-center text-center' : 'items-start text-left',
         className
       )}
     >
       {topIcon ? (
-        <div
-          className={cn(
-            'mb-5 flex',
-            align === 'center' ? 'justify-center' : 'justify-start'
-          )}
-        >
+        <div className="mb-6 flex">
           {topIcon}
         </div>
       ) : null}
 
-      {align === 'center' ? (
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-3 md:gap-5">
-          <span
-            className={cn(
-              'hidden h-px w-10 rounded-full sm:block md:w-20',
-              light
-                ? 'bg-gradient-to-r from-transparent to-white/45'
-                : 'bg-gradient-to-r from-transparent to-var(--color-machine-orange)/55'
-            )}
-            aria-hidden
-          />
-          <span
-            className={cn(
-              'rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] shadow-sm md:px-5 md:py-2.5 md:text-sm',
-              light
-                ? 'border-white/25 bg-white/10 text-machine-orange'
-                : 'border-machine-orange/20 bg-orange-light/80 text-machine-orange'
-            )}
-          >
-            {kicker}
-          </span>
-          <span
-            className={cn(
-              'hidden h-px w-10 rounded-full sm:block md:w-20',
-              light
-                ? 'bg-gradient-to-l from-transparent to-white/45'
-                : 'bg-gradient-to-l from-transparent to-var(--color-machine-orange)/55'
-            )}
-            aria-hidden
-          />
-        </div>
-      ) : (
-        <div className="mb-5 flex flex-wrap items-center gap-4">
-          <span
-            className="hidden h-1.5 w-14 shrink-0 rounded-full bg-gradient-to-r from-machine-orange to-amber sm:block"
-            aria-hidden
-          />
-          <span
-            className={cn(
-              'text-xs font-bold uppercase tracking-[0.22em] text-machine-orange md:text-sm',
-              compact && 'md:text-xs'
-            )}
-          >
-            {kicker}
-          </span>
-        </div>
-      )}
+      <div className="flex items-center gap-3 mb-4">
+        <span className={cn(
+          "h-2.5 w-2.5 rounded-full shadow-[0_0_12px_rgba(232,96,10,0.8)]",
+          light ? "bg-white" : "bg-machine-orange"
+        )} />
+        <span
+          className={cn(
+            'text-[11px] md:text-xs font-black uppercase tracking-[0.25em]',
+            light ? 'text-white/90' : 'text-machine-orange'
+          )}
+        >
+          {title}
+        </span>
+      </div>
 
       <h2
         className={cn(
           compact
-            ? 'text-3xl font-extrabold sm:text-4xl md:text-[2.65rem]'
-            : 'text-4xl font-extrabold sm:text-5xl md:text-[2.85rem] lg:text-[3.35rem] xl:text-[3.65rem]',
-          'mt-1 leading-[1.06] tracking-tight',
+            ? 'text-3xl font-extrabold sm:text-4xl md:text-5xl'
+            : 'text-4xl font-black sm:text-5xl md:text-[3.5rem]',
+          'leading-[1.1] tracking-tight',
           light
-            ? 'text-white [text-shadow:0_2px_28px_rgba(0,0,0,0.2)]'
+            ? 'text-white drop-shadow-md'
             : 'text-navy'
         )}
       >
-        {title}
+        {kicker}
       </h2>
+
+      <div 
+        className={cn(
+          'h-1.5 rounded-full mt-6 shadow-sm',
+          light ? 'bg-white/80' : 'bg-gradient-to-r from-machine-orange to-amber',
+          align === 'center' ? 'w-24' : 'w-20'
+        )} 
+      />
+
       {description ? (
         <p
           className={cn(
-            'mt-4 text-base leading-relaxed md:mt-5 md:text-lg',
-            align === 'center' && 'mx-auto max-w-2xl',
-            align === 'left' && 'max-w-2xl',
-            light ? 'text-white/90' : 'text-muted-grey'
+            'mt-6 text-base leading-relaxed md:text-lg opacity-90',
+            align === 'center' ? 'max-w-2xl' : 'max-w-xl',
+            light ? 'text-white/80' : 'text-muted-grey'
           )}
         >
           {description}

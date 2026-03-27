@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  CheckCircle2, 
-  ChevronRight, 
-  Menu, 
-  X, 
+import {
+  Phone,
+  Mail,
+  MapPin,
+  CheckCircle2,
+  ChevronRight,
+  Menu,
+  X,
   ArrowRight,
   Settings,
   ShieldCheck,
@@ -69,26 +69,26 @@ const Infrastructure = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
-            <img 
-              src={INDIA_MART_IMAGES.turningAlt} 
-              alt="Turning machine job work" 
+            <img
+              src={INDIA_MART_IMAGES.turningAlt}
+              alt="Turning machine job work"
               className="rounded-2xl border-2 border-border-grey shadow-md aspect-[3/4] object-cover hover:shadow-lg transition-shadow"
               loading="lazy"
               referrerPolicy="no-referrer"
             />
             <div className="flex flex-col gap-4">
-              <img 
-                src={INDIA_MART_IMAGES.milling} 
-                alt="Milling machine job" 
+              <img
+                src={INDIA_MART_IMAGES.milling}
+                alt="Milling machine job"
                 className="rounded-2xl border-2 border-border-grey shadow-md aspect-square object-cover hover:shadow-lg transition-shadow"
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
-              <img 
-                src={INDIA_MART_IMAGES.automobile} 
-                alt="Components for automobile industry" 
+              <img
+                src={INDIA_MART_IMAGES.automobile}
+                alt="Components for automobile industry"
                 className="rounded-2xl border-2 border-border-grey shadow-md aspect-square object-cover hover:shadow-lg transition-shadow"
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -170,7 +170,7 @@ const EnquiryForm = () => {
         />
         <div className="bg-white border-2 border-border-grey rounded-3xl p-8 md:p-12 shadow-xl">
           {status === 'success' ? (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="text-center py-12"
@@ -180,7 +180,7 @@ const EnquiryForm = () => {
               </div>
               <h3 className="text-3xl font-extrabold text-navy sm:text-4xl">Enquiry Sent!</h3>
               <p className="text-muted-grey mt-2">We will get back to you shortly.</p>
-              <button 
+              <button
                 onClick={() => setStatus('idle')}
                 className="mt-8 text-machine-orange font-bold underline"
               >
@@ -242,8 +242,8 @@ const EnquiryForm = () => {
                 <span className="flex items-center gap-1"><ShieldCheck size={14} /> Confidential drawings</span>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={status === 'sending'}
                 className="w-full bg-machine-orange text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70"
               >
@@ -323,7 +323,7 @@ const Footer = () => {
               </a>
             </p>
           </div>
-          
+
           <div>
             <h4 className="mb-6 text-lg font-extrabold text-navy sm:text-xl">Quick Links</h4>
             <ul className="space-y-3 text-sm text-muted-grey">
@@ -356,12 +356,26 @@ const Footer = () => {
 
 const StickyActions = () => {
   return (
-    <div className="fixed bottom-6 left-4 right-4 z-40 flex gap-3 md:hidden">
-      <a href="tel:+919876543210" className="flex-1 bg-steel text-white font-bold py-4 rounded-xl shadow-2xl flex items-center justify-center gap-2">
-        <Phone size={20} /> Call Now
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
+      <a
+        href="tel:+919876543210"
+        className="group relative w-14 h-14 bg-navy text-white rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.25)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_20px_rgba(10,37,64,0.4)] transition-all duration-300"
+        aria-label="Call Us"
+      >
+        <span className="absolute right-full mr-4 bg-white text-navy text-sm font-bold px-3 py-1.5 rounded-lg shadow-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
+          Call Us
+        </span>
+        <Phone size={24} />
       </a>
-      <a href="https://wa.me/919876543210" className="flex-1 bg-[#25D366] text-white font-bold py-4 rounded-xl shadow-2xl flex items-center justify-center gap-2">
-        <WhatsAppIcon size={20} /> WhatsApp
+      <a
+        href="https://wa.me/919876543210"
+        className="group relative w-14 h-14 bg-[#25D366] text-white rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.25)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_20px_rgba(37,211,102,0.4)] transition-all duration-300"
+        aria-label="WhatsApp Us"
+      >
+        <span className="absolute right-full mr-4 bg-white text-navy text-sm font-bold px-3 py-1.5 rounded-lg shadow-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
+          WhatsApp Us
+        </span>
+        <WhatsAppIcon size={28} />
       </a>
     </div>
   );
@@ -372,7 +386,7 @@ const StickyActions = () => {
 const HomePage = () => {
   const { slug } = useParams();
   const location = useLocation();
-  
+
   // Find city based on slug or default to Nashik
   const city = CITIES.find(c => c.slug === slug) || CITIES[0];
 
@@ -384,7 +398,7 @@ const HomePage = () => {
     <div className="min-h-screen">
       <Navbar />
       <Hero city={city} />
-      
+
       {/* Highlights Strip (Mobile Only or additional) */}
       <section id="highlights" className="md:hidden px-4 mb-12" aria-labelledby="highlights-heading">
         <div className="mb-8 text-center">
@@ -430,7 +444,7 @@ const HomePage = () => {
 
       <Services />
       <Infrastructure />
-      
+
       {/* Industries Served */}
       <section id="industries" className="py-20 px-4 bg-navy text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-machine-orange/10 rounded-full -mr-32 -mt-32 blur-3xl" />
@@ -443,11 +457,11 @@ const HomePage = () => {
           />
           <div className="flex flex-wrap justify-center gap-4">
             {INDUSTRIES.map((ind, i) => (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.05 }}
-                key={i} 
+                key={i}
                 className="bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 rounded-full text-sm font-semibold"
               >
                 {ind}
@@ -460,28 +474,28 @@ const HomePage = () => {
       <HsnCodes />
 
       <HowItWorks />
-      
+
       {/* Work Showcase (Gallery) — IndiaMART product photos */}
       <section id="gallery" className="py-20 px-4 bg-gradient-to-b from-bg-cloud/80 to-white">
         <div className="max-w-7xl mx-auto">
           <SectionHeading
             kicker="Gallery"
             title="Product gallery"
-            description="Photos from our IndiaMART catalogue — job work and machined components. Click to open the listing."
+            description="Photos of our job work and machined components. Click to get a direct quote securely on WhatsApp."
             className="mb-12 md:mb-14"
           />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {GALLERY_ITEMS.map((item, i) => (
               <a
                 key={`${item.title}-${i}`}
-                href={item.href}
+                href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-border-grey bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"
+                className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-machine-orange/20 bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"
               >
-                <img 
-                  src={item.src} 
-                  alt={item.title} 
+                <img
+                  src={item.src}
+                  alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                   referrerPolicy="no-referrer"
@@ -492,8 +506,8 @@ const HomePage = () => {
                     {item.category}
                   </div>
                   <div className="text-xs font-bold leading-tight">{item.title}</div>
-                  <div className="flex items-center gap-1 mt-1.5 text-[10px] font-semibold opacity-90">
-                    View on IndiaMART <ExternalLink size={10} />
+                  <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-white/20 text-[10px] font-bold uppercase tracking-widest text-[#25D366] group-hover:text-white transition-colors">
+                    Get best quote <WhatsAppIcon size={12} />
                   </div>
                 </div>
               </a>

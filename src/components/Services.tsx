@@ -17,7 +17,9 @@ export default function Services() {
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {SERVICES.map((svc, i) => (
+          {SERVICES.map((svc, i) => {
+            const Icon = svc.icon as React.ElementType;
+            return (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -35,8 +37,8 @@ export default function Services() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute top-4 left-4 w-12 h-12 bg-white/95 backdrop-blur-xl rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-white/50 group-hover:scale-110 transition-transform duration-300">
-                  {svc.icon}
+                <div className="absolute top-4 left-4 w-12 h-12 bg-white/95 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-lg border border-white/50 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="w-6 h-6 text-navy group-hover:text-machine-orange transition-colors" />
                 </div>
               </div>
               <div className="p-6 flex-1 flex flex-col bg-white">
@@ -52,7 +54,8 @@ export default function Services() {
                 </a>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

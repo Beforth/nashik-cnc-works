@@ -1,3 +1,5 @@
+import { Wrench, Settings, Cog, Factory } from 'lucide-react';
+
 export interface CityData {
   id: string;
   name: string;
@@ -161,7 +163,7 @@ export const CITIES: CityData[] = [
 export const SERVICES = [
   {
     id: 'turning',
-    icon: '🔧',
+    icon: Wrench,
     name: 'Turning Machine Job',
     image: INDIA_MART_IMAGES.turning,
     description:
@@ -169,7 +171,7 @@ export const SERVICES = [
   },
   {
     id: 'milling',
-    icon: '🔩',
+    icon: Cog,
     name: 'Milling Machine Job',
     image: INDIA_MART_IMAGES.milling,
     description:
@@ -177,7 +179,7 @@ export const SERVICES = [
   },
   {
     id: 'cnc',
-    icon: '⚙️',
+    icon: Settings,
     name: 'CNC Machine Job',
     image: INDIA_MART_IMAGES.cncJob,
     description:
@@ -185,7 +187,7 @@ export const SERVICES = [
   },
   {
     id: 'components',
-    icon: '🏗️',
+    icon: Factory,
     name: 'Machined Components',
     image: INDIA_MART_IMAGES.powerSector,
     description:
