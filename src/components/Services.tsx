@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { motion } from 'motion/react';
 import { ExternalLink } from 'lucide-react';
@@ -10,6 +11,12 @@ export default function Services() {
     <section id="services" className="py-24 px-4 bg-bg-steel/30 relative">
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-machine-orange/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="max-w-7xl mx-auto relative z-10">
+        <SectionHeading
+          title="Expertise"
+          kicker="Our Machining Expertise"
+          description="High-precision job work and component manufacturing with industry-leading CNC, VMC, and turning technology."
+          align="center"
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {SERVICES.map((svc, i) => {
             const Icon = svc.icon as React.ElementType;

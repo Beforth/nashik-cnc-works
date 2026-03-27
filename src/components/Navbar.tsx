@@ -1,5 +1,6 @@
+'use client';
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -23,7 +24,7 @@ export default function Navbar() {
         "max-w-7xl mx-auto flex items-center justify-between transition-all duration-300",
         scrolled ? "px-2 py-1" : "bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl px-6 py-3"
       )}>
-        <Link to="/" className="text-lg md:text-xl font-extrabold text-navy leading-tight flex items-center gap-2">
+        <Link href="/" className="text-lg md:text-xl font-extrabold text-navy leading-tight flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-machine-orange to-amber flex items-center justify-center text-white text-sm">KE</div>
           <span>Karan Engineers <span className="text-machine-orange block sm:inline text-sm sm:text-lg">And Fabrications</span></span>
         </Link>
