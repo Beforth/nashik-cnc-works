@@ -69,26 +69,23 @@ export default function Hero({ city }: { city: CityData }) {
       className="relative pt-32 pb-20 px-4 overflow-hidden bg-white min-h-[90vh] flex items-center"
       aria-labelledby="hero-main-title"
     >
-      {/* --- Elegant Professional Background --- */}
-      <div className="absolute inset-0 bg-bg-cloud/20" aria-hidden />
-      
-      {/* Soft Slow-Moving Blobs */}
-      <motion.div 
-        animate={{ 
-          x: [0, 40, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-machine-orange/[0.04] rounded-full blur-[100px] pointer-events-none" 
-      />
-      <motion.div 
-        animate={{ 
-          x: [0, -30, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[0%] left-[-5%] w-[700px] h-[700px] bg-navy/[0.03] rounded-full blur-[130px] pointer-events-none" 
-      />
+      {/* --- SVG Background Pattern --- */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4]" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 1440 560">
+            <g mask="url(#SvgjsMask1002)" fill="none">
+                <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+                <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+                <path d="M1478.41 460.15C1335.73 457.11 1173.73 280.32 942.27 264.15 710.81 247.98 766.36 18.37 674.2-3.08" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+                <path d="M1691.59 371.9C1510.53 369.11 1278.77 154.3 1002.79 147.9 726.81 141.5 753.84-13.51 658.39-17.74" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+                <path d="M1662.34 244.57C1530.84 247.05 1422.24 420.25 1165.73 418.17 909.22 416.09 831.02 15.66 669.12-12.98" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+            </g>
+            <defs>
+                <mask id="SvgjsMask1002">
+                    <rect width="1440" height="560" fill="#ffffff"></rect>
+                </mask>
+            </defs>
+        </svg>
+      </div>
 
       {/* Engineering Dot Grid */}
       <div 
