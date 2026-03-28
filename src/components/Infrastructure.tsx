@@ -86,7 +86,7 @@ const Infrastructure = () => {
 
           {/* RIGHT: Dynamic Blueprint Display */}
           <div className="lg:col-span-7 mt-8 lg:mt-0">
-            <div className="relative h-full min-h-[450px] bg-navy rounded-[2.5rem] overflow-hidden shadow-2xl border-[8px] border-white">
+            <div className="relative h-full min-h-[450px] bg-navy rounded-[2.5rem] overflow-hidden shadow-2xl">
               {/* Technical Grid Overlay */}
               <div className="absolute inset-0 opacity-[0.15] pointer-events-none" 
                    style={{ backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`, backgroundSize: '30px 30px' }} />
