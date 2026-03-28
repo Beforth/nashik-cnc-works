@@ -11,6 +11,7 @@ import {
   CITIES,
   INDUSTRIES,
   GALLERY_ITEMS,
+  COMPANY,
 } from '../constants';
 
 import Navbar from './Navbar';
@@ -136,7 +137,7 @@ const HomePage = ({ slug }: HomePageProps) => {
             {GALLERY_ITEMS.map((item, i) => (
               <a
                 key={`${item.title}-${i}`}
-                href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
+                href={`https://wa.me/91${COMPANY.phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-machine-orange/20 bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"

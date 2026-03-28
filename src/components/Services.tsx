@@ -43,7 +43,7 @@ export default function Services() {
                 <h3 className="mb-3 text-xl font-extrabold text-navy sm:text-2xl group-hover:text-machine-orange transition-colors">{svc.name}</h3>
                 <p className="text-sm text-muted-grey leading-relaxed flex-1">{svc.description}</p>
                 <a
-                  href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello, I would like to get a quote for ${svc.name}.`)}`}
+                  href={`https://wa.me/91${COMPANY.phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${svc.name}.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-black hover:underline uppercase tracking-wide cursor-pointer"

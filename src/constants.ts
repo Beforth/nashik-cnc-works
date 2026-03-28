@@ -32,6 +32,8 @@ export const COMPANY = {
   yearsOnIndiaMART: '10+',
   jobWorkProductCount: 11,
   machinedComponentCount: 10,
+  phone: '9423928362',
+  phoneFormatted: '+91 94239 28362',
   indiaMartUrl: 'https://www.indiamart.com/dinesh-eng/',
   tagline:
     'Manufacturer of job work & machined components in Nashik, Maharashtra.',
