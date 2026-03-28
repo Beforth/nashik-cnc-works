@@ -38,9 +38,6 @@ export default function Services() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute top-4 left-4 w-12 h-12 bg-white/95 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-lg border border-white/50 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="w-6 h-6 text-navy group-hover:text-machine-orange transition-colors" />
-                </div>
               </div>
               <div className="p-6 flex-1 flex flex-col bg-white">
                 <h3 className="mb-3 text-xl font-extrabold text-navy sm:text-2xl group-hover:text-machine-orange transition-colors">{svc.name}</h3>
@@ -49,7 +46,7 @@ export default function Services() {
                   href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello, I would like to get a quote for ${svc.name}.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-machine-orange hover:underline uppercase tracking-wide cursor-pointer"
+                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-black hover:underline uppercase tracking-wide cursor-pointer"
                 >
                   Get best quote <WhatsAppIcon size={14} />
                 </a>

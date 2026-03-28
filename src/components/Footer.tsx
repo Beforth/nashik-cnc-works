@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, MapPin } from 'lucide-react';
 import { COMPANY, CITIES } from '../constants';
 
 const Footer = () => {
@@ -23,35 +22,6 @@ const Footer = () => {
             <p className="text-xs text-muted-grey mt-3 font-mono">
               GSTIN: {COMPANY.gstin} · Reg. {COMPANY.gstRegistrationDate}
             </p>
-            <div className="flex gap-4 mt-8">
-              <a
-                href={COMPANY.indiaMartUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-bg-steel rounded-lg flex items-center justify-center text-navy hover:bg-machine-orange hover:text-white transition-all"
-                title="IndiaMART — Karan Engineers & Fabrication"
-              >
-                <Phone size={18} />
-              </a>
-              <a
-                href={`${COMPANY.indiaMartUrl}enquiry.html`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-bg-steel rounded-lg flex items-center justify-center text-navy hover:bg-machine-orange hover:text-white transition-all"
-                title="Enquiry on IndiaMART"
-              >
-                <Mail size={18} />
-              </a>
-              <a
-                href={COMPANY.googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-bg-steel rounded-lg flex items-center justify-center text-navy hover:bg-machine-orange hover:text-white transition-all"
-                title="Nashik, Maharashtra"
-              >
-                <MapPin size={18} />
-              </a>
-            </div>
           </div>
 
           <div>

@@ -69,10 +69,59 @@ export default function Hero({ city }: { city: CityData }) {
       className="relative pt-32 pb-20 px-4 overflow-hidden bg-white min-h-[90vh] flex items-center"
       aria-labelledby="hero-main-title"
     >
-      {/* Refined Background Elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40" aria-hidden />
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-machine-orange/5 to-transparent pointer-events-none" aria-hidden />
-      <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-bg-cloud/50 to-transparent pointer-events-none" aria-hidden />
+      {/* --- Elegant Professional Background --- */}
+      <div className="absolute inset-0 bg-bg-cloud/20" aria-hidden />
+      
+      {/* Soft Slow-Moving Blobs */}
+      <motion.div 
+        animate={{ 
+          x: [0, 40, 0],
+          y: [0, 30, 0],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-machine-orange/[0.04] rounded-full blur-[100px] pointer-events-none" 
+      />
+      <motion.div 
+        animate={{ 
+          x: [0, -30, 0],
+          y: [0, 50, 0],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[0%] left-[-5%] w-[700px] h-[700px] bg-navy/[0.03] rounded-full blur-[130px] pointer-events-none" 
+      />
+
+      {/* Engineering Dot Grid */}
+      <div 
+        className="absolute inset-0 opacity-[0.25]" 
+        style={{ 
+          backgroundImage: `radial-gradient(#cbd5e1 1.5px, transparent 1.5px)`,
+          backgroundSize: '40px 40px'
+        }} 
+        aria-hidden 
+      />
+      
+      {/* Subtle Precision Lines */}
+      <div className="absolute top-[20%] left-0 w-full h-px bg-gradient-to-r from-transparent via-border-grey/40 to-transparent opacity-60" />
+      <div className="absolute top-[80%] left-0 w-full h-px bg-gradient-to-r from-transparent via-border-grey/40 to-transparent opacity-60" />
+      <div className="absolute left-[15%] top-0 w-px h-full bg-gradient-to-b from-transparent via-border-grey/40 to-transparent opacity-60" />
+
+      {/* Pulsing Precision Markers */}
+      {[...Array(3)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{ opacity: [0.1, 0.4, 0.1], scale: [1, 1.2, 1] }}
+          transition={{ duration: 5, repeat: Infinity, delay: i * 1.5 }}
+          className="absolute w-2 h-2 rounded-full bg-machine-orange/30 hidden lg:block"
+          style={{ 
+            left: `${25 + i * 25}%`, 
+            top: `${30 + (i % 2) * 40}%` 
+          }}
+        />
+      ))}
+
+      {/* Fade Overlays */}
+      <div className="absolute top-0 left-0 w-full h-1/4 bg-gradient-to-b from-white via-transparent to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-white via-transparent to-transparent pointer-events-none" />
       
       <div className="relative z-10 mx-auto max-w-7xl w-full">
         <div className="grid items-center gap-16 lg:grid-cols-12 min-h-[500px]">

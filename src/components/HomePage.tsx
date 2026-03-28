@@ -119,15 +119,15 @@ const HomePage = ({ slug }: HomePageProps) => {
         </div>
       </section>
 
-      <HsnCodes />
+      {/* <HsnCodes /> */}
 
       <HowItWorks />
 
-      {/* Work Showcase (Gallery) — IndiaMART product photos */}
+      {/* Jobs Gallery (Gallery) — IndiaMART product photos */}
       <section id="gallery" className="py-24 px-4 bg-gradient-to-b from-bg-cloud/80 to-white">
         <div className="max-w-7xl mx-auto">
           <SectionHeading
-            title="Work Showcase"
+            title="Jobs Gallery"
             kicker="Product Gallery"
             description="A glimpse of our precision-engineered components, custom fabricated parts, and high-quality machining work."
             align="center"
@@ -154,8 +154,8 @@ const HomePage = ({ slug }: HomePageProps) => {
                     {item.category}
                   </div>
                   <div className="text-xs font-bold leading-tight">{item.title}</div>
-                  <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-white/20 text-[10px] font-bold uppercase tracking-widest text-[#25D366] group-hover:text-white transition-colors">
-                    Get best quote <WhatsAppIcon size={12} />
+                  <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-white/20 text-[10px] font-bold uppercase tracking-widest text-white transition-colors">
+                    Get best quote <WhatsAppIcon size={12} className="text-[#25D366]" />
                   </div>
                 </div>
               </a>
