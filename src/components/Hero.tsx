@@ -66,12 +66,12 @@ export default function Hero({ city }: { city: CityData }) {
   return (
     <section
       id="home"
-      className="relative pt-32 pb-20 px-4 overflow-hidden bg-white min-h-[90vh] flex items-center"
+      className="relative pt-28 pb-12 sm:pt-32 sm:pb-20 px-4 overflow-hidden bg-white sm:bg-white bg-[radial-gradient(circle_at_top_right,#FFF0E8_0%,transparent_40%),radial-gradient(circle_at_bottom_left,#EEF1F6_0%,transparent_40%)] min-h-[90vh] flex items-center"
       aria-labelledby="hero-main-title"
     >
       {/* --- SVG Background Pattern --- */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4]" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 1440 560">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.2] sm:opacity-[0.4]" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 560">
             <g mask="url(#SvgjsMask1002)" fill="none">
                 <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
                 <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
@@ -89,10 +89,10 @@ export default function Hero({ city }: { city: CityData }) {
 
       {/* Engineering Dot Grid */}
       <div 
-        className="absolute inset-0 opacity-[0.25]" 
+        className="absolute inset-0 opacity-[0.15] sm:opacity-[0.25]" 
         style={{ 
           backgroundImage: `radial-gradient(#cbd5e1 1.5px, transparent 1.5px)`,
-          backgroundSize: '40px 40px'
+          backgroundSize: '30px 30px'
         }} 
         aria-hidden 
       />

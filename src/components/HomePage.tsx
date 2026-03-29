@@ -1,12 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
-import {
-  ShieldCheck,
-  Zap,
-  Clock,
-  Settings,
-} from 'lucide-react';
+
 import {
   CITIES,
   INDUSTRIES,
@@ -43,48 +38,7 @@ const HomePage = ({ slug }: HomePageProps) => {
       <Navbar />
       <Hero city={city} />
 
-      {/* Highlights Strip (Mobile Only or additional) */}
-      <section id="highlights" className="md:hidden px-4 mb-12" aria-labelledby="highlights-heading">
-        <div className="mb-8 text-center">
-          <div className="mb-4 flex items-center justify-center gap-3">
-            <span
-              className="hidden h-px w-8 bg-gradient-to-r from-transparent to-machine-orange/55 sm:block md:w-14"
-              aria-hidden
-            />
-            <span className="rounded-full border border-machine-orange/20 bg-orange-light/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-machine-orange">
-              At a glance
-            </span>
-            <span
-              className="hidden h-px w-8 bg-gradient-to-l from-transparent to-machine-orange/55 sm:block md:w-14"
-              aria-hidden
-            />
-          </div>
-          <h2
-            id="highlights-heading"
-            className="text-2xl font-extrabold leading-tight tracking-tight text-navy sm:text-3xl md:text-4xl"
-          >
-            Why work with us
-          </h2>
-        </div>
-        <div className="bg-white border border-border-grey rounded-2xl p-6 grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <Zap className="mx-auto text-machine-orange mb-2" size={20} />
-            <div className="text-xs font-bold text-navy">Fast Turnaround</div>
-          </div>
-          <div className="text-center">
-            <ShieldCheck className="mx-auto text-machine-orange mb-2" size={20} />
-            <div className="text-xs font-bold text-navy">High Precision</div>
-          </div>
-          <div className="text-center">
-            <Clock className="mx-auto text-machine-orange mb-2" size={20} />
-            <div className="text-xs font-bold text-navy">24/7 Support</div>
-          </div>
-          <div className="text-center">
-            <Settings className="mx-auto text-machine-orange mb-2" size={20} />
-            <div className="text-xs font-bold text-navy">Advanced Tech</div>
-          </div>
-        </div>
-      </section>
+
 
       <Services />
       <Infrastructure />
