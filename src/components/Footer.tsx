@@ -44,9 +44,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border-grey pt-10 flex flex-col items-center justify-center gap-6 text-center">
+        <div className="border-t border-border-grey pt-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center">
           <div className="text-xs text-muted-grey">
             © 2025 Karan Engineers & Fabrication, Nashik. All rights reserved.
+          </div>
+          <div className="text-xs text-muted-grey">
+            Made with ❤️ by <span className="text-machine-orange font-bold">Beforth</span>
           </div>
         </div>
       </div>
