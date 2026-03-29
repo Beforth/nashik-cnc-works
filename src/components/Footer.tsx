@@ -49,7 +49,7 @@ const Footer = () => {
             © 2025 Karan Engineers & Fabrication, Nashik. All rights reserved.
           </div>
           <div className="text-xs text-muted-grey">
-            Made with ❤️ by <span className="text-machine-orange font-bold">Beforth</span>
+            Made by <a href="https://www.beforth.in" target="_blank" rel="noopener noreferrer" className="text-machine-orange font-bold hover:underline">Beforth</a>
           </div>
         </div>
       </div>
