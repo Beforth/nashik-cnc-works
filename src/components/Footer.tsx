@@ -46,7 +46,7 @@ const Footer = () => {
 
         <div className="border-t border-border-grey pt-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center">
           <div className="text-xs text-muted-grey">
-            © 2025 Karan Engineers & Fabrication, Nashik. All rights reserved.
+            © {new Date().getFullYear()} Karan Engineers & Fabrication, Nashik. All rights reserved.
           </div>
           <div className="text-xs text-muted-grey">
             Made by <a href="https://www.beforth.in" target="_blank" rel="noopener noreferrer" className="text-machine-orange font-bold hover:underline">Beforth</a>

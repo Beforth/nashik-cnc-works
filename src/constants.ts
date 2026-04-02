@@ -34,9 +34,12 @@ export const COMPANY = {
   machinedComponentCount: 10,
   phone: '9423928362',
   phoneFormatted: '+91 94239 28362',
+  /** Hero / contact line (display format) */
+  contactPhoneDisplay: '+91-9423928362',
+  contactName: 'Mr. Dinesh Khairnar',
+  email: 'mr.dinesheng@gmail.com',
   indiaMartUrl: 'https://www.indiamart.com/dinesh-eng/',
-  tagline:
-    'Manufacturer of job work & machined components in Nashik, Maharashtra.',
+  tagline: 'MIDC Ambad, Nashik, Maharashtra 422010.',
   /** IndiaMART Open Graph / listing summary */
   listingSummary:
     'Job work, machined components & turning machine job — service provider from Nashik, Maharashtra, India.',

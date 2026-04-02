@@ -1,40 +1,54 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, MapPin, PlayCircle } from 'lucide-react';
-import { COMPANY, CityData, GALLERY_ITEMS } from '../constants';
-import { cn } from '../lib/utils';
-import WhatsAppIcon from './WhatsAppIcon';
+import { Mail, MapPin, Phone, User } from 'lucide-react';
+import { COMPANY, CityData } from '../constants';
 
-const SLIDES = [
+const HERO_IMAGES: readonly { src: string; alt: string }[] = [
   {
-    id: 0,
-    title1: 'Precision CNC',
-    highlight: 'Job Work',
-    title2: '& Machined Parts.',
-    desc: `Expertise in turning, milling, and CNC machining. Supplying top-tier components for power, automotive, and general engineering sectors since ${COMPANY.gstRegistrationDate.slice(-4)}.`,
-    image: GALLERY_ITEMS[0].src,
-    imageAlt: GALLERY_ITEMS[0].title,
+    src: '/hero/machined-flange.png',
+    alt: 'Precision machined metal component with coolant and swarf in the workshop',
   },
   {
-    id: 1,
-    title1: 'Advanced',
-    highlight: 'Milling',
-    title2: '& Operations.',
-    desc: 'High-precision milling job work for flats, pockets, slots, and complex prismatic features with repeatable accuracy tailored for industrial buyers.',
-    image: GALLERY_ITEMS[1].src,
-    imageAlt: GALLERY_ITEMS[1].title,
+    src: '/hero/lathe-chuck-workpiece.png',
+    alt: 'Metal workpiece held in a lathe chuck after precision turning',
   },
   {
-    id: 2,
-    title1: 'High-Quality',
-    highlight: 'Components',
-    title2: 'For Industries.',
-    desc: 'Supplying top-tier machined components for the power sector and automobile industry, including CNC turned parts, bushes, and clamp shafts.',
-    image: GALLERY_ITEMS[4].src,
-    imageAlt: GALLERY_ITEMS[4].title,
-  }
+    src: '/hero/cnc-turning-coolant.png',
+    alt: 'CNC lathe turning with coolant spray and metal shavings',
+  },
 ];
+
+const HERO_DISPLAY_NAME = 'Karan Engineers & Fabrication';
+
+/** Styling per character index — keeps gradient spans continuous as text grows */
+function charStyleClass(index: number): string {
+  if (index <= 4) return 'text-navy';
+  if (index === 5) return 'text-navy';
+  if (index >= 6 && index <= 14) {
+    return 'bg-gradient-to-r from-machine-orange to-amber bg-clip-text text-transparent';
+  }
+  if (index === 15) return 'text-navy';
+  if (index === 16) return 'text-machine-orange';
+  if (index === 17) return 'text-navy';
+  if (index >= 18) return 'text-machine-orange';
+  return 'text-navy';
+}
+
+function typedTitleChunks(visibleLength: number): { key: number; className: string; text: string }[] {
+  const slice = HERO_DISPLAY_NAME.slice(0, visibleLength);
+  const chunks: { key: number; className: string; text: string }[] = [];
+  let i = 0;
+  while (i < slice.length) {
+    const start = i;
+    const cls = charStyleClass(start);
+    while (i < slice.length && charStyleClass(i) === cls) {
+      i += 1;
+    }
+    chunks.push({ key: start, className: cls, text: slice.slice(start, i) });
+  }
+  return chunks;
+}
 
 export default function Hero({ city }: { city: CityData }) {
   const servingLine =
@@ -52,16 +66,45 @@ export default function Hero({ city }: { city: CityData }) {
       </>
     ) : null;
 
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [typedLength, setTypedLength] = useState(0);
+  const [heroImageIndex, setHeroImageIndex] = useState(0);
+
+  const titleChunks = useMemo(() => typedTitleChunks(typedLength), [typedLength]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timer);
+    const full = HERO_DISPLAY_NAME.length;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mq.matches) {
+      setTypedLength(full);
+      return;
+    }
+
+    let intervalId: number | undefined;
+    const timeoutId = window.setTimeout(() => {
+      let n = 0;
+      intervalId = window.setInterval(() => {
+        n += 1;
+        setTypedLength((prev) => Math.min(n, full));
+        if (n >= full && intervalId) {
+          window.clearInterval(intervalId);
+          intervalId = undefined;
+        }
+      }, 48);
+    }, 320);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (intervalId) window.clearInterval(intervalId);
+    };
   }, []);
 
-  const slide = SLIDES[currentSlide];
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      setHeroImageIndex((i) => (i + 1) % HERO_IMAGES.length);
+    }, 5500);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <section
@@ -122,7 +165,6 @@ export default function Hero({ city }: { city: CityData }) {
       
       <div className="relative z-10 mx-auto max-w-7xl w-full">
         <div className="grid items-center gap-16 lg:grid-cols-12 min-h-[500px]">
-          {/* LEFT CONTENT (Text Carousel) */}
           <div className="lg:col-span-7 relative">
             <p className="mt-2 mb-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-grey">
               <MapPin size={18} className="text-machine-orange" />
@@ -131,100 +173,105 @@ export default function Hero({ city }: { city: CityData }) {
               <span className="font-mono text-xs font-bold text-navy bg-navy/5 px-2 py-1 rounded-md">GST {COMPANY.gstin}</span>
             </p>
 
-            <div className="min-h-[380px] sm:min-h-[320px] md:min-h-[280px] lg:min-h-[340px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentSlide}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full"
+            <div className="min-h-[320px] sm:min-h-[300px] md:min-h-[280px] lg:min-h-[360px]">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full"
+              >
+                <h1
+                  id="hero-main-title"
+                  aria-label={HERO_DISPLAY_NAME}
+                  className="text-5xl font-extrabold leading-[1.2] tracking-wide sm:text-6xl sm:tracking-wider lg:text-[4rem] xl:text-[4.5rem]"
                 >
-                  <h1
-                    id="hero-main-title"
-                    className="text-5xl font-extrabold leading-[1.1] tracking-tight text-navy sm:text-6xl lg:text-[4rem] xl:text-[4.5rem]"
-                  >
-                    {slide.title1}{' '}
-                    <span className="relative inline-block">
-                      <span className="bg-gradient-to-r from-machine-orange to-amber bg-clip-text text-transparent">
-                        {slide.highlight}
+                  <span className="inline-flex flex-wrap items-end gap-x-2 gap-y-1 sm:gap-x-3 sm:gap-y-1.5">
+                    {titleChunks.map(({ key, className, text }) => (
+                      <span key={key} className={className}>
+                        {text}
                       </span>
-                    </span>{' '}
-                    <br className="hidden sm:block" />
-                    {slide.title2}
-                  </h1>
+                    ))}
+                    {typedLength < HERO_DISPLAY_NAME.length ? (
+                      <span
+                        className="hero-typing-caret ml-1 inline-block h-[0.75em] w-0.5 shrink-0 self-center rounded-sm bg-machine-orange"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </span>
+                </h1>
 
-                  <p className="mt-6 text-xl font-bold text-navy sm:text-2xl opacity-90 hidden sm:block">
-                    Karan Engineers <span className="text-machine-orange">& Fabrication</span>
-                  </p>
+                {headlineAccent && (
+                  <p className="mt-4 text-lg font-semibold text-muted-grey hidden sm:block">{headlineAccent}</p>
+                )}
 
-                  {headlineAccent && (
-                    <p className="mt-2 text-lg font-semibold text-muted-grey hidden sm:block">{headlineAccent}</p>
-                  )}
+                <p className="mt-5 sm:mt-6 text-lg leading-relaxed text-muted-grey sm:text-xl max-w-2xl">
+                  {COMPANY.tagline}
+                </p>
 
-                  <p className="mt-4 sm:mt-6 text-lg leading-relaxed text-muted-grey sm:text-xl max-w-2xl">
-                    {slide.desc}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
+                <address className="mt-4 max-w-2xl not-italic">
+                  <ul className="space-y-2.5 text-base text-muted-grey sm:text-lg">
+                    <li className="flex flex-wrap items-center gap-2.5">
+                      <User className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
+                      <span className="font-semibold text-navy">{COMPANY.contactName}</span>
+                    </li>
+                    <li className="flex flex-wrap items-center gap-2.5">
+                      <Phone className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
+                      <a
+                        href={`tel:+91${COMPANY.phone}`}
+                        className="text-navy underline-offset-2 transition-colors hover:text-machine-orange hover:underline"
+                      >
+                        {COMPANY.contactPhoneDisplay}
+                      </a>
+                    </li>
+                    <li className="flex flex-wrap items-center gap-2.5">
+                      <Mail className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
+                      <a
+                        href={`mailto:${COMPANY.email}`}
+                        className="break-all text-navy underline-offset-2 transition-colors hover:text-machine-orange hover:underline"
+                      >
+                        {COMPANY.email}
+                      </a>
+                    </li>
+                  </ul>
+                </address>
+              </motion.div>
             </div>
-
-
           </div>
 
-          {/* RIGHT CONTENT (Image Carousel) */}
           <div className="lg:col-span-5 relative h-[350px] sm:h-[450px] lg:h-full min-h-[350px] lg:min-h-[500px] mt-2 lg:mt-0 flex items-center justify-center perspective-1000">
-            {/* Main Decorative Element */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] border border-dashed border-machine-orange/30 rounded-full animate-[spin_60s_linear_infinite]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] border border-dashed border-navy/20 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
 
             <div className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20">
-              <div className="relative w-full h-full overflow-hidden rounded-2xl bg-bg-cloud group overflow-hidden">
+              <div className="relative w-full h-full overflow-hidden rounded-2xl bg-navy/90">
                 <AnimatePresence mode="wait">
                   <motion.img
-                    key={currentSlide}
-                    src={slide.image}
-                    alt={slide.imageAlt}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.6 }}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    key={heroImageIndex}
+                    src={HERO_IMAGES[heroImageIndex].src}
+                    alt={HERO_IMAGES[heroImageIndex].alt}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
                 </AnimatePresence>
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent opacity-90" />
-                <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-machine-orange mb-1">Featured Work</p>
-                  <AnimatePresence mode="wait">
-                    <motion.p 
-                      key={currentSlide}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="text-lg font-extrabold truncate"
-                    >
-                      {slide.imageAlt}
-                    </motion.p>
-                  </AnimatePresence>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent opacity-90" />
+                <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3">
+                  {HERO_IMAGES.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setHeroImageIndex(idx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        heroImageIndex === idx ? 'w-6 bg-machine-orange' : 'w-1.5 bg-white/50 hover:bg-white/80'
+                      }`}
+                      aria-label={`Show photo ${idx + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Pagination Dots */}
-            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-              {SLIDES.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentSlide(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === idx ? 'w-8 bg-machine-orange' : 'w-2 bg-border-grey hover:bg-machine-orange/50'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-
           </div>
         </div>
       </div>

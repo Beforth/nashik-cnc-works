@@ -18,6 +18,28 @@
   --color-green-light: #E8F8F0;
 }
 
+@keyframes hero-caret {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-typing-caret {
+  animation: hero-caret 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-typing-caret {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 @layer base {
   body {
     @apply font-sans bg-bg-cloud text-navy antialiased;
