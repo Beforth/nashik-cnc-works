@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { COMPANY, CITIES } from '../constants';
 
 const Footer = () => {
@@ -9,11 +10,17 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-2">
-            <Link
-              href="/"
-              className="text-2xl font-extrabold leading-tight text-navy sm:text-3xl md:text-[1.75rem]"
-            >
-              Karan Engineers <span className="text-machine-orange">& Fabrication</span>, Nashik
+            <Link href="/" className="inline-flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Image
+                src="/logo.png"
+                alt="Karan Engineers & Fabrication — company logo"
+                width={200}
+                height={64}
+                className="h-12 w-auto object-contain object-left sm:h-14"
+              />
+              <span className="text-2xl font-extrabold leading-tight text-navy sm:text-3xl md:text-[1.75rem]">
+                Karan Engineers <span className="text-machine-orange">& Fabrication</span>, Nashik
+              </span>
             </Link>
             <p className="text-muted-grey mt-4 max-w-sm leading-relaxed">
               {COMPANY.tagline} Nature of business: {COMPANY.natureOfBusiness.toLowerCase()}. CEO:{' '}

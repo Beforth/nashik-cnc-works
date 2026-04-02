@@ -52,19 +52,63 @@ const SERVICES = [
   },
 ];
 
+const HERO_IMAGES = [
+  { url: '/hero/machined-flange.png', alt: 'Precision machined metal component', sortOrder: 0 },
+  { url: '/hero/lathe-chuck-workpiece.png', alt: 'Metal workpiece in lathe chuck', sortOrder: 1 },
+  { url: '/hero/cnc-turning-coolant.png', alt: 'CNC lathe turning with coolant', sortOrder: 2 },
+];
+
+const INFRASTRUCTURE = [
+  { name: 'Turning machine', specs: 'Precision cylindrical and turned features.', iconKey: 'Wrench', sortOrder: 0 },
+  { name: 'Milling machine', specs: 'Prismatic components and industrial parts.', iconKey: 'Settings', sortOrder: 1 },
+  { name: 'CNC machine', specs: 'Complex geometries and repeat production.', iconKey: 'Cpu', sortOrder: 2 },
+  { name: 'Machined components', specs: 'Power sector & automobile industry parts.', iconKey: 'Factory', sortOrder: 3 },
+];
+
+const INDUSTRIES = [
+  { name: 'Power sector', iconKey: 'Zap', sortOrder: 0 },
+  { name: 'Automobile industry', iconKey: 'Car', sortOrder: 1 },
+  { name: 'CNC turned components', iconKey: 'Cpu', sortOrder: 2 },
+  { name: 'Bush & clamp shaft', iconKey: 'Layers', sortOrder: 3 },
+  { name: 'Factory / manufacturing', iconKey: 'Factory', sortOrder: 4 },
+  { name: 'Works contract', iconKey: 'ClipboardCheck', sortOrder: 5 },
+  { name: 'Industrial plant & equipment', iconKey: 'Building2', sortOrder: 6 },
+  { name: 'General engineering', iconKey: 'Construction', sortOrder: 7 },
+];
+
 async function main() {
+  // Services
   for (const row of SERVICES) {
     await prisma.service.upsert({
       where: { id: row.id },
       create: row,
-      update: {
-        iconKey: row.iconKey,
-        name: row.name,
-        imageUrl: row.imageUrl,
-        description: row.description,
-        sortOrder: row.sortOrder,
-      },
+      update: row,
     });
+  }
+
+  // Site Settings
+  await prisma.siteSettings.upsert({
+    where: { id: 'site-settings' },
+    create: {},
+    update: {},
+  });
+
+  // Hero Images
+  for (const row of HERO_IMAGES) {
+    const existing = await prisma.heroImage.findFirst({ where: { url: row.url } });
+    if (!existing) await prisma.heroImage.create({ data: row });
+  }
+
+  // Infrastructure
+  for (const row of INFRASTRUCTURE) {
+    const existing = await prisma.infrastructureItem.findFirst({ where: { name: row.name } });
+    if (!existing) await prisma.infrastructureItem.create({ data: row });
+  }
+
+  // Industries
+  for (const row of INDUSTRIES) {
+    const existing = await prisma.industryItem.findFirst({ where: { name: row.name } });
+    if (!existing) await prisma.industryItem.create({ data: row });
   }
 }
 

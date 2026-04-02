@@ -18,3 +18,64 @@ model Service {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model SiteSettings {
+  id                  String   @id @default("site-settings")
+  companyName         String   @default("Karan Engineers & Fabrication")
+  gstin               String   @default("27AVRPK3981G1Z1")
+  contactName         String   @default("Mr. Dinesh Khairnar")
+  phone               String   @default("9423928362")
+  phoneFormatted      String   @default("+91 94239 28362")
+  email               String   @default("mr.dinesheng@gmail.com")
+  address             String   @default("MIDC Ambad, Nashik, Maharashtra 422010.")
+  indiaMartUrl        String   @default("https://www.indiamart.com/dinesh-eng/")
+  googleMapsUrl       String   @default("https://www.google.com/maps/...")
+  updatedAt           DateTime @updatedAt
+}
+
+model HeroImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model InfrastructureItem {
+  id          String   @id @default(cuid())
+  name        String
+  specs       String
+  imageUrl    String?
+  iconKey     String   @default("Wrench")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model IndustryItem {
+  id        String   @id @default(cuid())
+  name      String
+  iconKey   String   @default("Factory")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String
+  category  String
+  linkUrl   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String
+  subject   String?
+  message   String
+  status    String   @default("NEW") // NEW, READ, REPLIED, ARCHIVED
+  createdAt DateTime @default(now())
+}

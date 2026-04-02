@@ -1,5 +1,17 @@
 import HomePage from '@/src/components/HomePage';
+import { getSiteSettings, getHeroImages } from '@/src/lib/site-content';
+import { getServices } from '@/src/lib/service-content';
+import { getGalleryItems } from '@/src/lib/gallery-content';
+import { getInfrastructureItems } from '@/src/lib/infrastructure-content';
+import { getIndustryItems } from '@/src/lib/industry-content';
 
-export default function Page() {
-  return <HomePage />;
+export default async function Page() {
+  const settings = await getSiteSettings();
+  const heroImages = await getHeroImages();
+  const services = await getServices();
+  const galleryItems = await getGalleryItems();
+  const infrastructureItems = await getInfrastructureItems();
+  const industryItems = await getIndustryItems();
+  
+  return <HomePage settings={settings} heroImages={heroImages} services={services} galleryItems={galleryItems} infrastructureItems={infrastructureItems} industryItems={industryItems} />;
 }

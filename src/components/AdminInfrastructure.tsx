@@ -1,23 +1,20 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { LogOut, Plus, Pencil, Trash2, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload } from 'lucide-react';
 import { SERVICE_ICON_OPTIONS } from '@/src/lib/service-icons';
-import type { PublicService } from '@/src/types/service';
 
 const emptyForm = {
   id: '',
-  iconKey: 'Wrench',
   name: '',
+  specs: '',
   imageUrl: '',
-  description: '',
+  iconKey: 'Wrench',
   sortOrder: 0,
 };
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [rows, setRows] = useState<PublicService[]>([]);
+export default function AdminInfrastructure() {
+  const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -29,19 +26,15 @@ export default function AdminDashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/services', { credentials: 'include' });
-      if (res.status === 401) {
-        router.replace('/admin/login');
-        return;
-      }
-      const data: PublicService[] = await res.json();
-      setRows(data.sort((a, b) => a.sortOrder - b.sortOrder));
+      const res = await fetch('/api/admin/infrastructure');
+      const data = await res.json();
+      setRows(data.sort((a: any, b: any) => a.sortOrder - b.sortOrder));
     } catch {
-      setMessage('Could not load services.');
+      setMessage('Could not load infrastructure items.');
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -49,10 +42,10 @@ export default function AdminDashboard() {
 
   async function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    e.target.value = '';
+    if (e.target) e.target.value = '';
     if (!file) return;
     setUploading(true);
-    setMessage(null);
+    setMessage('Uploading image...');
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -68,7 +61,8 @@ export default function AdminDashboard() {
       }
       if (j.url) {
         setForm((f) => ({ ...f, imageUrl: j.url! }));
-        setMessage('Image uploaded — URL filled below.');
+        setMessage('Image uploaded.');
+        setTimeout(() => setMessage(null), 3000);
       }
     } catch {
       setMessage('Upload failed');
@@ -77,36 +71,27 @@ export default function AdminDashboard() {
     }
   }
 
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
-    router.replace('/admin/login');
-    router.refresh();
-  }
-
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setMessage('Creating...');
-    const res = await fetch('/api/services', {
+    const res = await fetch('/api/admin/infrastructure', {
       method: 'POST',
-      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: form.id.trim().toLowerCase().replace(/\s+/g, '-'),
-        iconKey: form.iconKey,
         name: form.name.trim(),
+        specs: form.specs.trim(),
         imageUrl: form.imageUrl.trim(),
-        description: form.description.trim(),
+        iconKey: form.iconKey,
         sortOrder: Number(form.sortOrder) || 0,
       }),
     });
-    const j = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setMessage((j as { error?: string }).error ?? 'Create failed');
+      setMessage('Create failed');
       return;
     }
     setCreating(false);
     setForm(emptyForm);
-    setMessage('Service created.');
+    setMessage('Item created.');
     setTimeout(() => setMessage(null), 3000);
     load();
   }
@@ -115,42 +100,40 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!editingId) return;
     setMessage('Updating...');
-    const res = await fetch(`/api/services/${encodeURIComponent(editingId)}`, {
+    const res = await fetch(`/api/admin/infrastructure?id=${encodeURIComponent(editingId)}`, {
       method: 'PATCH',
-      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        iconKey: form.iconKey,
         name: form.name.trim(),
+        specs: form.specs.trim(),
         imageUrl: form.imageUrl.trim(),
-        description: form.description.trim(),
+        iconKey: form.iconKey,
         sortOrder: Number(form.sortOrder) || 0,
       }),
     });
-    const j = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setMessage((j as { error?: string }).error ?? 'Update failed');
+      setMessage('Update failed');
       return;
     }
     setEditingId(null);
     setForm(emptyForm);
-    setMessage('Service updated.');
+    setMessage('Item updated.');
     setTimeout(() => setMessage(null), 3000);
     load();
   }
 
   async function handleDelete(id: string) {
-    if (!confirm(`Delete service “${id}”? This cannot be undone.`)) return;
-    setMessage(null);
-    const res = await fetch(`/api/services/${encodeURIComponent(id)}`, {
+    if (!confirm('Delete this item? This cannot be undone.')) return;
+    setMessage('Deleting...');
+    const res = await fetch(`/api/admin/infrastructure?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      credentials: 'include',
     });
     if (!res.ok) {
       setMessage('Delete failed');
       return;
     }
-    setMessage('Service deleted.');
+    setMessage('Item deleted.');
+    setTimeout(() => setMessage(null), 3000);
     if (editingId === id) {
       setEditingId(null);
       setForm(emptyForm);
@@ -158,15 +141,15 @@ export default function AdminDashboard() {
     load();
   }
 
-  function startEdit(row: PublicService) {
+  function startEdit(row: any) {
     setCreating(false);
     setEditingId(row.id);
     setForm({
       id: row.id,
-      iconKey: row.iconKey,
       name: row.name,
-      imageUrl: row.imageUrl,
-      description: row.description,
+      specs: row.specs,
+      imageUrl: row.imageUrl || '',
+      iconKey: row.iconKey,
       sortOrder: row.sortOrder,
     });
     setMessage(null);
@@ -187,12 +170,9 @@ export default function AdminDashboard() {
     setMessage(null);
   }
 
-  const formTitle = editingId ? `Edit: ${editingId}` : creating ? 'New service' : null;
-
   return (
     <div className="mx-auto max-w-4xl relative">
-      {/* Loading/Saving Overlay */}
-      {(message === 'Service updated.' || message === 'Service created.' || message === 'Creating...' || message === 'Updating...' || uploading) && (
+      {(message === 'Creating...' || message === 'Updating...' || message === 'Deleting...' || uploading) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/20 backdrop-blur-[2px]">
           <div className="bg-white p-8 rounded-3xl shadow-2xl border border-border-grey flex flex-col items-center gap-4 animate-in zoom-in duration-300">
             <div className="w-12 h-12 border-4 border-machine-orange border-t-transparent rounded-full animate-spin" />
@@ -200,49 +180,36 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy text-capitalize">Expertise</h1>
-          <p className="mt-1 text-sm text-muted-grey">Create, update, or remove offerings shown on the homepage.</p>
+          <h1 className="text-2xl font-extrabold text-navy">Infrastructure</h1>
+          <p className="mt-1 text-sm text-muted-grey">Manage machines and equipment shown in the infrastructure section.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={startCreate}
-            className="inline-flex items-center gap-2 rounded-xl bg-machine-orange px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95"
-          >
-            <Plus className="h-4 w-4" />
-            Add Expertise
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={startCreate}
+          className="inline-flex items-center gap-2 rounded-xl bg-machine-orange px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95"
+        >
+          <Plus className="h-4 w-4" />
+          Add Machine
+        </button>
       </div>
-
-      {message ? (
-        <p className="mb-4 rounded-lg border border-border-grey bg-white/80 px-4 py-2 text-sm text-navy" role="status">
-          {message}
-        </p>
-      ) : null}
 
       {(creating || editingId) && (
         <div className="mb-10 rounded-2xl border border-border-grey bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-navy">{formTitle}</h2>
+          <h2 className="mb-4 text-lg font-bold text-navy">{editingId ? 'Edit Machine' : 'New Machine'}</h2>
           <form onSubmit={editingId ? handleUpdate : handleCreate} className="space-y-4">
-            {!editingId && (
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">
-                  Id (slug)
-                </label>
-                <input
-                  required
-                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                  className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                  value={form.id}
-                  onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-                  placeholder="e.g. vmc-job-work"
-                />
-                <p className="mt-1 text-xs text-muted-grey">Lowercase letters, numbers, hyphens only.</p>
-              </div>
-            )}
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Name</label>
+              <input
+                required
+                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. CNC Machine"
+              />
+            </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Icon</label>
               <select
@@ -251,36 +218,24 @@ export default function AdminDashboard() {
                 onChange={(e) => setForm((f) => ({ ...f, iconKey: e.target.value }))}
               >
                 {SERVICE_ICON_OPTIONS.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
+                  <option key={k} value={k}>{k}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Name</label>
-              <input
-                required
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Image URL</label>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Image</label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                 <input
-                  required
                   type="url"
                   className="min-w-0 flex-1 rounded-lg border border-border-grey px-3 py-2 text-navy"
                   value={form.imageUrl}
                   onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                  placeholder="https://…"
+                  placeholder="https://… (Optional)"
                 />
                 <input
                   ref={imageFileRef}
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                  accept="image/*"
                   className="hidden"
                   onChange={handleImageFileChange}
                 />
@@ -291,19 +246,24 @@ export default function AdminDashboard() {
                   className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border-grey bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-bg-steel/50 disabled:opacity-50"
                 >
                   <Upload className="h-4 w-4" />
-                  {uploading ? 'Uploading…' : 'Cloudinary'}
+                  {uploading ? 'Uploading…' : 'Upload File'}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-muted-grey">Paste an image URL or upload (stored in Cloudinary folder karan-engineers/services).</p>
+              {form.imageUrl && (
+                 <div className="mt-2 w-32 h-32 rounded-lg border border-border-grey overflow-hidden">
+                    <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                 </div>
+              )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Description</label>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Specifications</label>
               <textarea
                 required
-                rows={4}
+                rows={3}
                 className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                value={form.specs}
+                onChange={(e) => setForm((f) => ({ ...f, specs: e.target.value }))}
+                placeholder="e.g. Precision cylindrical and turned features."
               />
             </div>
             <div>
@@ -316,11 +276,8 @@ export default function AdminDashboard() {
               />
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
-              <button
-                type="submit"
-                className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white hover:opacity-95"
-              >
-                {editingId ? 'Save changes' : 'Create service'}
+              <button type="submit" className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white hover:opacity-95">
+                {editingId ? 'Save changes' : 'Add Machine'}
               </button>
               <button type="button" onClick={cancelForm} className="rounded-xl border border-border-grey px-5 py-2.5 text-sm font-semibold text-navy">
                 Cancel
@@ -333,38 +290,43 @@ export default function AdminDashboard() {
       {loading ? (
         <p className="text-muted-grey">Loading…</p>
       ) : (
-        <ul className="space-y-3">
+        <div className="flex flex-col gap-4">
           {rows.map((row) => (
-            <li
-              key={row.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border-grey bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="font-extrabold text-navy">{row.name}</p>
-                <p className="truncate text-xs font-mono text-muted-grey">{row.id}</p>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-grey">{row.description}</p>
-              </div>
-              <div className="flex shrink-0 gap-2">
-                <button
-                  type="button"
-                  onClick={() => startEdit(row)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border-grey px-3 py-2 text-sm font-semibold text-navy hover:bg-bg-steel/50"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(row.id)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800 hover:bg-red-100"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </button>
-              </div>
-            </li>
+            <div key={row.id} className="flex gap-4 p-4 rounded-2xl border border-border-grey bg-white shadow-sm items-center justify-between">
+               <div className="flex items-center gap-4 flex-1">
+                 {row.imageUrl && (
+                   <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                     <img src={row.imageUrl} className="w-full h-full object-cover" />
+                   </div>
+                 )}
+                 <div>
+                   <h3 className="font-bold text-navy">{row.name}</h3>
+                   <p className="text-sm text-muted-grey">{row.specs}</p>
+                 </div>
+               </div>
+               <div className="flex gap-2">
+                  <button
+                    onClick={() => startEdit(row)}
+                    className="bg-bg-steel/50 hover:bg-bg-steel p-2 rounded-lg text-navy transition-colors"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(row.id)}
+                    className="bg-red-50 hover:bg-red-100 p-2 rounded-lg text-red-600 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+               </div>
+            </div>
           ))}
-        </ul>
+        </div>
+      )}
+
+      {message && message !== 'Creating...' && message !== 'Updating...' && message !== 'Deleting...' && !uploading && (
+        <div className="fixed bottom-8 right-8 bg-navy text-white px-6 py-3 rounded-xl shadow-2xl animate-in fade-in slide-in-from-bottom-4">
+          {message}
+        </div>
       )}
     </div>
   );

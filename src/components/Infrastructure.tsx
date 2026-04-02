@@ -4,17 +4,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Settings, Cpu, Factory, Wrench, ShieldCheck, Zap } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import { MACHINES, INDIA_MART_IMAGES } from '../constants';
+import { getServiceIcon } from '@/src/lib/service-icons';
 
-const MACHINE_ICONS = [Wrench, Settings, Cpu, Factory];
-const MACHINE_IMAGES = [
-  INDIA_MART_IMAGES.turningAlt,
-  INDIA_MART_IMAGES.milling,
-  INDIA_MART_IMAGES.cncJob,
-  INDIA_MART_IMAGES.powerSector
-];
+const FALLBACK_MACHINES = MACHINES.map((m, i) => ({
+  id: `fallback-${i}`,
+  name: m.name,
+  specs: m.specs,
+  iconKey: i === 0 ? 'Wrench' : i === 1 ? 'Settings' : i === 2 ? 'Cpu' : 'Factory',
+  imageUrl: i === 0 ? INDIA_MART_IMAGES.turningAlt : i === 1 ? INDIA_MART_IMAGES.milling : i === 2 ? INDIA_MART_IMAGES.cncJob : INDIA_MART_IMAGES.powerSector
+}));
 
-const Infrastructure = () => {
+export default function Infrastructure({ items }: { items?: any[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const displayItems = items?.length ? items : FALLBACK_MACHINES;
 
   return (
     <section id="machines" className="py-24 px-4 bg-bg-cloud/50 relative overflow-hidden">
@@ -33,13 +36,13 @@ const Infrastructure = () => {
         <div className="grid lg:grid-cols-12 gap-8 items-stretch">
           {/* LEFT: Machine Selectors */}
           <div className="lg:col-span-5 space-y-4">
-            {MACHINES.map((m, i) => {
-              const Icon = MACHINE_ICONS[i];
+            {displayItems.map((m, i) => {
+              const Icon = getServiceIcon(m.iconKey);
               const isActive = activeIndex === i;
               
               return (
                 <button
-                  key={i}
+                  key={m.id}
                   onClick={() => setActiveIndex(i)}
                   className={`w-full text-left p-6 rounded-[1.5rem] border-2 transition-all duration-300 flex items-start gap-5 group
                     ${isActive 
@@ -92,37 +95,41 @@ const Infrastructure = () => {
                    style={{ backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`, backgroundSize: '30px 30px' }} />
               
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeIndex}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0"
-                >
-                  <img
-                    src={MACHINE_IMAGES[activeIndex]}
-                    alt={MACHINES[activeIndex].name}
-                    className="w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale contrast-125"
-                  />
-                  
-                  {/* Technical Overlay Labels */}
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                    <div className="bg-machine-orange/10 backdrop-blur-md border border-machine-orange/30 p-6 rounded-2xl max-w-sm">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Zap size={20} className="text-machine-orange" />
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Technical Specification</span>
-                      </div>
-                      <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">
-                        {MACHINES[activeIndex].name}
-                      </h3>
-                      <div className="flex items-center gap-4 text-white/60 text-xs font-bold">
-                        <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-machine-orange" /> HIGH PRECISION</span>
-                        <span className="flex items-center gap-1.5"><Settings size={14} className="text-machine-orange" /> INDUSTRIAL GRADE</span>
+                {displayItems[activeIndex] && (
+                  <motion.div
+                    key={activeIndex}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0"
+                  >
+                    {displayItems[activeIndex].imageUrl && (
+                      <img
+                        src={displayItems[activeIndex].imageUrl}
+                        alt={displayItems[activeIndex].name}
+                        className="w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale contrast-125"
+                      />
+                    )}
+                    
+                    {/* Technical Overlay Labels */}
+                    <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                      <div className="bg-machine-orange/10 backdrop-blur-md border border-machine-orange/30 p-6 rounded-2xl max-w-sm">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Zap size={20} className="text-machine-orange" />
+                          <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Technical Specification</span>
+                        </div>
+                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">
+                          {displayItems[activeIndex].name}
+                        </h3>
+                        <div className="flex items-center gap-4 text-white/60 text-xs font-bold">
+                          <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-machine-orange" /> HIGH PRECISION</span>
+                          <span className="flex items-center gap-1.5"><Settings size={14} className="text-machine-orange" /> INDUSTRIAL GRADE</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Decorative Corner Elements */}
@@ -141,6 +148,4 @@ const Infrastructure = () => {
       </div>
     </section>
   );
-};
-
-export default Infrastructure;
+}

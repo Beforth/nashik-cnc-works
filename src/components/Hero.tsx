@@ -22,27 +22,25 @@ const HERO_IMAGES: readonly { src: string; alt: string }[] = [
 const HERO_DISPLAY_NAME = 'Karan Engineers & Fabrication';
 
 /** Styling per character index — keeps gradient spans continuous as text grows */
-function charStyleClass(index: number): string {
-  if (index <= 4) return 'text-navy';
-  if (index === 5) return 'text-navy';
-  if (index >= 6 && index <= 14) {
-    return 'bg-gradient-to-r from-machine-orange to-amber bg-clip-text text-transparent';
+function charStyleClass(index: number, name: string): string {
+  const words = name.split(/\s+/);
+  const firstWord = words[0];
+  const firstWordEnd = firstWord.length;
+  
+  if (index < firstWordEnd) {
+    return 'text-navy';
   }
-  if (index === 15) return 'text-navy';
-  if (index === 16) return 'text-machine-orange';
-  if (index === 17) return 'text-navy';
-  if (index >= 18) return 'text-machine-orange';
-  return 'text-navy';
+  return 'bg-gradient-to-r from-machine-orange to-amber bg-clip-text text-transparent';
 }
 
-function typedTitleChunks(visibleLength: number): { key: number; className: string; text: string }[] {
-  const slice = HERO_DISPLAY_NAME.slice(0, visibleLength);
+function typedTitleChunks(visibleLength: number, name: string): { key: number; className: string; text: string }[] {
+  const slice = name.slice(0, visibleLength);
   const chunks: { key: number; className: string; text: string }[] = [];
   let i = 0;
   while (i < slice.length) {
     const start = i;
-    const cls = charStyleClass(start);
-    while (i < slice.length && charStyleClass(i) === cls) {
+    const cls = charStyleClass(start, name);
+    while (i < slice.length && charStyleClass(i, name) === cls) {
       i += 1;
     }
     chunks.push({ key: start, className: cls, text: slice.slice(start, i) });
@@ -50,7 +48,16 @@ function typedTitleChunks(visibleLength: number): { key: number; className: stri
   return chunks;
 }
 
-export default function Hero({ city }: { city: CityData }) {
+export default function Hero({ city, settings, heroImages }: { city: CityData, settings?: any, heroImages?: any[] }) {
+  const companyName = settings?.companyName || HERO_DISPLAY_NAME;
+  const phone = settings?.phone || COMPANY.phone;
+  const phoneDisplay = settings?.phoneFormatted || COMPANY.contactPhoneDisplay;
+  const email = settings?.email || COMPANY.email;
+  const address = settings?.address || COMPANY.tagline;
+  const gstin = settings?.gstin || COMPANY.gstin;
+
+  const displayImages = heroImages?.length ? heroImages.map(img => ({ src: img.url, alt: img.alt })) : HERO_IMAGES;
+
   const servingLine =
     city.id === 'nashik'
       ? 'Nashik, Maharashtra'
@@ -69,10 +76,10 @@ export default function Hero({ city }: { city: CityData }) {
   const [typedLength, setTypedLength] = useState(0);
   const [heroImageIndex, setHeroImageIndex] = useState(0);
 
-  const titleChunks = useMemo(() => typedTitleChunks(typedLength), [typedLength]);
+  const titleChunks = useMemo(() => typedTitleChunks(typedLength, companyName), [typedLength, companyName]);
 
   useEffect(() => {
-    const full = HERO_DISPLAY_NAME.length;
+    const full = companyName.length;
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mq.matches) {
       setTypedLength(full);
@@ -96,15 +103,15 @@ export default function Hero({ city }: { city: CityData }) {
       window.clearTimeout(timeoutId);
       if (intervalId) window.clearInterval(intervalId);
     };
-  }, []);
+  }, [companyName]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => {
-      setHeroImageIndex((i) => (i + 1) % HERO_IMAGES.length);
+      setHeroImageIndex((i) => (i + 1) % displayImages.length);
     }, 5500);
     return () => window.clearInterval(id);
-  }, []);
+  }, [displayImages.length]);
 
   return (
     <section
@@ -170,7 +177,7 @@ export default function Hero({ city }: { city: CityData }) {
               <MapPin size={18} className="text-machine-orange" />
               {servingLine}
               <span className="hidden sm:inline text-border-grey mx-1">|</span>
-              <span className="font-mono text-xs font-bold text-navy bg-navy/5 px-2 py-1 rounded-md">GST {COMPANY.gstin}</span>
+              <span className="font-mono text-xs font-bold text-navy bg-navy/5 px-2 py-1 rounded-md">GST {gstin}</span>
             </p>
 
             <div className="min-h-[320px] sm:min-h-[300px] md:min-h-[280px] lg:min-h-[360px]">
@@ -182,16 +189,16 @@ export default function Hero({ city }: { city: CityData }) {
               >
                 <h1
                   id="hero-main-title"
-                  aria-label={HERO_DISPLAY_NAME}
+                  aria-label={companyName}
                   className="text-5xl font-extrabold leading-[1.2] tracking-wide sm:text-6xl sm:tracking-wider lg:text-[4rem] xl:text-[4.5rem]"
                 >
-                  <span className="inline-flex flex-wrap items-end gap-x-2 gap-y-1 sm:gap-x-3 sm:gap-y-1.5">
+                  <span className="inline-flex flex-wrap items-end gap-x-1 gap-y-1 sm:gap-x-1.5 sm:gap-y-1.5">
                     {titleChunks.map(({ key, className, text }) => (
                       <span key={key} className={className}>
                         {text}
                       </span>
                     ))}
-                    {typedLength < HERO_DISPLAY_NAME.length ? (
+                    {typedLength < companyName.length ? (
                       <span
                         className="hero-typing-caret ml-1 inline-block h-[0.75em] w-0.5 shrink-0 self-center rounded-sm bg-machine-orange"
                         aria-hidden
@@ -205,31 +212,31 @@ export default function Hero({ city }: { city: CityData }) {
                 )}
 
                 <p className="mt-5 sm:mt-6 text-lg leading-relaxed text-muted-grey sm:text-xl max-w-2xl">
-                  {COMPANY.tagline}
+                  {address}
                 </p>
 
                 <address className="mt-4 max-w-2xl not-italic">
                   <ul className="space-y-2.5 text-base text-muted-grey sm:text-lg">
                     <li className="flex flex-wrap items-center gap-2.5">
                       <User className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
-                      <span className="font-semibold text-navy">{COMPANY.contactName}</span>
+                      <span className="font-semibold text-navy">{settings?.contactName || COMPANY.contactName}</span>
                     </li>
                     <li className="flex flex-wrap items-center gap-2.5">
                       <Phone className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
                       <a
-                        href={`tel:+91${COMPANY.phone}`}
+                        href={`tel:+91${phone}`}
                         className="text-navy underline-offset-2 transition-colors hover:text-machine-orange hover:underline"
                       >
-                        {COMPANY.contactPhoneDisplay}
+                        {phoneDisplay}
                       </a>
                     </li>
                     <li className="flex flex-wrap items-center gap-2.5">
                       <Mail className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
                       <a
-                        href={`mailto:${COMPANY.email}`}
+                        href={`mailto:${email}`}
                         className="break-all text-navy underline-offset-2 transition-colors hover:text-machine-orange hover:underline"
                       >
-                        {COMPANY.email}
+                        {email}
                       </a>
                     </li>
                   </ul>
@@ -245,13 +252,13 @@ export default function Hero({ city }: { city: CityData }) {
             <div className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20">
               <div className="relative w-full h-full overflow-hidden rounded-2xl bg-navy/90">
                 <img
-                  src={HERO_IMAGES[heroImageIndex].src}
-                  alt={HERO_IMAGES[heroImageIndex].alt}
+                  src={displayImages[heroImageIndex].src}
+                  alt={displayImages[heroImageIndex].alt}
                   className="absolute inset-0 h-full w-full object-cover object-center"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent opacity-90" />
                 <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3">
-                  {HERO_IMAGES.map((_, idx) => (
+                  {displayImages.map((_, idx) => (
                     <button
                       key={idx}
                       type="button"

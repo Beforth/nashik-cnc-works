@@ -18,10 +18,11 @@ function staticFallback(): PublicService[] {
   }));
 }
 
-export default function Services() {
-  const [items, setItems] = useState<PublicService[] | null>(null);
+export default function Services({ initialServices }: { initialServices?: PublicService[] }) {
+  const [items, setItems] = useState<PublicService[] | null>(initialServices || null);
 
   useEffect(() => {
+    if (initialServices) return;
     let cancelled = false;
     (async () => {
       try {

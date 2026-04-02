@@ -21,13 +21,24 @@ import StickyActions from './StickyActions';
 import WhatsAppIcon from './WhatsAppIcon';
 import SectionHeading from './SectionHeading';
 
+import { getServiceIcon } from '@/src/lib/service-icons';
+
 interface HomePageProps {
   slug?: string;
+  settings?: any;
+  heroImages?: any[];
+  services?: any[];
+  galleryItems?: any[];
+  infrastructureItems?: any[];
+  industryItems?: any[];
 }
 
-const HomePage = ({ slug }: HomePageProps) => {
+const HomePage = ({ slug, settings, heroImages, services, galleryItems, infrastructureItems, industryItems }: HomePageProps) => {
   // Find city based on slug or default to Nashik
   const city = CITIES.find(c => c.slug === slug) || CITIES[0];
+
+  const displayGalleryItems = galleryItems?.length ? galleryItems : GALLERY_ITEMS.map(item => ({ ...item, imageUrl: item.src }));
+  const displayIndustries = industryItems?.length ? industryItems : INDUSTRIES;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,13 +46,13 @@ const HomePage = ({ slug }: HomePageProps) => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <Hero city={city} />
+      <Navbar settings={settings} />
+      <Hero city={city} settings={settings} heroImages={heroImages} />
 
 
 
-      <Services />
-      <Infrastructure />
+      <Services initialServices={services} />
+      <Infrastructure items={infrastructureItems} />
 
       {/* Industries Served */}
       <section id="industries" className="py-24 px-4 bg-navy text-white overflow-hidden relative">
@@ -55,8 +66,8 @@ const HomePage = ({ slug }: HomePageProps) => {
             light
           />
           <div className="flex flex-wrap justify-center gap-4">
-            {INDUSTRIES.map((ind, i) => {
-              const Icon = ind.icon;
+            {displayIndustries.map((ind, i) => {
+              const Icon = ind.icon || getServiceIcon(ind.iconKey);
               return (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -88,16 +99,16 @@ const HomePage = ({ slug }: HomePageProps) => {
             align="center"
           />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {GALLERY_ITEMS.map((item, i) => (
+            {displayGalleryItems.map((item, i) => (
               <a
                 key={`${item.title}-${i}`}
-                href={`https://wa.me/91${COMPANY.phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
+                href={`https://wa.me/91${settings?.phone || COMPANY.phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-machine-orange/20 bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"
               >
                 <img
-                  src={item.src}
+                  src={item.imageUrl}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
