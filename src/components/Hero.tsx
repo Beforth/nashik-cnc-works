@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Mail, MapPin, Phone, User } from 'lucide-react';
 import { COMPANY, CityData } from '../constants';
 
@@ -244,18 +244,11 @@ export default function Hero({ city }: { city: CityData }) {
 
             <div className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20">
               <div className="relative w-full h-full overflow-hidden rounded-2xl bg-navy/90">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={heroImageIndex}
-                    src={HERO_IMAGES[heroImageIndex].src}
-                    alt={HERO_IMAGES[heroImageIndex].alt}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0 w-full h-full object-cover object-center"
-                  />
-                </AnimatePresence>
+                <img
+                  src={HERO_IMAGES[heroImageIndex].src}
+                  alt={HERO_IMAGES[heroImageIndex].alt}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent opacity-90" />
                 <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3">
                   {HERO_IMAGES.map((_, idx) => (

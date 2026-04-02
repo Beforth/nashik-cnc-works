@@ -180,10 +180,11 @@ export const CITIES: CityData[] = [
   },
 ];
 
+/** Public shape matches API / DB; `image` is image URL (alias for older name in codebase). */
 export const SERVICES = [
   {
     id: 'turning',
-    icon: Wrench,
+    iconKey: 'Wrench',
     name: 'Turning Machine Job',
     image: INDIA_MART_IMAGES.turning,
     description:
@@ -191,7 +192,7 @@ export const SERVICES = [
   },
   {
     id: 'milling',
-    icon: Cog,
+    iconKey: 'Cog',
     name: 'Milling Machine Job',
     image: INDIA_MART_IMAGES.milling,
     description:
@@ -199,7 +200,7 @@ export const SERVICES = [
   },
   {
     id: 'cnc',
-    icon: Settings,
+    iconKey: 'Settings',
     name: 'CNC Machine Job',
     image: INDIA_MART_IMAGES.cncJob,
     description:
@@ -207,13 +208,13 @@ export const SERVICES = [
   },
   {
     id: 'components',
-    icon: Factory,
+    iconKey: 'Factory',
     name: 'Machined Components',
     image: INDIA_MART_IMAGES.powerSector,
     description:
       'Components for power sector and automobile industry; CNC turned components, bush, clamp shaft, and related parts.',
   },
-];
+] as const;
 
 export const MACHINES = [
   {
