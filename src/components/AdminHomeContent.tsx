@@ -30,6 +30,13 @@ export default function AdminHomeContent() {
 
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault();
+    if (
+      !window.confirm(
+        'Save these company information changes? They will be published on the live website.',
+      )
+    ) {
+      return;
+    }
     setMessage('Saving changes...');
     const res = await fetch('/api/admin/settings', {
       method: 'PATCH',

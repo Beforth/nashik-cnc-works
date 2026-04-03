@@ -23,11 +23,12 @@ export async function POST(req: Request) {
   }
 
   const body = (await req.json().catch(() => ({}))) as { url?: string; alt?: string };
-  const last = await prisma.heroImage.findFirst({
-    orderBy: { sortOrder: 'desc' },
+  const first = await prisma.heroImage.findFirst({
+    orderBy: { sortOrder: 'asc' },
     select: { sortOrder: true },
   });
-  const sortOrder = (last?.sortOrder ?? -1) + 1;
+  /** New slides appear first in the carousel (lower sortOrder = earlier). */
+  const sortOrder = (first?.sortOrder ?? 0) - 1;
   const url =
     typeof body.url === 'string' && body.url.trim().length > 0 ? body.url.trim() : HERO_PLACEHOLDER_URL;
   const alt =
