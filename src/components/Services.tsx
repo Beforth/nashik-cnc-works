@@ -1,10 +1,9 @@
-'use client';
+﻿'use client';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { SERVICES, COMPANY } from '../constants';
 import SectionHeading from './SectionHeading';
 import WhatsAppIcon from './WhatsAppIcon';
-import { getServiceIcon } from '@/src/lib/service-icons';
 import type { PublicService } from '@/src/types/service';
 
 function staticFallback(): PublicService[] {
@@ -18,8 +17,14 @@ function staticFallback(): PublicService[] {
   }));
 }
 
+function sortByOrder(list: PublicService[]) {
+  return [...list].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 export default function Services({ initialServices }: { initialServices?: PublicService[] }) {
-  const [items, setItems] = useState<PublicService[] | null>(initialServices || null);
+  const [items, setItems] = useState<PublicService[] | null>(() =>
+    initialServices?.length ? sortByOrder(initialServices) : null,
+  );
 
   useEffect(() => {
     if (initialServices) return;
@@ -53,7 +58,6 @@ export default function Services({ initialServices }: { initialServices?: Public
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {list.map((svc, i) => {
-            const Icon = getServiceIcon(svc.iconKey);
             return (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -75,8 +79,7 @@ export default function Services({ initialServices }: { initialServices?: Public
                   <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
                 <div className="flex flex-1 flex-col bg-white p-6">
-                  <h3 className="mb-3 flex items-center gap-2 text-xl font-extrabold text-navy transition-colors group-hover:text-machine-orange sm:text-2xl">
-                    <Icon className="h-6 w-6 shrink-0 text-machine-orange opacity-90" aria-hidden />
+                  <h3 className="mb-3 text-xl font-extrabold text-navy transition-colors group-hover:text-machine-orange sm:text-2xl">
                     {svc.name}
                   </h3>
                   <p className="flex-1 text-sm leading-relaxed text-muted-grey">{svc.description}</p>
@@ -98,3 +101,4 @@ export default function Services({ initialServices }: { initialServices?: Public
     </section>
   );
 }
+

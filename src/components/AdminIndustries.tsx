@@ -1,243 +1,289 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { SERVICE_ICON_OPTIONS } from '@/src/lib/service-icons';
+import { useRouter } from 'next/navigation';
+import { Plus, Save, Trash2 } from 'lucide-react';
 
-const emptyForm = {
-  id: '',
-  name: '',
-  iconKey: 'Factory',
-  sortOrder: 0,
+type IndustryRow = {
+  id: string;
+  name: string;
+  iconKey: string;
+  sortOrder: number;
+  _isNew?: boolean;
+  _clientId?: string;
 };
 
+function sortRows(a: IndustryRow, b: IndustryRow) {
+  return a.sortOrder - b.sortOrder;
+}
+
 export default function AdminIndustries() {
-  const [rows, setRows] = useState<any[]>([]);
+  const router = useRouter();
+  const [items, setItems] = useState<IndustryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/industries');
-      const data = await res.json();
-      setRows(data.sort((a: any, b: any) => a.sortOrder - b.sortOrder));
+      const res = await fetch('/api/admin/industries', { credentials: 'include' });
+      if (res.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
+      const data: IndustryRow[] = await res.json();
+      setItems(data.sort(sortRows).map((r) => ({ ...r })));
     } catch {
       setMessage('Could not load industry items.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage('Creating...');
-    const res = await fetch('/api/admin/industries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: form.name.trim(),
-        iconKey: form.iconKey,
-        sortOrder: Number(form.sortOrder) || 0,
+  function updateRow(key: string, patch: Partial<IndustryRow>) {
+    setItems((prev) =>
+      prev.map((r) => {
+        const k = r._isNew ? r._clientId! : r.id;
+        return k === key ? { ...r, ...patch } : r;
       }),
-    });
-    if (!res.ok) {
-      setMessage('Create failed');
-      return;
-    }
-    setCreating(false);
-    setForm(emptyForm);
-    setMessage('Item created.');
-    setTimeout(() => setMessage(null), 3000);
-    load();
+    );
   }
 
-  async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editingId) return;
-    setMessage('Updating...');
-    const res = await fetch(`/api/admin/industries?id=${encodeURIComponent(editingId)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: form.name.trim(),
-        iconKey: form.iconKey,
-        sortOrder: Number(form.sortOrder) || 0,
-      }),
-    });
-    if (!res.ok) {
-      setMessage('Update failed');
-      return;
-    }
-    setEditingId(null);
-    setForm(emptyForm);
-    setMessage('Item updated.');
-    setTimeout(() => setMessage(null), 3000);
-    load();
+  function rowKey(r: IndustryRow) {
+    return r._isNew ? r._clientId! : r.id;
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Delete this item? This cannot be undone.')) return;
-    setMessage('Deleting...');
-    const res = await fetch(`/api/admin/industries?id=${encodeURIComponent(id)}`, {
+  async function saveRow(row: IndustryRow) {
+    const key = rowKey(row);
+    setSavingId(key);
+    setBusy(true);
+    setMessage('Saving…');
+
+    try {
+      if (row._isNew) {
+        if (!row.name.trim()) {
+          setMessage('Name is required before saving a new card.');
+          setSavingId(null);
+          setBusy(false);
+          return;
+        }
+        const res = await fetch('/api/admin/industries', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: row.name.trim(),
+            iconKey: row.iconKey || 'Factory',
+            sortOrder:
+              typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder)
+                ? row.sortOrder
+                : 0,
+          }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage((j as { error?: string }).error ?? 'Create failed');
+          return;
+        }
+        setMessage('Industry saved — it is ordered first on the website.');
+      } else {
+        const res = await fetch(`/api/admin/industries?id=${encodeURIComponent(row.id)}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: row.name.trim(),
+            iconKey: row.iconKey || 'Factory',
+            sortOrder:
+              typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder)
+                ? row.sortOrder
+                : 0,
+          }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage((j as { error?: string }).error ?? 'Update failed');
+          return;
+        }
+        setMessage('Saved.');
+      }
+      setTimeout(() => setMessage(null), 3000);
+      await load();
+    } finally {
+      setSavingId(null);
+      setBusy(false);
+    }
+  }
+
+  async function deleteRow(row: IndustryRow) {
+    if (row._isNew) {
+      setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
+      return;
+    }
+    if (!confirm(`Delete “${row.name}”? This cannot be undone.`)) return;
+    setBusy(true);
+    setMessage('Deleting…');
+    const res = await fetch(`/api/admin/industries?id=${encodeURIComponent(row.id)}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (!res.ok) {
       setMessage('Delete failed');
+      setBusy(false);
       return;
     }
-    setMessage('Item deleted.');
+    setMessage('Removed.');
     setTimeout(() => setMessage(null), 3000);
-    if (editingId === id) {
-      setEditingId(null);
-      setForm(emptyForm);
-    }
-    load();
+    setBusy(false);
+    await load();
   }
 
-  function startEdit(row: any) {
-    setCreating(false);
-    setEditingId(row.id);
-    setForm({
-      id: row.id,
-      name: row.name,
-      iconKey: row.iconKey,
-      sortOrder: row.sortOrder,
+  function addIndustry() {
+    setItems((prev) => {
+      const nextSortOrder =
+        prev.length === 0 ? 0 : Math.min(...prev.map((r) => r.sortOrder)) - 1;
+      const newRow: IndustryRow = {
+        id: '',
+        name: '',
+        iconKey: 'Factory',
+        sortOrder: nextSortOrder,
+        _isNew: true,
+        _clientId:
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `tmp-${Date.now()}`,
+      };
+      return [newRow, ...prev];
     });
-    setMessage(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.alert(
+      'New industry card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nEnter the industry name and save.',
+    );
   }
 
-  function startCreate() {
-    setEditingId(null);
-    setCreating(true);
-    setForm({ ...emptyForm, sortOrder: rows.length });
-    setMessage(null);
-  }
-
-  function cancelForm() {
-    setCreating(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    setMessage(null);
+  if (loading) {
+    return <p className="p-8 text-center text-muted-grey">Loading industries…</p>;
   }
 
   return (
-    <div className="mx-auto max-w-4xl relative">
-      {(message === 'Creating...' || message === 'Updating...' || message === 'Deleting...') && (
+    <div className="relative space-y-8">
+      {(busy || message === 'Saving…' || message === 'Deleting…' || savingId) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/20 backdrop-blur-[2px]">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl border border-border-grey flex flex-col items-center gap-4 animate-in zoom-in duration-300">
-            <div className="w-12 h-12 border-4 border-machine-orange border-t-transparent rounded-full animate-spin" />
-            <p className="text-navy font-bold text-lg">Processing changes...</p>
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-border-grey bg-white p-8 shadow-2xl">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-machine-orange border-t-transparent" />
+            <p className="text-lg font-bold text-navy">
+              {savingId ? 'Saving…' : 'Working…'}
+            </p>
           </div>
         </div>
       )}
 
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-navy">Industries</h1>
-          <p className="mt-1 text-sm text-muted-grey">Manage the industries served shown on the homepage.</p>
+      <section>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-navy">Industries</h2>
+            <p className="text-sm text-muted-grey">
+              Same workflow as Expertise: edit each card inline, then Save. New cards use the default icon on the site.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addIndustry}
+            className="inline-flex items-center gap-2 rounded-xl bg-machine-orange px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95"
+          >
+            <Plus className="h-4 w-4" />
+            Add industry
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={startCreate}
-          className="inline-flex items-center gap-2 rounded-xl bg-machine-orange px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95"
-        >
-          <Plus className="h-4 w-4" />
-          Add Industry
-        </button>
-      </div>
 
-      {(creating || editingId) && (
-        <div className="mb-10 rounded-2xl border border-border-grey bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-navy">{editingId ? 'Edit Industry' : 'New Industry'}</h2>
-          <form onSubmit={editingId ? handleUpdate : handleCreate} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Name</label>
-              <input
-                required
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Power Sector"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Icon</label>
-              <select
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.iconKey}
-                onChange={(e) => setForm((f) => ({ ...f, iconKey: e.target.value }))}
-              >
-                {SERVICE_ICON_OPTIONS.map((k) => (
-                  <option key={k} value={k}>{k}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Sort order</label>
-              <input
-                type="number"
-                className="w-full max-w-xs rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.sortOrder}
-                onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <button type="submit" className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white hover:opacity-95">
-                {editingId ? 'Save changes' : 'Add Industry'}
-              </button>
-              <button type="button" onClick={cancelForm} className="rounded-xl border border-border-grey px-5 py-2.5 text-sm font-semibold text-navy">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+        <div className="rounded-2xl border border-border-grey/60 bg-bg-steel/30 px-4 py-8 sm:px-6">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {items.map((row) => {
+              const key = rowKey(row);
+              const initial = row.name.trim().slice(0, 1).toUpperCase() || '?';
 
-      {loading ? (
-        <p className="text-muted-grey">Loading…</p>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {rows.map((row) => (
-            <div key={row.id} className="flex gap-4 p-4 rounded-2xl border border-border-grey bg-white shadow-sm items-center justify-between">
-               <div className="flex items-center gap-4 flex-1">
-                 <div>
-                   <h3 className="font-bold text-navy">{row.name}</h3>
-                   <p className="text-xs text-muted-grey">Icon: {row.iconKey}</p>
-                 </div>
-               </div>
-               <div className="flex gap-2">
-                  <button
-                    onClick={() => startEdit(row)}
-                    className="bg-bg-steel/50 hover:bg-bg-steel p-2 rounded-lg text-navy transition-colors"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(row.id)}
-                    className="bg-red-50 hover:bg-red-100 p-2 rounded-lg text-red-600 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-               </div>
-            </div>
-          ))}
-        </div>
-      )}
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col overflow-hidden rounded-3xl border border-white bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-machine-orange/30 hover:shadow-xl"
+                >
+                  <div className="relative flex aspect-[4/3] items-center justify-center rounded-t-3xl bg-gradient-to-br from-navy/90 to-steel/80">
+                    <span className="text-5xl font-black text-white/25">{initial}</span>
+                    <div className="absolute bottom-3 right-3">
+                      <button
+                        type="button"
+                        onClick={() => deleteRow(row)}
+                        className="rounded-xl bg-white/15 p-2 text-white transition-colors hover:bg-red-500"
+                        aria-label="Delete card"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
 
-      {message && message !== 'Creating...' && message !== 'Updating...' && message !== 'Deleting...' && (
-        <div className="fixed bottom-8 right-8 bg-navy text-white px-6 py-3 rounded-xl shadow-2xl animate-in fade-in slide-in-from-bottom-4">
-          {message}
+                  <div className="flex flex-1 flex-col gap-3 bg-white p-5">
+                    {row._isNew ? (
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
+                        New — ID is assigned when you create
+                      </p>
+                    ) : (
+                      <p className="font-mono text-[10px] text-muted-grey">id: {row.id}</p>
+                    )}
+
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
+                        Name
+                      </span>
+                      <input
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy"
+                        value={row.name}
+                        onChange={(e) => updateRow(key, { name: e.target.value })}
+                        placeholder="e.g. Power sector"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
+                        Sort order
+                      </span>
+                      <input
+                        type="number"
+                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        value={row.sortOrder}
+                        onChange={(e) => updateRow(key, { sortOrder: Number(e.target.value) })}
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      disabled={!!savingId}
+                      onClick={() => saveRow(row)}
+                      className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white hover:opacity-95 disabled:opacity-50"
+                    >
+                      <Save className="h-4 w-4" />
+                      {row._isNew ? 'Create card' : 'Save changes'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      )}
+      </section>
+
+      {message &&
+        message !== 'Saving…' &&
+        message !== 'Deleting…' &&
+        !savingId && (
+          <div className="fixed bottom-8 right-8 animate-in fade-in slide-in-from-bottom-4 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl">
+            {message}
+          </div>
+        )}
     </div>
   );
 }

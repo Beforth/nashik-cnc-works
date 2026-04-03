@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Mail, MapPin, Phone, User } from 'lucide-react';
 import { COMPANY, CityData } from '../constants';
 
@@ -116,18 +116,18 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
   return (
     <section
       id="home"
-      className="relative pt-28 pb-12 sm:pt-32 sm:pb-20 px-4 overflow-hidden bg-white sm:bg-white bg-[radial-gradient(circle_at_top_right,#FFF0E8_0%,transparent_40%),radial-gradient(circle_at_bottom_left,#EEF1F6_0%,transparent_40%)] min-h-[90vh] flex items-center"
+      className="relative pt-28 pb-12 sm:pt-32 sm:pb-20 px-4 overflow-hidden bg-white sm:bg-white bg-[radial-gradient(circle_at_top_right,#E8F1F8_0%,transparent_40%),radial-gradient(circle_at_bottom_left,#EEF1F6_0%,transparent_40%)] min-h-[90vh] flex items-center"
       aria-labelledby="hero-main-title"
     >
       {/* --- SVG Background Pattern --- */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.2] sm:opacity-[0.4]" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 560">
             <g mask="url(#SvgjsMask1002)" fill="none">
-                <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
-                <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
-                <path d="M1478.41 460.15C1335.73 457.11 1173.73 280.32 942.27 264.15 710.81 247.98 766.36 18.37 674.2-3.08" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
-                <path d="M1691.59 371.9C1510.53 369.11 1278.77 154.3 1002.79 147.9 726.81 141.5 753.84-13.51 658.39-17.74" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
-                <path d="M1662.34 244.57C1530.84 247.05 1422.24 420.25 1165.73 418.17 909.22 416.09 831.02 15.66 669.12-12.98" stroke="rgba(255, 163, 15, 0.58)" strokeWidth="2"></path>
+                <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
+                <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
+                <path d="M1478.41 460.15C1335.73 457.11 1173.73 280.32 942.27 264.15 710.81 247.98 766.36 18.37 674.2-3.08" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
+                <path d="M1691.59 371.9C1510.53 369.11 1278.77 154.3 1002.79 147.9 726.81 141.5 753.84-13.51 658.39-17.74" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
+                <path d="M1662.34 244.57C1530.84 247.05 1422.24 420.25 1165.73 418.17 909.22 416.09 831.02 15.66 669.12-12.98" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
             </g>
             <defs>
                 <mask id="SvgjsMask1002">
@@ -190,7 +190,7 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
                 <h1
                   id="hero-main-title"
                   aria-label={companyName}
-                  className="text-5xl font-extrabold leading-[1.2] tracking-wide sm:text-6xl sm:tracking-wider lg:text-[4rem] xl:text-[4.5rem]"
+                  className="text-5xl font-extrabold leading-[1.2] tracking-tight sm:text-6xl sm:tracking-normal lg:text-[4rem] xl:text-[4.5rem]"
                 >
                   <span className="inline-flex flex-wrap items-end gap-x-1 gap-y-1 sm:gap-x-1.5 sm:gap-y-1.5">
                     {titleChunks.map(({ key, className, text }) => (
@@ -245,19 +245,62 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
             </div>
           </div>
 
-          <div className="lg:col-span-5 relative h-[350px] sm:h-[450px] lg:h-full min-h-[350px] lg:min-h-[500px] mt-2 lg:mt-0 flex items-center justify-center perspective-1000">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              y: [0, -8, 0],
+            }}
+            transition={{ 
+              opacity: { duration: 0.8 },
+              scale: { duration: 0.8 },
+              y: { duration: 5, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="lg:col-span-5 relative h-[350px] sm:h-[450px] lg:h-full min-h-[350px] lg:min-h-[500px] mt-2 lg:mt-0 flex items-center justify-center [perspective:1000px]"
+          >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] border border-dashed border-machine-orange/30 rounded-full animate-[spin_60s_linear_infinite]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] border border-dashed border-navy/20 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
 
-            <div className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20">
+            <motion.div 
+              whileHover={{ 
+                scale: 1.02,
+                rotateY: 5,
+                rotateX: -2,
+              }}
+              transition={{ duration: 0.4 }}
+              className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20 overflow-hidden"
+            >
               <div className="relative w-full h-full overflow-hidden rounded-2xl bg-navy/90">
-                <img
-                  src={displayImages[heroImageIndex].src}
-                  alt={displayImages[heroImageIndex].alt}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={heroImageIndex}
+                    src={displayImages[heroImageIndex].src}
+                    alt={displayImages[heroImageIndex].alt}
+                    initial={{ opacity: 0, scale: 1.1 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                  />
+                </AnimatePresence>
+                
+                {/* Sweeping Shine Effect */}
+                <motion.div
+                  animate={{ 
+                    left: ['-100%', '200%'],
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    repeatDelay: 5,
+                    ease: "easeInOut" 
+                  }}
+                  className="absolute top-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] pointer-events-none z-10"
                 />
+
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent opacity-90" />
-                <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3">
+                <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3 z-20">
                   {displayImages.map((_, idx) => (
                     <button
                       key={idx}
@@ -271,8 +314,8 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>

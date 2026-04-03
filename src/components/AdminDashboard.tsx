@@ -1,30 +1,30 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Plus, Pencil, Trash2, Upload } from 'lucide-react';
-import { SERVICE_ICON_OPTIONS } from '@/src/lib/service-icons';
+import { Plus, Save, Trash2, Upload } from 'lucide-react';
 import type { PublicService } from '@/src/types/service';
 
-const emptyForm = {
-  id: '',
-  iconKey: 'Wrench',
-  name: '',
-  imageUrl: '',
-  description: '',
-  sortOrder: 0,
-};
+const PLACEHOLDER_IMAGE =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect fill="#EEF1F6" width="800" height="600"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#5A6A7A" font-family="system-ui" font-size="24">Add photo</text></svg>`,
+  );
+
+type Row = PublicService & { _isNew?: boolean; _clientId?: string };
+
+function sortRows(a: Row, b: Row) {
+  return a.sortOrder - b.sortOrder;
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [rows, setRows] = useState<PublicService[]>([]);
+  const [items, setItems] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const imageFileRef = useRef<HTMLInputElement>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
         return;
       }
       const data: PublicService[] = await res.json();
-      setRows(data.sort((a, b) => a.sortOrder - b.sortOrder));
+      setItems(data.sort(sortRows).map((r) => ({ ...r })));
     } catch {
       setMessage('Could not load services.');
     } finally {
@@ -47,325 +47,341 @@ export default function AdminDashboard() {
     load();
   }, [load]);
 
-  async function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function updateRow(key: string, patch: Partial<Row>) {
+    setItems((prev) =>
+      prev.map((r) => {
+        const k = r._isNew ? r._clientId! : r.id;
+        return k === key ? { ...r, ...patch } : r;
+      }),
+    );
+  }
+
+  function rowKey(r: Row) {
+    return r._isNew ? r._clientId! : r.id;
+  }
+
+  async function handleReplaceImage(e: React.ChangeEvent<HTMLInputElement>, row: Row) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-    setUploading(true);
-    setMessage(null);
+
+    const key = rowKey(row);
+    setUploadingId(key);
+    setBusy(true);
+    setMessage('Replacing image…');
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: fd,
-        credentials: 'include',
-      });
-      const j = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
-      if (!res.ok) {
-        setMessage(j.error ?? 'Upload failed');
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, credentials: 'include' });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setMessage(data.error ?? 'Upload failed');
         return;
       }
-      if (j.url) {
-        setForm((f) => ({ ...f, imageUrl: j.url! }));
-        setMessage('Image uploaded — URL filled below.');
+
+      if (row._isNew) {
+        updateRow(key, { imageUrl: data.url });
+        setMessage('Photo added — save the card when text is ready.');
+      } else {
+        const patchRes = await fetch(`/api/services/${encodeURIComponent(row.id)}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: data.url }),
+        });
+        if (!patchRes.ok) {
+          setMessage('Could not save image URL');
+          return;
+        }
+        updateRow(key, { imageUrl: data.url });
+        setMessage('Photo updated.');
       }
+      setTimeout(() => setMessage(null), 3000);
     } catch {
       setMessage('Upload failed');
     } finally {
-      setUploading(false);
+      setUploadingId(null);
+      setBusy(false);
     }
   }
 
-  async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
-    router.replace('/admin/login');
-    router.refresh();
+  async function saveRow(row: Row) {
+    const key = rowKey(row);
+    setSavingId(key);
+    setBusy(true);
+    setMessage('Saving…');
+
+    try {
+      if (row._isNew) {
+        const id = row.id.trim().toLowerCase().replace(/\s+/g, '-');
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
+          setMessage('Set a valid ID: lowercase letters, numbers, hyphens only.');
+          setSavingId(null);
+          setBusy(false);
+          return;
+        }
+        if (!row.name.trim() || !row.description.trim()) {
+          setMessage('Name and description are required before saving a new card.');
+          setSavingId(null);
+          setBusy(false);
+          return;
+        }
+        if (!row.imageUrl?.trim() || row.imageUrl.startsWith('data:')) {
+          setMessage('Upload a photo (Edit photo) before creating a new card.');
+          setSavingId(null);
+          setBusy(false);
+          return;
+        }
+        const res = await fetch('/api/services', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id,
+            iconKey: row.iconKey,
+            name: row.name.trim(),
+            imageUrl: row.imageUrl.trim(),
+            description: row.description.trim(),
+            sortOrder:
+              typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder)
+                ? row.sortOrder
+                : 0,
+          }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage((j as { error?: string }).error ?? 'Create failed');
+          return;
+        }
+        setMessage('Expertise saved — it is ordered first on the website.');
+      } else {
+        const res = await fetch(`/api/services/${encodeURIComponent(row.id)}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            iconKey: row.iconKey,
+            name: row.name.trim(),
+            imageUrl: row.imageUrl.trim(),
+            description: row.description.trim(),
+            sortOrder:
+              typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder)
+                ? row.sortOrder
+                : 0,
+          }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage((j as { error?: string }).error ?? 'Update failed');
+          return;
+        }
+        setMessage('Saved.');
+      }
+      setTimeout(() => setMessage(null), 3000);
+      await load();
+    } finally {
+      setSavingId(null);
+      setBusy(false);
+    }
   }
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage('Creating...');
-    const res = await fetch('/api/services', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: form.id.trim().toLowerCase().replace(/\s+/g, '-'),
-        iconKey: form.iconKey,
-        name: form.name.trim(),
-        imageUrl: form.imageUrl.trim(),
-        description: form.description.trim(),
-        sortOrder: Number(form.sortOrder) || 0,
-      }),
-    });
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setMessage((j as { error?: string }).error ?? 'Create failed');
+  async function deleteRow(row: Row) {
+    if (row._isNew) {
+      setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    setCreating(false);
-    setForm(emptyForm);
-    setMessage('Service created.');
-    setTimeout(() => setMessage(null), 3000);
-    load();
-  }
-
-  async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editingId) return;
-    setMessage('Updating...');
-    const res = await fetch(`/api/services/${encodeURIComponent(editingId)}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        iconKey: form.iconKey,
-        name: form.name.trim(),
-        imageUrl: form.imageUrl.trim(),
-        description: form.description.trim(),
-        sortOrder: Number(form.sortOrder) || 0,
-      }),
-    });
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setMessage((j as { error?: string }).error ?? 'Update failed');
-      return;
-    }
-    setEditingId(null);
-    setForm(emptyForm);
-    setMessage('Service updated.');
-    setTimeout(() => setMessage(null), 3000);
-    load();
-  }
-
-  async function handleDelete(id: string) {
-    if (!confirm(`Delete service “${id}”? This cannot be undone.`)) return;
-    setMessage(null);
-    const res = await fetch(`/api/services/${encodeURIComponent(id)}`, {
+    if (!confirm(`Delete “${row.name}”? This cannot be undone.`)) return;
+    setBusy(true);
+    setMessage('Deleting…');
+    const res = await fetch(`/api/services/${encodeURIComponent(row.id)}`, {
       method: 'DELETE',
       credentials: 'include',
     });
     if (!res.ok) {
       setMessage('Delete failed');
+      setBusy(false);
       return;
     }
-    setMessage('Service deleted.');
-    if (editingId === id) {
-      setEditingId(null);
-      setForm(emptyForm);
-    }
-    load();
+    setMessage('Removed.');
+    setTimeout(() => setMessage(null), 3000);
+    setBusy(false);
+    await load();
   }
 
-  function startEdit(row: PublicService) {
-    setCreating(false);
-    setEditingId(row.id);
-    setForm({
-      id: row.id,
-      iconKey: row.iconKey,
-      name: row.name,
-      imageUrl: row.imageUrl,
-      description: row.description,
-      sortOrder: row.sortOrder,
+  function addExpertise() {
+    setItems((prev) => {
+      const nextSortOrder =
+        prev.length === 0 ? 0 : Math.min(...prev.map((r) => r.sortOrder)) - 1;
+      const newRow: Row = {
+        id: '',
+        iconKey: 'Wrench',
+        name: '',
+        imageUrl: PLACEHOLDER_IMAGE,
+        description: '',
+        sortOrder: nextSortOrder,
+        _isNew: true,
+        _clientId:
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `tmp-${Date.now()}`,
+      };
+      return [newRow, ...prev];
     });
-    setMessage(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.alert(
+      'New expertise card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add title and description, then save.',
+    );
   }
 
-  function startCreate() {
-    setEditingId(null);
-    setCreating(true);
-    setForm({ ...emptyForm, sortOrder: rows.length });
-    setMessage(null);
+  if (loading) {
+    return <p className="p-8 text-center text-muted-grey">Loading expertise…</p>;
   }
-
-  function cancelForm() {
-    setCreating(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    setMessage(null);
-  }
-
-  const formTitle = editingId ? `Edit: ${editingId}` : creating ? 'New service' : null;
 
   return (
-    <div className="mx-auto max-w-4xl relative">
-      {/* Loading/Saving Overlay */}
-      {(message === 'Service updated.' || message === 'Service created.' || message === 'Creating...' || message === 'Updating...' || uploading) && (
+    <div className="relative space-y-8">
+      {(busy ||
+        message === 'Saving…' ||
+        message === 'Replacing image…' ||
+        message === 'Deleting…' ||
+        uploadingId) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/20 backdrop-blur-[2px]">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl border border-border-grey flex flex-col items-center gap-4 animate-in zoom-in duration-300">
-            <div className="w-12 h-12 border-4 border-machine-orange border-t-transparent rounded-full animate-spin" />
-            <p className="text-navy font-bold text-lg">{uploading ? 'Uploading image...' : 'Processing changes...'}</p>
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-border-grey bg-white p-8 shadow-2xl">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-machine-orange border-t-transparent" />
+            <p className="text-lg font-bold text-navy">
+              {uploadingId ? 'Uploading photo…' : savingId ? 'Saving…' : 'Working…'}
+            </p>
           </div>
         </div>
       )}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-navy text-capitalize">Expertise</h1>
-          <p className="mt-1 text-sm text-muted-grey">Create, update, or remove offerings shown on the homepage.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+
+      <section>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-navy">Expertise</h2>
+            <p className="text-sm text-muted-grey">
+              Same layout as the homepage. Hover a photo to replace it; edit title and description on each card, then Save.
+            </p>
+          </div>
           <button
             type="button"
-            onClick={startCreate}
+            onClick={addExpertise}
             className="inline-flex items-center gap-2 rounded-xl bg-machine-orange px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95"
           >
             <Plus className="h-4 w-4" />
-            Add Expertise
+            Add expertise
           </button>
         </div>
-      </div>
 
-      {message ? (
-        <p className="mb-4 rounded-lg border border-border-grey bg-white/80 px-4 py-2 text-sm text-navy" role="status">
-          {message}
-        </p>
-      ) : null}
+        {/* Mirrors Services section: bg + grid */}
+        <div className="rounded-2xl border border-border-grey/60 bg-bg-steel/30 px-4 py-8 sm:px-6">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {items.map((row) => {
+              const key = rowKey(row);
+              const src = row.imageUrl?.trim() ? row.imageUrl : PLACEHOLDER_IMAGE;
 
-      {(creating || editingId) && (
-        <div className="mb-10 rounded-2xl border border-border-grey bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-navy">{formTitle}</h2>
-          <form onSubmit={editingId ? handleUpdate : handleCreate} className="space-y-4">
-            {!editingId && (
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">
-                  Id (slug)
-                </label>
-                <input
-                  required
-                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                  className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                  value={form.id}
-                  onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-                  placeholder="e.g. vmc-job-work"
-                />
-                <p className="mt-1 text-xs text-muted-grey">Lowercase letters, numbers, hyphens only.</p>
-              </div>
-            )}
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Icon</label>
-              <select
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.iconKey}
-                onChange={(e) => setForm((f) => ({ ...f, iconKey: e.target.value }))}
-              >
-                {SERVICE_ICON_OPTIONS.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Name</label>
-              <input
-                required
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Image URL</label>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                <input
-                  required
-                  type="url"
-                  className="min-w-0 flex-1 rounded-lg border border-border-grey px-3 py-2 text-navy"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                  placeholder="https://…"
-                />
-                <input
-                  ref={imageFileRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                  className="hidden"
-                  onChange={handleImageFileChange}
-                />
-                <button
-                  type="button"
-                  disabled={uploading}
-                  onClick={() => imageFileRef.current?.click()}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border-grey bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-bg-steel/50 disabled:opacity-50"
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col overflow-hidden rounded-3xl border border-white bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-machine-orange/30 hover:shadow-xl"
                 >
-                  <Upload className="h-4 w-4" />
-                  {uploading ? 'Uploading…' : 'Cloudinary'}
-                </button>
-              </div>
-              <p className="mt-1 text-xs text-muted-grey">Paste an image URL or upload (stored in Cloudinary folder karan-engineers/services).</p>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Description</label>
-              <textarea
-                required
-                rows={4}
-                className="w-full rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">Sort order</label>
-              <input
-                type="number"
-                className="w-full max-w-xs rounded-lg border border-border-grey px-3 py-2 text-navy"
-                value={form.sortOrder}
-                onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <button
-                type="submit"
-                className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white hover:opacity-95"
-              >
-                {editingId ? 'Save changes' : 'Create service'}
-              </button>
-              <button type="button" onClick={cancelForm} className="rounded-xl border border-border-grey px-5 py-2.5 text-sm font-semibold text-navy">
-                Cancel
-              </button>
-            </div>
-          </form>
+                  <div className="group relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-bg-cloud">
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center gap-3 bg-navy/60 opacity-0 transition-opacity group-hover:opacity-100">
+                      <input
+                        type="file"
+                        id={`ex-img-${key}`}
+                        className="hidden"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                        onChange={(e) => handleReplaceImage(e, row)}
+                      />
+                      <label
+                        htmlFor={`ex-img-${key}`}
+                        className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Edit photo
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => deleteRow(row)}
+                        className="rounded-xl bg-white/10 p-2 text-white transition-colors hover:bg-red-500"
+                        aria-label="Delete card"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-1 flex-col gap-3 bg-white p-5">
+                    {row._isNew ? (
+                      <label className="block">
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">ID (slug)</span>
+                        <input
+                          className="mt-1 w-full rounded-lg border border-border-grey px-2 py-1.5 font-mono text-xs text-navy"
+                          value={row.id}
+                          onChange={(e) => updateRow(key, { id: e.target.value })}
+                          placeholder="e.g. vmc-milling"
+                        />
+                      </label>
+                    ) : (
+                      <p className="font-mono text-[10px] text-muted-grey">id: {row.id}</p>
+                    )}
+
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Title</span>
+                      <input
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy"
+                        value={row.name}
+                        onChange={(e) => updateRow(key, { name: e.target.value })}
+                      />
+                    </label>
+
+                    <label className="block flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Description</span>
+                      <textarea
+                        rows={4}
+                        className="mt-1 w-full resize-y rounded-lg border border-border-grey px-2 py-2 text-sm leading-relaxed text-muted-grey"
+                        value={row.description}
+                        onChange={(e) => updateRow(key, { description: e.target.value })}
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Sort order</span>
+                      <input
+                        type="number"
+                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        value={row.sortOrder}
+                        onChange={(e) => updateRow(key, { sortOrder: Number(e.target.value) })}
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      disabled={!!uploadingId || !!savingId}
+                      onClick={() => saveRow(row)}
+                      className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white hover:opacity-95 disabled:opacity-50"
+                    >
+                      <Save className="h-4 w-4" />
+                      {row._isNew ? 'Create card' : 'Save changes'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      )}
+      </section>
 
-      {loading ? (
-        <p className="text-muted-grey">Loading…</p>
-      ) : (
-        <ul className="space-y-3">
-          {rows.map((row) => (
-            <li
-              key={row.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border-grey bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="font-extrabold text-navy">{row.name}</p>
-                <p className="truncate text-xs font-mono text-muted-grey">{row.id}</p>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-grey">{row.description}</p>
-              </div>
-              <div className="flex shrink-0 gap-2">
-                <button
-                  type="button"
-                  onClick={() => startEdit(row)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border-grey px-3 py-2 text-sm font-semibold text-navy hover:bg-bg-steel/50"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(row.id)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800 hover:bg-red-100"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {message &&
+        message !== 'Saving…' &&
+        message !== 'Replacing image…' &&
+        message !== 'Deleting…' &&
+        !uploadingId &&
+        !savingId && (
+          <div className="fixed bottom-8 right-8 animate-in fade-in slide-in-from-bottom-4 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl">
+            {message}
+          </div>
+        )}
     </div>
   );
 }

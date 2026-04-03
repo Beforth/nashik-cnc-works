@@ -6,10 +6,11 @@
   
   --color-navy: #1C2B3A;
   --color-steel: #2E4A6B;
-  --color-machine-orange: #E8600A;
-  --color-orange-light: #FFF0E8;
-  --color-amber: #F5A623;
-  --color-amber-light: #FFF8EC;
+  /* Brand accent — matches public/logo.png (~#005391); class names unchanged */
+  --color-machine-orange: #005391;
+  --color-orange-light: #e8f1f8;
+  --color-amber: #1a6eb8;
+  --color-amber-light: #f0f5fa;
   --color-bg-cloud: #F5F7FA;
   --color-bg-steel: #EEF1F6;
   --color-border-grey: #DDE3EC;

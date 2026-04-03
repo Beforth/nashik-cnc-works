@@ -12,7 +12,7 @@ export default function Navbar({ settings }: { settings?: any }) {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
-  const companyName = settings?.companyName || 'Karan Engineers';
+  const companyName = settings?.companyName || 'Karan Engineers & Fabrication';
   const address = settings?.address || COMPANY.tagline;
   const phone = settings?.phone || COMPANY.phone;
   const phoneDisplay = settings?.phoneFormatted || COMPANY.contactPhoneDisplay;
@@ -23,7 +23,12 @@ export default function Navbar({ settings }: { settings?: any }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const menuItems = ['Services', 'Machines', 'Gallery', 'Contact'];
+  const menuLinks = [
+    { label: 'Services', href: '/#services' },
+    { label: 'Machines', href: '/#machines' },
+    { label: 'Gallery', href: '/gallery' },
+    { label: 'Contact', href: '/#contact' },
+  ] as const;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -40,7 +45,7 @@ export default function Navbar({ settings }: { settings?: any }) {
             }}
             className="flex items-center gap-4 text-sm font-normal pr-10 shrink-0"
           >
-            <span>{companyName} & Fabrication , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
+            <span>{companyName} , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
           </motion.div>
           <motion.div 
             initial={{ x: "0%" }}
@@ -52,7 +57,7 @@ export default function Navbar({ settings }: { settings?: any }) {
             }}
             className="flex items-center gap-4 text-sm font-normal pr-10 shrink-0"
           >
-            <span>{companyName} & Fabrication , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
+            <span>{companyName} , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
           </motion.div>
         </div>
       </div>
@@ -66,45 +71,44 @@ export default function Navbar({ settings }: { settings?: any }) {
           >
             <Image
               src="/logo.png"
-              alt="Karan Engineers & Fabrication — company logo"
+              alt={`${companyName} — company logo`}
               width={180}
               height={56}
               className="h-9 w-auto shrink-0 object-contain object-left md:h-11"
               priority
             />
             <span className="min-w-0 sm:whitespace-nowrap">
-              {companyName}{' '}
-              <span className="text-machine-orange block text-sm sm:inline sm:text-lg">& Fabrication</span>
+              {companyName}
             </span>
           </Link>
 
           {/* Desktop Links - Enhanced Menu Design */}
           <div className="hidden md:flex items-center gap-1 p-1 bg-bg-steel/40 rounded-xl border border-white/50 relative">
-            {menuItems.map((item) => (
+            {menuLinks.map(({ label, href }) => (
               <a 
-                key={item} 
-                href={`#${item.toLowerCase()}`} 
-                onMouseEnter={() => setHoveredItem(item)}
+                key={label} 
+                href={href} 
+                onMouseEnter={() => setHoveredItem(label)}
                 onMouseLeave={() => setHoveredItem(null)}
                 className={cn(
                   "relative px-5 py-2 text-sm font-bold transition-all duration-300 rounded-lg",
-                  hoveredItem === item ? "text-machine-orange" : "text-navy"
+                  hoveredItem === label ? "text-machine-orange" : "text-navy"
                 )}
               >
-                {hoveredItem === item && (
+                {hoveredItem === label && (
                   <motion.div
                     layoutId="navbar-hover"
                     className="absolute inset-0 bg-white shadow-sm border border-border-grey/30 rounded-lg -z-10"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-                <span className="relative z-10">{item}</span>
+                <span className="relative z-10">{label}</span>
               </a>
             ))}
           </div>
 
           <div className="hidden md:block">
-            <a href="#enquiry" className="bg-machine-orange text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-navy transition-colors shadow-sm">
+            <a href="/#enquiry" className="bg-machine-orange text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-navy transition-colors shadow-sm">
               Get Quote
             </a>
           </div>
@@ -128,31 +132,31 @@ export default function Navbar({ settings }: { settings?: any }) {
               <div className="md:hidden border-b border-border-grey/30 pb-4 mb-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-muted-grey mb-2">
                   <MapPin size={14} className="text-machine-orange" />
-                  <span>{COMPANY.tagline}</span>
+                  <span>{address}</span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <a href={`tel:${COMPANY.phone}`} className="flex items-center gap-2 text-sm font-bold text-navy">
+                  <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm font-bold text-navy">
                     <Phone size={14} className="text-machine-orange" />
-                    {COMPANY.contactPhoneDisplay}
+                    {phoneDisplay}
                   </a>
                 </div>
               </div>
-              {menuItems.map((item, i) => (
+              {menuLinks.map(({ label, href }, i) => (
                 <motion.a 
-                  key={item} 
-                  href={`#${item.toLowerCase()}`} 
+                  key={label} 
+                  href={href} 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
                   className="flex items-center justify-between px-4 py-4 rounded-xl text-lg font-bold text-navy hover:bg-bg-cloud hover:text-machine-orange border border-transparent hover:border-border-grey/50 transition-all group"
                   onClick={() => setIsOpen(false)}
                 >
-                  {item}
+                  {label}
                   <ChevronRight size={18} className="text-border-grey group-hover:text-machine-orange transition-transform group-hover:translate-x-1" />
                 </motion.a>
               ))}
               <a 
-                href="#enquiry" 
+                href="/#enquiry" 
                 className="bg-gradient-to-r from-machine-orange to-amber text-white text-center font-bold py-4 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2"
                 onClick={() => setIsOpen(false)}
               >

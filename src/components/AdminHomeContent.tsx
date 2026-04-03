@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Trash2, Save, Upload } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Trash2, Save, Upload, Plus } from 'lucide-react';
 
 export default function AdminHomeContent() {
+  const router = useRouter();
   const [settings, setSettings] = useState<any>(null);
   const [heroImages, setHeroImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [addingHero, setAddingHero] = useState(false);
 
   useEffect(() => {
     async function load() {
       const [sRes, hRes] = await Promise.all([
-        fetch('/api/admin/settings'),
-        fetch('/api/admin/hero')
+        fetch('/api/admin/settings', { credentials: 'include' }),
+        fetch('/api/admin/hero', { credentials: 'include' }),
       ]);
       const s = await sRes.json();
       const h = await hRes.json();
@@ -30,6 +33,7 @@ export default function AdminHomeContent() {
     setMessage('Saving changes...');
     const res = await fetch('/api/admin/settings', {
       method: 'PATCH',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings),
     });
@@ -53,13 +57,15 @@ export default function AdminHomeContent() {
       fd.append('file', file);
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
+        credentials: 'include',
         body: fd,
       });
       const data = await res.json();
       
       if (res.ok && data.url) {
-        const heroRes = await fetch(`/api/admin/hero?id=${id}`, {
+        const heroRes = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
           method: 'PATCH',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: data.url }),
         });
@@ -81,11 +87,57 @@ export default function AdminHomeContent() {
 
   async function deleteHeroImage(id: string) {
     if (!confirm('Delete this hero image?')) return;
-    const res = await fetch(`/api/admin/hero?id=${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
     if (res.ok) {
       setHeroImages(heroImages.filter(h => h.id !== id));
       setMessage('Photo removed.');
       setTimeout(() => setMessage(null), 3000);
+    }
+  }
+
+  async function addHeroCard() {
+    setAddingHero(true);
+    try {
+      const res = await fetch('/api/admin/hero', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (res.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMessage((data as { error?: string }).error ?? 'Could not add hero card.');
+        setTimeout(() => setMessage(null), 4000);
+        return;
+      }
+      setHeroImages((prev) => [...prev, data].sort((a, b) => a.sortOrder - b.sortOrder));
+      setMessage('New hero card added — upload a photo with Edit.');
+      setTimeout(() => setMessage(null), 4000);
+    } catch {
+      setMessage('Could not add hero card.');
+      setTimeout(() => setMessage(null), 4000);
+    } finally {
+      setAddingHero(false);
+    }
+  }
+
+  async function saveHeroAlt(id: string, alt: string) {
+    const normalized = alt.trim() || 'Hero slide';
+    const res = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alt: normalized }),
+    });
+    if (res.ok) {
+      setHeroImages((prev) => prev.map((h) => (h.id === id ? { ...h, alt: normalized } : h)));
     }
   }
 
@@ -94,11 +146,13 @@ export default function AdminHomeContent() {
   return (
     <div className="space-y-12 relative">
       {/* Loading/Saving Overlay */}
-      {(message === 'Saving changes...' || uploading) && (
+      {(message === 'Saving changes...' || uploading || addingHero) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/20 backdrop-blur-[2px]">
           <div className="bg-white p-8 rounded-3xl shadow-2xl border border-border-grey flex flex-col items-center gap-4 animate-in zoom-in duration-300">
             <div className="w-12 h-12 border-4 border-machine-orange border-t-transparent rounded-full animate-spin" />
-            <p className="text-navy font-bold text-lg">{uploading ? 'Replacing photo...' : 'Saving your changes...'}</p>
+            <p className="text-navy font-bold text-lg">
+              {addingHero ? 'Adding card...' : uploading ? 'Replacing photo...' : 'Saving your changes...'}
+            </p>
           </div>
         </div>
       )}
@@ -176,42 +230,74 @@ export default function AdminHomeContent() {
       </section>
 
       <section>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-navy">Hero Photos</h2>
-          <p className="text-sm text-muted-grey">Click Edit to replace any of the existing banner images.</p>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-navy">Hero section</h2>
+            <p className="text-sm text-muted-grey">
+              Carousel slides on the home hero. Add a card, then use Edit to upload an image. Alt text helps accessibility.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addHeroCard}
+            disabled={addingHero}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-machine-orange px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" />
+            Add hero card
+          </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {heroImages.map(img => (
-            <div key={img.id} className="group relative aspect-video rounded-2xl overflow-hidden border border-border-grey bg-white shadow-sm">
-              <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <input 
-                  type="file" 
-                  id={`replace-${img.id}`}
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => handleReplace(e, img.id)}
-                />
-                <label 
-                  htmlFor={`replace-${img.id}`}
-                  className="bg-white hover:bg-machine-orange px-4 py-2 rounded-xl text-navy hover:text-white font-bold text-sm transition-colors cursor-pointer flex items-center gap-2"
-                >
-                  <Upload className="h-4 w-4" />
-                  Edit
-                </label>
-                <button 
-                  onClick={() => deleteHeroImage(img.id)} 
-                  className="bg-white/10 hover:bg-red-500 p-2 rounded-xl text-white transition-colors"
-                >
-                  <Trash2 className="h-5 w-5" />
-                </button>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {heroImages.map((img) => (
+            <div
+              key={img.id}
+              className="overflow-hidden rounded-2xl border border-border-grey bg-white shadow-sm"
+            >
+              <div className="group relative aspect-video overflow-hidden">
+                <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-navy/60 opacity-0 transition-opacity group-hover:opacity-100">
+                  <input
+                    type="file"
+                    id={`replace-${img.id}`}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleReplace(e, img.id)}
+                  />
+                  <label
+                    htmlFor={`replace-${img.id}`}
+                    className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Edit
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => deleteHeroImage(img.id)}
+                    className="rounded-xl bg-white/10 p-2 text-white transition-colors hover:bg-red-500"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
+              <label className="block border-t border-border-grey p-3">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Alt text</span>
+                <input
+                  className="mt-1 block w-full rounded-lg border border-border-grey px-2 py-1.5 text-sm text-navy"
+                  value={img.alt}
+                  onChange={(e) =>
+                    setHeroImages((prev) =>
+                      prev.map((h) => (h.id === img.id ? { ...h, alt: e.target.value } : h)),
+                    )
+                  }
+                  onBlur={(e) => saveHeroAlt(img.id, e.target.value)}
+                />
+              </label>
             </div>
           ))}
         </div>
       </section>
 
-      {message && message !== 'Saving changes...' && !uploading && (
+      {message && message !== 'Saving changes...' && !uploading && !addingHero && (
         <div className="fixed bottom-8 right-8 bg-navy text-white px-6 py-3 rounded-xl shadow-2xl animate-in fade-in slide-in-from-bottom-4">
           {message}
         </div>

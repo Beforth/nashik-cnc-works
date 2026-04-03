@@ -25,10 +25,15 @@ export async function PATCH(req: Request) {
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-  const data = await req.json();
+  const body = (await req.json().catch(() => ({}))) as { status?: string };
+  const allowed = new Set(['NEW', 'READ', 'REPLIED', 'ARCHIVED']);
+  const status = typeof body.status === 'string' ? body.status.toUpperCase() : '';
+  if (!allowed.has(status)) {
+    return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+  }
   const updated = await prisma.enquiry.update({
     where: { id },
-    data: { status: data.status },
+    data: { status },
   });
 
   return NextResponse.json(updated);

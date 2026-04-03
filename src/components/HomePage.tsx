@@ -1,12 +1,10 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 
 import {
   CITIES,
   INDUSTRIES,
-  GALLERY_ITEMS,
-  COMPANY,
 } from '../constants';
 
 import Navbar from './Navbar';
@@ -18,10 +16,11 @@ import HowItWorks from './HowItWorks';
 import EnquiryForm from './EnquiryForm';
 import Footer from './Footer';
 import StickyActions from './StickyActions';
-import WhatsAppIcon from './WhatsAppIcon';
 import SectionHeading from './SectionHeading';
+import JobsGallerySection from './JobsGallerySection';
 
 import { getServiceIcon } from '@/src/lib/service-icons';
+import { getMergedGalleryItems } from '@/src/lib/gallery-display';
 
 interface HomePageProps {
   slug?: string;
@@ -36,12 +35,21 @@ interface HomePageProps {
 const HomePage = ({ slug, settings, heroImages, services, galleryItems, infrastructureItems, industryItems }: HomePageProps) => {
   // Find city based on slug or default to Nashik
   const city = CITIES.find(c => c.slug === slug) || CITIES[0];
+  const prevSlugRef = useRef<string | undefined>(undefined);
 
-  const displayGalleryItems = galleryItems?.length ? galleryItems : GALLERY_ITEMS.map(item => ({ ...item, imageUrl: item.src }));
+  const displayGalleryItems = getMergedGalleryItems(galleryItems);
   const displayIndustries = industryItems?.length ? industryItems : INDUSTRIES;
 
+  /** Scroll to top only when switching city (client nav), not on full refresh — keeps hash/scroll position. */
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (prevSlugRef.current === undefined) {
+      prevSlugRef.current = slug;
+      return;
+    }
+    if (prevSlugRef.current !== slug) {
+      window.scrollTo(0, 0);
+      prevSlugRef.current = slug;
+    }
   }, [slug]);
 
   return (
@@ -89,46 +97,7 @@ const HomePage = ({ slug, settings, heroImages, services, galleryItems, infrastr
 
       <HowItWorks />
 
-      {/* Jobs Gallery (Gallery) — IndiaMART product photos */}
-      <section id="gallery" className="py-24 px-4 bg-gradient-to-b from-bg-cloud/80 to-white">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeading
-            title="Jobs Gallery"
-            kicker="Product Gallery"
-            description="A glimpse of our precision-engineered components, custom fabricated parts, and high-quality machining work."
-            align="center"
-          />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {displayGalleryItems.map((item, i) => (
-              <a
-                key={`${item.title}-${i}`}
-                href={`https://wa.me/91${settings?.phone || COMPANY.phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square overflow-hidden rounded-2xl border-2 border-machine-orange/20 bg-white shadow-sm hover:border-machine-orange hover:shadow-lg transition-all"
-              >
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-machine-orange mb-0.5">
-                    {item.category}
-                  </div>
-                  <div className="text-xs font-bold leading-tight">{item.title}</div>
-                  <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-white/20 text-[10px] font-bold uppercase tracking-widest text-white transition-colors">
-                    Get best quote <WhatsAppIcon size={12} className="text-[#25D366]" />
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+      <JobsGallerySection items={displayGalleryItems} settings={settings} />
 
       <EnquiryForm />
       <Footer />

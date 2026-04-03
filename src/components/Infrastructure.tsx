@@ -58,7 +58,7 @@ export default function Infrastructure({ items }: { items?: any[] }) {
                       <h4 className={`text-lg font-black tracking-tight ${isActive ? 'text-white' : 'text-navy'}`}>
                         {m.name.replace(' job work', '').replace(' supply', '')}
                       </h4>
-                      {isActive && <motion.div layoutId="active-dot" className="w-2 h-2 rounded-full bg-machine-orange shadow-[0_0_10px_#E8600A]" />}
+                      {isActive && <motion.div layoutId="active-dot" className="w-2 h-2 rounded-full bg-machine-orange shadow-[0_0_10px_#005391]" />}
                     </div>
                     <p className={`text-sm leading-relaxed ${isActive ? 'text-white/70' : 'text-muted-grey'}`}>
                       {m.specs}
