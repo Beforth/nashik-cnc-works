@@ -262,45 +262,43 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] border border-dashed border-machine-orange/30 rounded-full animate-[spin_60s_linear_infinite]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] border border-dashed border-navy/20 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
 
-            <motion.div 
-              whileHover={{ 
-                scale: 1.02,
-                rotateY: 5,
-                rotateX: -2,
-              }}
-              transition={{ duration: 0.4 }}
-              className="relative w-full max-w-[280px] sm:max-w-sm aspect-[4/5] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-20 overflow-hidden"
+            {/* group + clip: 3D rotate on the same node as overflow-hidden breaks hover/clipping in several browsers */}
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="group relative z-20 w-full max-w-[280px] sm:max-w-sm origin-center transform-gpu rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] will-change-transform"
             >
-              <div className="relative w-full h-full overflow-hidden rounded-2xl bg-navy/90">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-navy/90 ring-1 ring-white/10">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={heroImageIndex}
                     src={displayImages[heroImageIndex].src}
                     alt={displayImages[heroImageIndex].alt}
-                    initial={{ opacity: 0, scale: 1.1 }}
+                    draggable={false}
+                    initial={{ opacity: 0, scale: 1.08 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
                     transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110"
                   />
                 </AnimatePresence>
-                
+
                 {/* Sweeping Shine Effect */}
                 <motion.div
-                  animate={{ 
+                  animate={{
                     left: ['-100%', '200%'],
                   }}
-                  transition={{ 
-                    duration: 3, 
-                    repeat: Infinity, 
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
                     repeatDelay: 5,
-                    ease: "easeInOut" 
+                    ease: 'easeInOut',
                   }}
-                  className="absolute top-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] pointer-events-none z-10"
+                  className="pointer-events-none absolute top-0 z-10 h-full w-1/2 skew-x-[-25deg] bg-gradient-to-r from-transparent via-white/20 to-transparent"
                 />
 
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent opacity-90" />
-                <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-3 z-20">
+                <div className="pointer-events-none absolute inset-0 z-[11] bg-gradient-to-t from-navy/50 via-navy/10 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100 group-hover:from-navy/60" />
+                <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center gap-1.5 pb-3">
                   {displayImages.map((_, idx) => (
                     <button
                       key={idx}

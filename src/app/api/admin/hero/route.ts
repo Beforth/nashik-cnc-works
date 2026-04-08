@@ -10,10 +10,18 @@ const HERO_PLACEHOLDER_URL =
   );
 
 export async function GET() {
-  const items = await prisma.heroImage.findMany({
-    orderBy: { sortOrder: 'asc' },
-  });
-  return NextResponse.json(items);
+  try {
+    const items = await prisma.heroImage.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+    return NextResponse.json(items);
+  } catch (e) {
+    console.error('[GET /api/admin/hero]', e);
+    return NextResponse.json(
+      { error: 'Failed to load hero images' },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(req: Request) {

@@ -4,6 +4,29 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Save, Upload, Plus } from 'lucide-react';
 
+/** Matches Prisma defaults so the form never mounts with undefined fields after a failed/partial load. */
+const DEFAULT_SITE_SETTINGS = {
+  companyName: 'Karan Engineers & Fabrication',
+  gstin: '27AVRPK3981G1Z1',
+  contactName: 'Mr. Dinesh Khairnar',
+  phone: '9423928362',
+  phoneFormatted: '+91 94239 28362',
+  email: 'mr.dinesheng@gmail.com',
+  address: 'MIDC Ambad, Nashik, Maharashtra 422010.',
+  indiaMartUrl: 'https://www.indiamart.com/dinesh-eng/',
+  googleMapsUrl: 'https://www.google.com/maps/...',
+};
+
+async function safeJson<T>(res: Response, fallback: T): Promise<T> {
+  const text = await res.text();
+  if (!text.trim()) return fallback;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 export default function AdminHomeContent() {
   const router = useRouter();
   const [settings, setSettings] = useState<any>(null);
@@ -15,18 +38,46 @@ export default function AdminHomeContent() {
 
   useEffect(() => {
     async function load() {
-      const [sRes, hRes] = await Promise.all([
-        fetch('/api/admin/settings', { credentials: 'include' }),
-        fetch('/api/admin/hero', { credentials: 'include' }),
-      ]);
-      const s = await sRes.json();
-      const h = await hRes.json();
-      setSettings(s);
-      setHeroImages(h);
-      setLoading(false);
+      try {
+        const [sRes, hRes] = await Promise.all([
+          fetch('/api/admin/settings', { credentials: 'include' }),
+          fetch('/api/admin/hero', { credentials: 'include' }),
+        ]);
+
+        if (sRes.status === 401 || hRes.status === 401) {
+          router.replace('/admin/login');
+          return;
+        }
+
+        const s = await safeJson<Record<string, unknown>>(sRes, {});
+        const h = await safeJson<unknown>(hRes, []);
+
+        const settingsOk =
+          sRes.ok && s && typeof s === 'object' && !('error' in s);
+        const heroOk = hRes.ok && Array.isArray(h);
+
+        setSettings(
+          settingsOk ? { ...DEFAULT_SITE_SETTINGS, ...s } : DEFAULT_SITE_SETTINGS,
+        );
+        setHeroImages(heroOk ? h : []);
+
+        if (!settingsOk || !heroOk) {
+          setMessage(
+            'Could not load admin data. Check the database connection and refresh.',
+          );
+          setTimeout(() => setMessage(null), 5000);
+        }
+      } catch {
+        setSettings(DEFAULT_SITE_SETTINGS);
+        setHeroImages([]);
+        setMessage('Could not load admin data. Try refreshing the page.');
+        setTimeout(() => setMessage(null), 5000);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
-  }, []);
+  }, [router]);
 
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault();
