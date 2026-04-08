@@ -19,6 +19,25 @@ const HERO_IMAGES: readonly { src: string; alt: string }[] = [
   },
 ];
 
+const FALLBACK_HERO_SRC = HERO_IMAGES[0].src;
+const FALLBACK_HERO_ALT = HERO_IMAGES[0].alt;
+
+function normalizeHeroSlides(
+  heroImages: { url?: string; alt?: string }[] | undefined,
+): { src: string; alt: string }[] {
+  if (!heroImages?.length) return [...HERO_IMAGES];
+  const slides = heroImages
+    .map((row) => ({
+      src: typeof row.url === 'string' ? row.url.trim() : '',
+      alt:
+        typeof row.alt === 'string' && row.alt.trim()
+          ? row.alt.trim()
+          : 'Hero slide',
+    }))
+    .filter((s) => s.src.length > 0);
+  return slides.length > 0 ? slides : [...HERO_IMAGES];
+}
+
 const HERO_DISPLAY_NAME = 'Karan Engineers & Fabrication';
 
 /** Styling per character index — keeps gradient spans continuous as text grows */
@@ -56,7 +75,7 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
   const address = settings?.address || COMPANY.tagline;
   const gstin = settings?.gstin || COMPANY.gstin;
 
-  const displayImages = heroImages?.length ? heroImages.map(img => ({ src: img.url, alt: img.alt })) : HERO_IMAGES;
+  const displayImages = useMemo(() => normalizeHeroSlides(heroImages), [heroImages]);
 
   const servingLine =
     city.id === 'nashik'
@@ -106,7 +125,15 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
   }, [companyName]);
 
   useEffect(() => {
+    setHeroImageIndex((i) => {
+      if (displayImages.length === 0) return 0;
+      return Math.min(i, displayImages.length - 1);
+    });
+  }, [displayImages]);
+
+  useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (displayImages.length <= 1) return;
     const id = window.setInterval(() => {
       setHeroImageIndex((i) => (i + 1) % displayImages.length);
     }, 5500);
@@ -269,17 +296,28 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
               className="group relative z-20 w-full max-w-[280px] sm:max-w-sm origin-center transform-gpu rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] will-change-transform"
             >
               <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-navy/90 ring-1 ring-white/10">
-                <AnimatePresence mode="wait">
+                {/* sync: crossfade overlapping slides — "wait" leaves a visible gap with no image between exits and enters */}
+                <AnimatePresence mode="sync" initial={false}>
                   <motion.img
-                    key={heroImageIndex}
+                    key={`${heroImageIndex}-${displayImages[heroImageIndex].src}`}
                     src={displayImages[heroImageIndex].src}
                     alt={displayImages[heroImageIndex].alt}
                     draggable={false}
-                    initial={{ opacity: 0, scale: 1.08 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110"
+                    loading={heroImageIndex === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={heroImageIndex === 0 ? 'high' : 'low'}
+                    referrerPolicy="no-referrer"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (el.dataset.fallback === '1') return;
+                      el.dataset.fallback = '1';
+                      el.src = FALLBACK_HERO_SRC;
+                      el.alt = FALLBACK_HERO_ALT;
+                    }}
+                    className="absolute inset-0 z-[1] h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110"
                   />
                 </AnimatePresence>
 

@@ -42,6 +42,18 @@
 }
 
 @layer base {
+  html {
+    /* Fixed Navbar: anchor jumps (#services, #enquiry, …) land with the heading below the bar */
+    scroll-padding-top: 5.75rem;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      /* md+: top ticker rail + main nav pill (~8rem) + small buffer */
+      scroll-padding-top: 8.5rem;
+    }
+  }
+
   body {
     @apply font-sans bg-bg-cloud text-navy antialiased;
   }
