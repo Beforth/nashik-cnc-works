@@ -3,9 +3,9 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { STEPS } from '../constants';
 import SectionHeading from './SectionHeading';
-import { ArrowRight, CheckCircle2, FileText, Settings, Truck } from 'lucide-react';
+import { ArrowRight, Calculator, CheckCircle2, Factory, FileText, Truck } from 'lucide-react';
 
-const STEP_ICONS = [FileText, Settings, Settings, Truck]; // Map icons to steps
+const STEP_ICONS = [FileText, Calculator, Factory, Truck];
 
 const HowItWorks = () => {
   return (
