@@ -8,7 +8,18 @@ import AdminHomeContent from '@/src/components/AdminHomeContent';
 import AdminGallery from '@/src/components/AdminGallery';
 import AdminInfrastructure from '@/src/components/AdminInfrastructure';
 import AdminIndustries from '@/src/components/AdminIndustries';
-import { LogOut, LayoutDashboard, HardHat, Factory, Building2, Image as ImageIcon, Menu, X } from 'lucide-react';
+import AdminEnquiries from '@/src/components/AdminEnquiries';
+import {
+  LogOut,
+  LayoutDashboard,
+  HardHat,
+  Factory,
+  Building2,
+  Image as ImageIcon,
+  MessageSquare,
+  Menu,
+  X,
+} from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
 const MENU_ITEMS = [
@@ -17,6 +28,7 @@ const MENU_ITEMS = [
   { id: 'infrastructure', label: 'Infrastructure', icon: Building2 },
   { id: 'industries', label: 'Industries', icon: Factory },
   { id: 'gallery', label: 'Jobs Gallery', icon: ImageIcon },
+  { id: 'enquiry', label: 'Enquiry', icon: MessageSquare },
 ] as const;
 
 const VALID_TAB_IDS = new Set<string>(MENU_ITEMS.map((m) => m.id));
@@ -193,6 +205,8 @@ export default function AdminShell() {
           <AdminIndustries />
         ) : activeTab === 'gallery' ? (
           <AdminGallery />
+        ) : activeTab === 'enquiry' ? (
+          <AdminEnquiries />
         ) : (
           <div className="rounded-2xl border-2 border-dashed border-border-grey bg-white/50 p-20 text-center">
             <p className="text-muted-grey">

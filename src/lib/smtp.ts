@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -17,11 +19,73 @@ export function isSmtpConfigured(): boolean {
   );
 }
 
-/** Inbox for enquiry notifications (falls back to public contact email). */
-export function getEnquiryNotifyEmail(): string {
-  const to = process.env.ENQUIRY_TO_EMAIL?.trim();
-  if (to) return to;
-  return 'mr.dinesheng@gmail.com';
+/** Default recipient when `to` is omitted (e.g. internal notifications). */
+export function getDefaultMailTo(): string {
+  return process.env.ENQUIRY_TO_EMAIL?.trim() || 'mr.dinesheng@gmail.com';
+}
+
+export function isValidEmail(s: string): boolean {
+  return EMAIL_RE.test(s.trim());
+}
+
+function createTransport() {
+  const port = Number(process.env.SMTP_PORT || '587');
+  const secure =
+    process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1' || port === 465;
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST!.trim(),
+    port: Number.isFinite(port) && port > 0 ? port : 587,
+    secure,
+    auth: {
+      user: process.env.SMTP_USER!.trim(),
+      pass: process.env.SMTP_PASSWORD,
+    },
+  });
+}
+
+export type SendMailInput = {
+  to: string;
+  subject: string;
+  text?: string;
+  html?: string;
+  replyTo?: string;
+};
+
+/**
+ * Send one email using env SMTP. Caller must ensure `isSmtpConfigured()` first.
+ */
+export async function sendMailMessage(input: SendMailInput): Promise<void> {
+  const to = input.to.trim();
+  if (!isValidEmail(to)) {
+    throw new Error('Invalid recipient email');
+  }
+  const subject = input.subject.trim();
+  if (!subject) {
+    throw new Error('Subject is required');
+  }
+  const text = input.text?.trim();
+  const html = input.html?.trim();
+  if (!text && !html) {
+    throw new Error('Provide text and/or html body');
+  }
+
+  let replyTo: string | undefined;
+  if (input.replyTo?.trim()) {
+    const r = input.replyTo.trim();
+    if (!isValidEmail(r)) throw new Error('Invalid replyTo email');
+    replyTo = r;
+  }
+
+  const transporter = createTransport();
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM!.trim(),
+    to,
+    subject: subject.slice(0, 300),
+    text: text || undefined,
+    html: html || undefined,
+    replyTo,
+  });
 }
 
 export type EnquiryMailPayload = {
@@ -33,28 +97,9 @@ export type EnquiryMailPayload = {
   requirements: string;
 };
 
-export async function sendEnquiryEmail(payload: EnquiryMailPayload): Promise<void> {
-  if (!isSmtpConfigured()) {
-    throw new Error('SMTP is not configured');
-  }
-
-  const port = Number(process.env.SMTP_PORT || '587');
-  const secure =
-    process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1' || port === 465;
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST!.trim(),
-    port: Number.isFinite(port) && port > 0 ? port : 587,
-    secure,
-    auth: {
-      user: process.env.SMTP_USER!.trim(),
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
-
-  const to = getEnquiryNotifyEmail();
-  const from = process.env.SMTP_FROM!.trim();
-
+/** Notify inbox (ENQUIRY_TO_EMAIL) about a public form submission. */
+export async function sendEnquiryNotificationEmail(payload: EnquiryMailPayload): Promise<void> {
+  const to = getDefaultMailTo();
   const lines = [
     'New website enquiry',
     '',
@@ -71,12 +116,11 @@ export async function sendEnquiryEmail(payload: EnquiryMailPayload): Promise<voi
   const text = lines.join('\n');
   const html = `<pre style="font-family:system-ui,sans-serif;white-space:pre-wrap">${escapeHtml(text)}</pre>`;
 
-  await transporter.sendMail({
-    from,
+  await sendMailMessage({
     to,
-    replyTo: payload.email,
-    subject: `Website enquiry — ${payload.name}`.slice(0, 200),
+    subject: `Website enquiry — ${payload.name}`.slice(0, 300),
     text,
     html,
+    replyTo: payload.email,
   });
 }

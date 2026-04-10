@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
-import { isSmtpConfigured, sendEnquiryEmail } from '@/src/lib/smtp';
+import {
+  isSmtpConfigured,
+  isValidEmail,
+  sendEnquiryNotificationEmail,
+} from '@/src/lib/smtp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,8 +43,6 @@ function buildDbMessage(parts: {
   return msg.length > 0 ? msg.slice(0, MAX_LEN.message) : 'Enquiry from website (no extra details).';
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export async function POST(req: Request) {
   let raw: unknown;
   try {
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  if (!EMAIL_RE.test(email)) {
+  if (!isValidEmail(email)) {
     return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
   }
 
@@ -99,7 +101,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    await sendEnquiryEmail({
+    await sendEnquiryNotificationEmail({
       name,
       phone,
       email,
