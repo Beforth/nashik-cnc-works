@@ -4,15 +4,18 @@ import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
 
 export async function GET() {
-  const store = await cookies();
-  if (!verifyAdminSessionToken(store.get(COOKIE_NAME)?.value)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const items = await prisma.galleryItem.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+    return NextResponse.json(items);
+  } catch (e) {
+    console.error('[GET /api/admin/gallery]', e);
+    return NextResponse.json(
+      { error: 'Failed to load gallery items' },
+      { status: 500 },
+    );
   }
-
-  const items = await prisma.galleryItem.findMany({
-    orderBy: { sortOrder: 'asc' },
-  });
-  return NextResponse.json(items);
 }
 
 function parseCreateBody(raw: unknown) {

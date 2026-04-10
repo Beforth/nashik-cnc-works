@@ -76,6 +76,73 @@ const INDUSTRIES = [
   { name: 'General engineering', iconKey: 'Construction', sortOrder: 7 },
 ];
 
+/** Jobs gallery — mirrors `GALLERY_ITEMS` in `src/constants.ts` so admin & DB match the public section */
+const GALLERY_ITEMS = [
+  {
+    title: 'Turning Machine Job',
+    category: 'Job work',
+    imageUrl:
+      'https://5.imimg.com/data5/AL/TH/UV/NSDMERP-20762121/20762121-product-1541063333096-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267930655',
+    sortOrder: 0,
+  },
+  {
+    title: 'Milling Machine Job',
+    category: 'Job work',
+    imageUrl:
+      'https://5.imimg.com/data5/LK/RX/UB/NSDMERP-20762121/20762121-product-1541063338370-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267931088',
+    sortOrder: 1,
+  },
+  {
+    title: 'CNC Machine Job',
+    category: 'Job work',
+    imageUrl:
+      'https://5.imimg.com/data5/TA/RH/RA/NSDMERP-20762121/20762121-product-1541063342172-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/job-work.html#20267931355',
+    sortOrder: 2,
+  },
+  {
+    title: 'CNC Turned Components',
+    category: 'Machined components',
+    imageUrl:
+      'https://5.imimg.com/data5/VF/EG/EW/NSDMERP-20762121/20762121-product-1541063345687-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267931691',
+    sortOrder: 3,
+  },
+  {
+    title: 'Components for Power Sector',
+    category: 'Machined components',
+    imageUrl: 'https://5.imimg.com/data5/RM/AA/MY-20762121/components-for-power-sector-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#12691033355',
+    sortOrder: 4,
+  },
+  {
+    title: 'Components for Automobile Industry',
+    category: 'Machined components',
+    imageUrl:
+      'https://5.imimg.com/data5/KU/BL/MY-20762121/components-for-automobile-industry-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#12691033212',
+    sortOrder: 5,
+  },
+  {
+    title: 'Bush',
+    category: 'Machined components',
+    imageUrl:
+      'https://5.imimg.com/data5/NV/BI/JM/NSDMERP-20762121/20762121-product-1541063343725-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267931533',
+    sortOrder: 6,
+  },
+  {
+    title: 'Clamp Shaft',
+    category: 'Machined components',
+    imageUrl:
+      'https://5.imimg.com/data5/UQ/RV/QZ/NSDMERP-20762121/20762121-product-1541063336555-500x500.jpg',
+    linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267930862',
+    sortOrder: 7,
+  },
+];
+
 async function main() {
   // Services
   for (const row of SERVICES) {
@@ -109,6 +176,12 @@ async function main() {
   for (const row of INDUSTRIES) {
     const existing = await prisma.industryItem.findFirst({ where: { name: row.name } });
     if (!existing) await prisma.industryItem.create({ data: row });
+  }
+
+  // Jobs gallery (admin reads only from DB; public merges with static fallback when DB empty)
+  for (const row of GALLERY_ITEMS) {
+    const existing = await prisma.galleryItem.findFirst({ where: { title: row.title } });
+    if (!existing) await prisma.galleryItem.create({ data: row });
   }
 }
 

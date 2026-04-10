@@ -10,12 +10,25 @@ import { getIndustryItems } from '@/src/lib/industry-content';
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const settings = await getSiteSettings();
-  const heroImages = await getHeroImages();
-  const services = await getServices();
-  const galleryItems = getMergedGalleryItems(await getGalleryItems());
-  const infrastructureItems = await getInfrastructureItems();
-  const industryItems = await getIndustryItems();
-  
-  return <HomePage settings={settings} heroImages={heroImages} services={services} galleryItems={galleryItems} infrastructureItems={infrastructureItems} industryItems={industryItems} />;
+  const [settings, heroImages, services, galleryRaw, infrastructureItems, industryItems] =
+    await Promise.all([
+      getSiteSettings(),
+      getHeroImages(),
+      getServices(),
+      getGalleryItems(),
+      getInfrastructureItems(),
+      getIndustryItems(),
+    ]);
+  const galleryItems = getMergedGalleryItems(galleryRaw);
+
+  return (
+    <HomePage
+      settings={settings}
+      heroImages={heroImages}
+      services={services}
+      galleryItems={galleryItems}
+      infrastructureItems={infrastructureItems}
+      industryItems={industryItems}
+    />
+  );
 }

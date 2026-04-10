@@ -1,18 +1,59 @@
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Upload, Send, MapPin, ExternalLink, Plus, Minus } from 'lucide-react';
+import { CheckCircle2, Upload, Send, MapPin, Plus, Minus } from 'lucide-react';
 import SectionHeading from './SectionHeading';
-import { COMPANY } from '../constants';
 
 const EnquiryForm = () => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success'>('idle');
   const [showDrawing, setShowDrawing] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitWarning, setSubmitWarning] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
+    setSubmitWarning(null);
     setStatus('sending');
-    setTimeout(() => setStatus('success'), 1500);
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    const payload = {
+      name: String(fd.get('name') || '').trim(),
+      phone: String(fd.get('phone') || '').trim(),
+      email: String(fd.get('email') || '').trim(),
+      material: String(fd.get('material') || '').trim(),
+      qty: String(fd.get('qty') || '').trim(),
+      requirements: String(fd.get('requirements') || '').trim(),
+    };
+
+    try {
+      const res = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        warning?: string;
+      };
+
+      if (!res.ok) {
+        setFormError(typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again.');
+        setStatus('idle');
+        return;
+      }
+
+      if (typeof data.warning === 'string' && data.warning.length > 0) {
+        setSubmitWarning(data.warning);
+      }
+      setStatus('success');
+      form.reset();
+    } catch {
+      setFormError('Could not reach the server. Check your connection and try again.');
+      setStatus('idle');
+    }
   };
 
   return (
@@ -94,34 +135,75 @@ const EnquiryForm = () => {
                   </div>
                   <h3 className="text-3xl font-extrabold text-navy sm:text-4xl">Enquiry Sent!</h3>
                   <p className="text-muted-grey mt-4 text-lg">Our engineering team will review your requirements and respond within 24 hours.</p>
+                  {submitWarning ? (
+                    <p className="mx-auto mt-4 max-w-md text-sm text-muted-grey">{submitWarning}</p>
+                  ) : null}
                   <button
-                    onClick={() => setStatus('idle')}
+                    type="button"
+                    onClick={() => {
+                      setStatus('idle');
+                      setSubmitWarning(null);
+                    }}
                     className="mt-8 px-8 py-3 bg-navy text-white font-bold rounded-xl hover:bg-machine-orange transition-colors"
                   >
                     Send Another Enquiry
                   </button>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                  {formError ? (
+                    <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800" role="alert">
+                      {formError}
+                    </p>
+                  ) : null}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="relative group">
-                      <input required type="text" id="name" placeholder=" " className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all" />
+                      <input
+                        required
+                        type="text"
+                        id="name"
+                        name="name"
+                        autoComplete="name"
+                        placeholder=" "
+                        className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all"
+                      />
                       <label htmlFor="name" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Your Name *</label>
                     </div>
                     <div className="relative group">
-                      <input required type="tel" id="phone" placeholder=" " className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all" />
+                      <input
+                        required
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        autoComplete="tel"
+                        placeholder=" "
+                        className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all"
+                      />
                       <label htmlFor="phone" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Phone Number *</label>
                     </div>
                   </div>
 
                   <div className="relative group">
-                    <input required type="email" id="email" placeholder=" " className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all" />
+                    <input
+                      required
+                      type="email"
+                      id="email"
+                      name="email"
+                      autoComplete="email"
+                      placeholder=" "
+                      className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all"
+                    />
                     <label htmlFor="email" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Email Address *</label>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="relative group">
-                      <select id="material" defaultValue="" className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all cursor-pointer">
+                      <select
+                        id="material"
+                        name="material"
+                        defaultValue=""
+                        className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all cursor-pointer"
+                      >
                         <option value="" disabled hidden>Select Material...</option>
                         <option value="MS Steel">Mild Steel (MS)</option>
                         <option value="Stainless Steel">Stainless Steel (SS)</option>
@@ -132,13 +214,26 @@ const EnquiryForm = () => {
                       <label htmlFor="material" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-focus:text-machine-orange pointer-events-none">Material Category</label>
                     </div>
                     <div className="relative group">
-                      <input type="number" id="qty" placeholder=" " className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all" />
+                      <input
+                        type="number"
+                        id="qty"
+                        name="qty"
+                        min={0}
+                        placeholder=" "
+                        className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all"
+                      />
                       <label htmlFor="qty" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Estimated Quantity</label>
                     </div>
                   </div>
 
                   <div className="relative group">
-                    <textarea rows={4} id="reqs" placeholder=" " className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all resize-none"></textarea>
+                    <textarea
+                      rows={4}
+                      id="reqs"
+                      name="requirements"
+                      placeholder=" "
+                      className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all resize-none"
+                    />
                     <label htmlFor="reqs" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-6 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Detailed Requirements</label>
                   </div>
 

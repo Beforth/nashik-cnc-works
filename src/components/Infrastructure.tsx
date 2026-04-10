@@ -1,7 +1,7 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Settings, Cpu, Factory, Wrench, ShieldCheck, Zap } from 'lucide-react';
+import { Settings, ShieldCheck, Zap, X } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import { MACHINES, INDIA_MART_IMAGES } from '../constants';
 import { getServiceIcon } from '@/src/lib/service-icons';
@@ -16,8 +16,29 @@ const FALLBACK_MACHINES = MACHINES.map((m, i) => ({
 
 export default function Infrastructure({ items }: { items?: any[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+
+  const closeLightbox = useCallback(() => setLightbox(null), []);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+    };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [lightbox, closeLightbox]);
 
   const displayItems = items?.length ? items : FALLBACK_MACHINES;
+
+  useEffect(() => {
+    setLightbox(null);
+  }, [activeIndex]);
 
   return (
     <section id="machines" className="py-24 px-4 bg-bg-cloud/50 relative overflow-hidden">
@@ -105,27 +126,52 @@ export default function Infrastructure({ items }: { items?: any[] }) {
                     className="absolute inset-0"
                   >
                     {displayItems[activeIndex].imageUrl && (
-                      <img
-                        src={displayItems[activeIndex].imageUrl}
-                        alt={displayItems[activeIndex].name}
-                        className="w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale contrast-125"
-                      />
+                      <>
+                        <img
+                          src={displayItems[activeIndex].imageUrl}
+                          alt=""
+                          className="pointer-events-none h-full w-full object-cover opacity-60 mix-blend-luminosity grayscale contrast-125"
+                          draggable={false}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setLightbox({
+                              src: displayItems[activeIndex].imageUrl,
+                              alt: displayItems[activeIndex].name,
+                            })
+                          }
+                          className="absolute inset-0 z-[5] cursor-zoom-in bg-transparent transition-colors hover:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-machine-orange"
+                          aria-label={`View full image: ${displayItems[activeIndex].name}`}
+                        />
+                      </>
                     )}
-                    
+
                     {/* Technical Overlay Labels */}
-                    <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                      <div className="bg-machine-orange/10 backdrop-blur-md border border-machine-orange/30 p-6 rounded-2xl max-w-sm">
-                        <div className="flex items-center gap-3 mb-3">
+                    <div className="pointer-events-none absolute inset-0 flex flex-col justify-end p-8">
+                      <div className="max-w-sm rounded-2xl border border-machine-orange/30 bg-machine-orange/10 p-6 backdrop-blur-md">
+                        <div className="mb-3 flex items-center gap-3">
                           <Zap size={20} className="text-machine-orange" />
-                          <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Technical Specification</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                            Technical Specification
+                          </span>
                         </div>
-                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">
+                        <h3 className="mb-2 text-2xl font-black uppercase tracking-tighter text-white">
                           {displayItems[activeIndex].name}
                         </h3>
-                        <div className="flex items-center gap-4 text-white/60 text-xs font-bold">
-                          <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-machine-orange" /> HIGH PRECISION</span>
-                          <span className="flex items-center gap-1.5"><Settings size={14} className="text-machine-orange" /> INDUSTRIAL GRADE</span>
+                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-white/60">
+                          <span className="flex items-center gap-1.5">
+                            <ShieldCheck size={14} className="text-machine-orange" /> HIGH PRECISION
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Settings size={14} className="text-machine-orange" /> INDUSTRIAL GRADE
+                          </span>
                         </div>
+                        {displayItems[activeIndex].imageUrl ? (
+                          <p className="mt-3 text-[10px] font-semibold uppercase tracking-wide text-white/50">
+                            Click photo to view full image
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   </motion.div>
@@ -133,12 +179,12 @@ export default function Infrastructure({ items }: { items?: any[] }) {
               </AnimatePresence>
 
               {/* Decorative Corner Elements */}
-              <div className="absolute top-8 right-8 text-white/20 font-mono text-[10px] text-right">
+              <div className="pointer-events-none absolute top-8 right-8 text-right font-mono text-[10px] text-white/20">
                 STATION ID: KE-INFRA-0{activeIndex + 1}<br />
                 COORD: 19.9585° N, 73.7463° E
               </div>
-              <div className="absolute bottom-8 right-8">
-                <div className="w-16 h-16 rounded-full border-2 border-white/10 flex items-center justify-center animate-[spin_10s_linear_infinite]">
+              <div className="pointer-events-none absolute bottom-8 right-8">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/10 animate-[spin_10s_linear_infinite]">
                   <Settings className="text-white/20" size={24} />
                 </div>
               </div>
@@ -146,6 +192,42 @@ export default function Infrastructure({ items }: { items?: any[] }) {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {lightbox ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-navy/95 p-4 backdrop-blur-sm md:p-10"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Full image"
+            onClick={closeLightbox}
+          >
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+              aria-label="Close"
+            >
+              <X className="h-6 w-6" strokeWidth={2} />
+            </button>
+            <motion.img
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              src={lightbox.src}
+              alt={lightbox.alt}
+              className="max-h-[min(90vh,100%)] max-w-full object-contain shadow-2xl"
+              draggable={false}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </section>
   );
 }

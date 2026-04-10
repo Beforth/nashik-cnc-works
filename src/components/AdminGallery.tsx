@@ -38,19 +38,46 @@ export default function AdminGallery() {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/gallery', { credentials: 'include' });
+      const text = await res.text();
       if (res.status === 401) {
         router.replace('/admin/login');
         return;
       }
-      const data: GalleryRow[] = await res.json();
+      let parsed: unknown;
+      try {
+        parsed = text.trim() ? JSON.parse(text) : [];
+      } catch {
+        setMessage('Could not load gallery items.');
+        setItems([]);
+        return;
+      }
+      if (!res.ok) {
+        const err =
+          typeof parsed === 'object' &&
+          parsed !== null &&
+          'error' in parsed &&
+          typeof (parsed as { error?: string }).error === 'string'
+            ? (parsed as { error: string }).error
+            : 'Could not load gallery items.';
+        setMessage(err);
+        setItems([]);
+        return;
+      }
+      if (!Array.isArray(parsed)) {
+        setMessage('Could not load gallery items.');
+        setItems([]);
+        return;
+      }
+      const data = parsed as GalleryRow[];
       setItems(
-        data.sort(sortRows).map((r) => ({
+        [...data].sort(sortRows).map((r) => ({
           ...r,
           linkUrl: r.linkUrl ?? null,
         })),
       );
     } catch {
       setMessage('Could not load gallery items.');
+      setItems([]);
     } finally {
       setLoading(false);
     }
