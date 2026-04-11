@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Save, Trash2, Upload } from 'lucide-react';
+import { mergeCatalogIntoDbGalleryAdminRows } from '@/src/lib/gallery-display';
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml,' +
@@ -69,12 +70,11 @@ export default function AdminGallery() {
         return;
       }
       const data = parsed as GalleryRow[];
-      setItems(
-        [...data].sort(sortRows).map((r) => ({
-          ...r,
-          linkUrl: r.linkUrl ?? null,
-        })),
-      );
+      const normalized = [...data].sort(sortRows).map((r) => ({
+        ...r,
+        linkUrl: r.linkUrl ?? null,
+      }));
+      setItems(mergeCatalogIntoDbGalleryAdminRows(normalized));
     } catch {
       setMessage('Could not load gallery items.');
       setItems([]);
@@ -221,10 +221,18 @@ export default function AdminGallery() {
 
   async function deleteRow(row: GalleryRow) {
     if (row._isNew) {
+      const label = row.title.trim() || 'this unsaved card';
+      if (
+        !window.confirm(
+          `Remove “${label}” from the list?\n\nNothing has been saved to the database yet.`,
+        )
+      ) {
+        return;
+      }
       setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    if (!confirm(`Delete “${row.title}”? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete “${row.title}” from the website?\n\nThis cannot be undone.`)) return;
     setBusy(true);
     setMessage('Deleting…');
     const res = await fetch(`/api/admin/gallery?id=${encodeURIComponent(row.id)}`, {

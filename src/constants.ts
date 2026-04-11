@@ -37,6 +37,8 @@ export const COMPANY = {
   /** Hero / contact line (display format) */
   contactPhoneDisplay: '+91-9423928362',
   contactName: 'Mr. Dinesh Khairnar',
+  /** Legal / website title (admin, emails, enquiry records). Matches public metadata. */
+  siteFullName: 'Karan Engineers & Fabrication, Nashik',
   email: 'mr.dinesheng@gmail.com',
   indiaMartUrl: 'https://www.indiamart.com/dinesh-eng/',
   tagline: 'MIDC Ambad, Nashik, Maharashtra 422010.',

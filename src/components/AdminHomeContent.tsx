@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Save, Upload, Plus } from 'lucide-react';
+import { COMPANY } from '@/src/constants';
 
 /** Matches Prisma defaults so the form never mounts with undefined fields after a failed/partial load. */
 const DEFAULT_SITE_SETTINGS = {
-  companyName: 'Karan Engineers & Fabrication',
+  companyName: COMPANY.siteFullName,
   gstin: '27AVRPK3981G1Z1',
   contactName: 'Mr. Dinesh Khairnar',
   phone: '9423928362',

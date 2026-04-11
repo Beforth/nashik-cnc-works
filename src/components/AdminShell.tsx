@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AdminDashboard from '@/src/components/AdminDashboard';
@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { COMPANY } from '@/src/constants';
 
 const MENU_ITEMS = [
   { id: 'home', label: 'Home', icon: LayoutDashboard },
@@ -33,6 +34,32 @@ const MENU_ITEMS = [
 
 const VALID_TAB_IDS = new Set<string>(MENU_ITEMS.map((m) => m.id));
 
+/** Keeps each admin section mounted after first visit so switching tabs does not refetch from the API. */
+function AdminTabPanel({
+  tabId,
+  activeTab,
+  visited,
+  children,
+}: {
+  tabId: string;
+  activeTab: string;
+  visited: Set<string>;
+  children: ReactNode;
+}) {
+  if (!visited.has(tabId)) return null;
+  const active = activeTab === tabId;
+  return (
+    <div
+      id={`admin-tab-${tabId}`}
+      role="tabpanel"
+      hidden={!active}
+      className={active ? 'block' : 'hidden'}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function AdminShell() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -42,6 +69,16 @@ export default function AdminShell() {
     tabParam && VALID_TAB_IDS.has(tabParam) ? tabParam : 'home';
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set<string>([activeTab]));
+
+  useEffect(() => {
+    setVisitedTabs((prev) => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
 
   async function logout() {
     await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
@@ -77,7 +114,9 @@ export default function AdminShell() {
                 className="h-8 w-auto shrink-0 object-contain object-left"
               />
               <div className="min-w-0">
-                <p className="truncate text-sm font-extrabold text-navy">Karan Engineers</p>
+                <p className="text-xs font-extrabold leading-snug text-navy sm:text-sm">
+                  {COMPANY.siteFullName}
+                </p>
                 <p className="hidden text-xs font-medium text-muted-grey sm:block">Admin</p>
               </div>
             </div>
@@ -195,25 +234,24 @@ export default function AdminShell() {
           <h1 className="text-xl font-bold text-navy md:text-2xl">{activeLabel} management</h1>
         </div>
 
-        {activeTab === 'home' ? (
+        <AdminTabPanel tabId="home" activeTab={activeTab} visited={visitedTabs}>
           <AdminHomeContent />
-        ) : activeTab === 'expertise' ? (
+        </AdminTabPanel>
+        <AdminTabPanel tabId="expertise" activeTab={activeTab} visited={visitedTabs}>
           <AdminDashboard />
-        ) : activeTab === 'infrastructure' ? (
+        </AdminTabPanel>
+        <AdminTabPanel tabId="infrastructure" activeTab={activeTab} visited={visitedTabs}>
           <AdminInfrastructure />
-        ) : activeTab === 'industries' ? (
+        </AdminTabPanel>
+        <AdminTabPanel tabId="industries" activeTab={activeTab} visited={visitedTabs}>
           <AdminIndustries />
-        ) : activeTab === 'gallery' ? (
+        </AdminTabPanel>
+        <AdminTabPanel tabId="gallery" activeTab={activeTab} visited={visitedTabs}>
           <AdminGallery />
-        ) : activeTab === 'enquiry' ? (
+        </AdminTabPanel>
+        <AdminTabPanel tabId="enquiry" activeTab={activeTab} visited={visitedTabs}>
           <AdminEnquiries />
-        ) : (
-          <div className="rounded-2xl border-2 border-dashed border-border-grey bg-white/50 p-20 text-center">
-            <p className="text-muted-grey">
-              {MENU_ITEMS.find((m) => m.id === activeTab)?.label} management interface coming soon.
-            </p>
-          </div>
-        )}
+        </AdminTabPanel>
       </main>
     </div>
   );

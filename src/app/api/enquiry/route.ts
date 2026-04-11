@@ -5,6 +5,7 @@ import {
   isValidEmail,
   sendEnquiryNotificationEmail,
 } from '@/src/lib/smtp';
+import { COMPANY } from '@/src/constants';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
   }
 
   const message = buildDbMessage({ material, qty, requirements });
-  const subject = `Website — ${name}`.slice(0, 200);
+  const subject = `${COMPANY.siteFullName} — ${name}`.slice(0, 200);
 
   try {
     await prisma.enquiry.create({

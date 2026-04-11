@@ -12,7 +12,7 @@ export default function Navbar({ settings }: { settings?: any }) {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
-  const companyName = settings?.companyName || 'Karan Engineers & Fabrication';
+  const companyName = settings?.companyName || COMPANY.siteFullName;
   const address = settings?.address || COMPANY.tagline;
   const phone = settings?.phone || COMPANY.phone;
   const phoneDisplay = settings?.phoneFormatted || COMPANY.contactPhoneDisplay;

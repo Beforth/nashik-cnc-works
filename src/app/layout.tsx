@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { COMPANY } from "@/src/constants";
 
 export const metadata: Metadata = {
-  title: "Karan Engineers & Fabrication, Nashik",
+  title: COMPANY.siteFullName,
   description: "Karan Engineers & Fabrication, Nashik — job work, machined components, turning, milling & CNC. GST 27AVRPK3981G1Z1. View catalogue on IndiaMART.",
   openGraph: {
     title: "Karan Engineers & Fabrication — Job Work & Machined Components, Nashik",

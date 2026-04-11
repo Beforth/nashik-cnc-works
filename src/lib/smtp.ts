@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { COMPANY } from '@/src/constants';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -101,7 +102,7 @@ export type EnquiryMailPayload = {
 export async function sendEnquiryNotificationEmail(payload: EnquiryMailPayload): Promise<void> {
   const to = getDefaultMailTo();
   const lines = [
-    'New website enquiry',
+    `New enquiry — ${COMPANY.siteFullName}`,
     '',
     `Name: ${payload.name}`,
     `Phone: ${payload.phone}`,
@@ -118,7 +119,7 @@ export async function sendEnquiryNotificationEmail(payload: EnquiryMailPayload):
 
   await sendMailMessage({
     to,
-    subject: `Website enquiry — ${payload.name}`.slice(0, 300),
+    subject: `${COMPANY.siteFullName} — enquiry from ${payload.name}`.slice(0, 300),
     text,
     html,
     replyTo: payload.email,

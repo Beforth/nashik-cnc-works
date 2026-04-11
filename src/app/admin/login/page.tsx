@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { COMPANY } from '@/src/constants';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -38,7 +39,8 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl border border-border-grey bg-white p-8 shadow-lg">
         <h1 className="text-xl font-extrabold text-navy">Admin sign in</h1>
-        <p className="mt-1 text-sm text-muted-grey">Manage services on the website.</p>
+        <p className="mt-1 text-sm font-semibold text-navy">{COMPANY.siteFullName}</p>
+        <p className="mt-1 text-sm text-muted-grey">Manage services and content on the website.</p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
             <label htmlFor="admin-password" className="mb-1 block text-xs font-bold uppercase tracking-wide text-muted-grey">

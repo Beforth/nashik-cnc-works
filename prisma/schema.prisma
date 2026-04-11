@@ -21,7 +21,7 @@ model Service {
 
 model SiteSettings {
   id                  String   @id @default("site-settings")
-  companyName         String   @default("Karan Engineers & Fabrication")
+  companyName         String   @default("Karan Engineers & Fabrication, Nashik")
   gstin               String   @default("27AVRPK3981G1Z1")
   contactName         String   @default("Mr. Dinesh Khairnar")
   phone               String   @default("9423928362")
