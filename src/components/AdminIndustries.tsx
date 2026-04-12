@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Save, Trash2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Pencil, Plus, Save, Trash2 } from 'lucide-react';
+import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 
 type IndustryRow = {
   id: string;
@@ -24,6 +26,7 @@ export default function AdminIndustries() {
   const [message, setMessage] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,6 +42,7 @@ export default function AdminIndustries() {
       setMessage('Could not load industry items.');
     } finally {
       setLoading(false);
+      setEditingKey(null);
     }
   }, [router]);
 
@@ -57,6 +61,11 @@ export default function AdminIndustries() {
 
   function rowKey(r: IndustryRow) {
     return r._isNew ? r._clientId! : r.id;
+  }
+
+  function isRowEditing(row: IndustryRow): boolean {
+    if (row._isNew) return true;
+    return editingKey === rowKey(row);
   }
 
   async function saveRow(row: IndustryRow) {
@@ -115,10 +124,21 @@ export default function AdminIndustries() {
       }
       setTimeout(() => setMessage(null), 3000);
       await load();
+      setEditingKey(null);
     } finally {
       setSavingId(null);
       setBusy(false);
     }
+  }
+
+  function handleSaveOrEdit(row: IndustryRow) {
+    const key = rowKey(row);
+    if (row._isNew) {
+      void saveRow(row);
+      return;
+    }
+    if (editingKey === key) void saveRow(row);
+    else setEditingKey(key);
   }
 
   async function deleteRow(row: IndustryRow) {
@@ -145,6 +165,10 @@ export default function AdminIndustries() {
   }
 
   function addIndustry() {
+    const cid =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `tmp-${Date.now()}`;
     setItems((prev) => {
       const nextSortOrder =
         prev.length === 0 ? 0 : Math.min(...prev.map((r) => r.sortOrder)) - 1;
@@ -154,13 +178,11 @@ export default function AdminIndustries() {
         iconKey: 'Factory',
         sortOrder: nextSortOrder,
         _isNew: true,
-        _clientId:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `tmp-${Date.now()}`,
+        _clientId: cid,
       };
       return [newRow, ...prev];
     });
+    setEditingKey(cid);
     window.alert(
       'New industry card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nEnter the industry name and save.',
     );
@@ -184,13 +206,7 @@ export default function AdminIndustries() {
       )}
 
       <section>
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-navy">Industries</h2>
-            <p className="text-sm text-muted-grey">
-              Same workflow as Expertise: edit each card inline, then Save. New cards use the default icon on the site.
-            </p>
-          </div>
+        <div className="mb-4 flex flex-wrap justify-end gap-4">
           <button
             type="button"
             onClick={addIndustry}
@@ -202,14 +218,21 @@ export default function AdminIndustries() {
         </div>
 
         <div className="rounded-2xl border border-border-grey/60 bg-bg-steel/30 px-4 py-8 sm:px-6">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div
+            className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            variants={adminListContainer}
+            initial="hidden"
+            animate="show"
+          >
             {items.map((row) => {
               const key = rowKey(row);
               const initial = row.name.trim().slice(0, 1).toUpperCase() || '?';
+              const canEdit = isRowEditing(row);
 
               return (
-                <div
+                <motion.div
                   key={key}
+                  variants={adminListItem}
                   className="flex flex-col overflow-hidden rounded-3xl border border-white bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-machine-orange/30 hover:shadow-xl"
                 >
                   <div className="relative flex aspect-[4/3] items-center justify-center rounded-t-3xl bg-gradient-to-br from-navy/90 to-steel/80">
@@ -240,7 +263,8 @@ export default function AdminIndustries() {
                         Name
                       </span>
                       <input
-                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy"
+                        readOnly={!canEdit}
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy read-only:bg-bg-cloud/80"
                         value={row.name}
                         onChange={(e) => updateRow(key, { name: e.target.value })}
                         placeholder="e.g. Power sector"
@@ -252,8 +276,9 @@ export default function AdminIndustries() {
                         Sort order
                       </span>
                       <input
+                        readOnly={!canEdit}
                         type="number"
-                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy read-only:bg-bg-cloud/80"
                         value={row.sortOrder}
                         onChange={(e) => updateRow(key, { sortOrder: Number(e.target.value) })}
                       />
@@ -262,17 +287,21 @@ export default function AdminIndustries() {
                     <button
                       type="button"
                       disabled={!!savingId}
-                      onClick={() => saveRow(row)}
+                      onClick={() => handleSaveOrEdit(row)}
                       className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white hover:opacity-95 disabled:opacity-50"
                     >
-                      <Save className="h-4 w-4" />
-                      {row._isNew ? 'Create card' : 'Save changes'}
+                      {row._isNew || editingKey === key ? (
+                        <Save className="h-4 w-4" />
+                      ) : (
+                        <Pencil className="h-4 w-4" />
+                      )}
+                      {row._isNew ? 'Create card' : editingKey === key ? 'Save changes' : 'Edit changes'}
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -280,9 +309,13 @@ export default function AdminIndustries() {
         message !== 'Saving…' &&
         message !== 'Deleting…' &&
         !savingId && (
-          <div className="fixed bottom-8 right-8 animate-in fade-in slide-in-from-bottom-4 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-8 right-8 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl"
+          >
             {message}
-          </div>
+          </motion.div>
         )}
     </div>
   );

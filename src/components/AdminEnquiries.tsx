@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { Mail, Phone, Trash2, User, Calendar, Tag } from 'lucide-react';
+import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import { cn } from '@/src/lib/utils';
 
 type EnquiryRow = {
@@ -133,13 +135,6 @@ export default function AdminEnquiries() {
   return (
     <div className="relative space-y-6">
       <section>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-navy">Website enquiries</h2>
-          <p className="text-sm text-muted-grey">
-            Submissions from the public enquiry form on the site. Newest first.
-          </p>
-        </div>
-
         {message ? (
           <p
             className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"
@@ -157,10 +152,16 @@ export default function AdminEnquiries() {
             </p>
           </div>
         ) : (
-          <ul className="space-y-4">
+          <motion.ul
+            className="space-y-4"
+            variants={adminListContainer}
+            initial="hidden"
+            animate="show"
+          >
             {rows.map((row) => (
-              <li
+              <motion.li
                 key={row.id}
+                variants={adminListItem}
                 className="overflow-hidden rounded-2xl border border-border-grey bg-white shadow-sm"
               >
                 <div className="flex flex-col gap-4 border-b border-border-grey/80 bg-bg-steel/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -249,9 +250,9 @@ export default function AdminEnquiries() {
                     </pre>
                   </div>
                 </div>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         )}
       </section>
     </div>

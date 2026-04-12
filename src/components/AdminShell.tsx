@@ -20,6 +20,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/src/lib/utils';
 import { COMPANY } from '@/src/constants';
 
@@ -101,7 +102,12 @@ export default function AdminShell() {
   const activeLabel = MENU_ITEMS.find((m) => m.id === activeTab)?.label ?? 'Admin';
 
   return (
-    <div className="min-h-screen bg-bg-cloud">
+    <motion.div
+      className="min-h-screen bg-bg-cloud"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    >
       <header className="sticky top-0 z-30 border-b border-border-grey bg-white/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 md:flex-nowrap md:gap-4 md:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-none md:flex-initial">
@@ -137,14 +143,20 @@ export default function AdminShell() {
                     type="button"
                     onClick={() => selectTab(item.id)}
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition-all md:px-4',
-                      isActive
-                        ? 'bg-white text-machine-orange shadow-sm ring-1 ring-border-grey/40'
-                        : 'text-navy hover:bg-white/70',
+                      'relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition-colors md:px-4',
+                      isActive ? 'text-machine-orange' : 'text-navy hover:bg-white/70',
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
-                    <span className="whitespace-nowrap">{item.label}</span>
+                    {isActive ? (
+                      <motion.span
+                        layoutId="admin-desktop-tab-pill"
+                        className="absolute inset-0 rounded-lg bg-white shadow-sm ring-1 ring-border-grey/40"
+                        style={{ zIndex: 0 }}
+                        transition={{ type: 'spring', stiffness: 460, damping: 32 }}
+                      />
+                    ) : null}
+                    <Icon className="relative z-10 h-4 w-4 shrink-0 opacity-90" aria-hidden />
+                    <span className="relative z-10 whitespace-nowrap">{item.label}</span>
                   </button>
                 );
               })}
@@ -181,57 +193,79 @@ export default function AdminShell() {
           </div>
         </div>
 
-        {/* Mobile navbar panel */}
-        {mobileOpen ? (
-          <div
-            id="admin-mobile-nav"
-            className="border-t border-border-grey bg-white px-4 py-3 md:hidden"
-          >
-            <nav className="flex flex-col gap-1" aria-label="Admin sections">
-              {MENU_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => selectTab(item.id)}
-                    className={cn(
-                      'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold transition-colors',
-                      isActive ? 'bg-machine-orange text-white' : 'text-navy hover:bg-bg-steel/60',
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </nav>
-            <div className="mt-3 flex flex-col gap-2 border-t border-border-grey pt-3">
-              <a
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-center text-sm font-semibold text-machine-orange"
-              >
-                View website
-              </a>
-              <button
-                type="button"
-                onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
-              >
-                <LogOut className="h-4 w-4" />
-                Log out
-              </button>
-            </div>
-          </div>
-        ) : null}
+        <AnimatePresence initial={false}>
+          {mobileOpen ? (
+            <motion.div
+              key="admin-mobile-nav"
+              id="admin-mobile-nav"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="border-t border-border-grey bg-white px-4 py-3 md:hidden"
+            >
+              <nav className="flex flex-col gap-1" aria-label="Admin sections">
+                {MENU_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => selectTab(item.id)}
+                      className={cn(
+                        'relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-4 py-3 text-left text-sm font-bold transition-colors',
+                        isActive ? 'text-white' : 'text-navy hover:bg-bg-steel/60',
+                      )}
+                    >
+                      {isActive ? (
+                        <motion.span
+                          layoutId="admin-mobile-tab-pill"
+                          className="absolute inset-0 rounded-xl bg-machine-orange"
+                          style={{ zIndex: 0 }}
+                          transition={{ type: 'spring', stiffness: 460, damping: 32 }}
+                        />
+                      ) : null}
+                      <Icon className="relative z-10 h-4 w-4 shrink-0" aria-hidden />
+                      <span className="relative z-10">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+              <div className="mt-3 flex flex-col gap-2 border-t border-border-grey pt-3">
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-center text-sm font-semibold text-machine-orange"
+                >
+                  View website
+                </a>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </header>
 
       <main className="mx-auto max-w-[1600px] px-4 py-6 md:px-8 md:py-8">
         <div className="mb-6 md:mb-8">
-          <h1 className="text-xl font-bold text-navy md:text-2xl">{activeLabel} management</h1>
+          <motion.h1
+            key={activeTab}
+            className="text-xl font-bold text-navy md:text-2xl"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {activeLabel} management
+          </motion.h1>
         </div>
 
         <AdminTabPanel tabId="home" activeTab={activeTab} visited={visitedTabs}>
@@ -253,6 +287,6 @@ export default function AdminShell() {
           <AdminEnquiries />
         </AdminTabPanel>
       </main>
-    </div>
+    </motion.div>
   );
 }

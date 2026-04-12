@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Save, Trash2, Upload } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
+import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import { mergeCatalogIntoDbGalleryAdminRows } from '@/src/lib/gallery-display';
 
 const PLACEHOLDER_IMAGE =
@@ -34,6 +36,7 @@ export default function AdminGallery() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -80,6 +83,7 @@ export default function AdminGallery() {
       setItems([]);
     } finally {
       setLoading(false);
+      setEditingKey(null);
     }
   }, [router]);
 
@@ -98,6 +102,11 @@ export default function AdminGallery() {
 
   function rowKey(r: GalleryRow) {
     return r._isNew ? r._clientId! : r.id;
+  }
+
+  function isRowEditing(row: GalleryRow): boolean {
+    if (row._isNew) return true;
+    return editingKey === rowKey(row);
   }
 
   async function handleReplaceImage(e: React.ChangeEvent<HTMLInputElement>, row: GalleryRow) {
@@ -213,10 +222,21 @@ export default function AdminGallery() {
       }
       setTimeout(() => setMessage(null), 3000);
       await load();
+      setEditingKey(null);
     } finally {
       setSavingId(null);
       setBusy(false);
     }
+  }
+
+  function handleSaveOrEdit(row: GalleryRow) {
+    const key = rowKey(row);
+    if (row._isNew) {
+      void saveRow(row);
+      return;
+    }
+    if (editingKey === key) void saveRow(row);
+    else setEditingKey(key);
   }
 
   async function deleteRow(row: GalleryRow) {
@@ -251,6 +271,10 @@ export default function AdminGallery() {
   }
 
   function addPhoto() {
+    const cid =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `tmp-${Date.now()}`;
     setItems((prev) => {
       const nextSortOrder =
         prev.length === 0 ? 0 : Math.min(...prev.map((r) => r.sortOrder)) - 1;
@@ -262,13 +286,11 @@ export default function AdminGallery() {
         linkUrl: null,
         sortOrder: nextSortOrder,
         _isNew: true,
-        _clientId:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `tmp-${Date.now()}`,
+        _clientId: cid,
       };
       return [newRow, ...prev];
     });
+    setEditingKey(cid);
     window.alert(
       'New Jobs Gallery card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add title and category (optional link URL), then save.',
     );
@@ -296,13 +318,7 @@ export default function AdminGallery() {
       )}
 
       <section>
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-navy">Jobs Gallery</h2>
-            <p className="text-sm text-muted-grey">
-              Same layout as the homepage gallery. Hover a photo to replace it; edit title, category, and optional link on each card, then Save.
-            </p>
-          </div>
+        <div className="mb-4 flex flex-wrap justify-end gap-4">
           <button
             type="button"
             onClick={addPhoto}
@@ -314,33 +330,44 @@ export default function AdminGallery() {
         </div>
 
         <div className="rounded-2xl border border-border-grey/60 bg-bg-steel/30 px-4 py-8 sm:px-6">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div
+            className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            variants={adminListContainer}
+            initial="hidden"
+            animate="show"
+          >
             {items.map((row) => {
               const key = rowKey(row);
               const src = row.imageUrl?.trim() ? row.imageUrl : PLACEHOLDER_IMAGE;
+              const canEditMedia = isRowEditing(row);
 
               return (
-                <div
+                <motion.div
                   key={key}
+                  variants={adminListItem}
                   className="flex flex-col overflow-hidden rounded-3xl border border-white bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-machine-orange/30 hover:shadow-xl"
                 >
                   <div className="group relative aspect-square overflow-hidden rounded-t-3xl bg-bg-cloud">
                     <img src={src} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center gap-3 bg-navy/60 opacity-0 transition-opacity group-hover:opacity-100">
-                      <input
-                        type="file"
-                        id={`gal-img-${key}`}
-                        className="hidden"
-                        accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                        onChange={(e) => handleReplaceImage(e, row)}
-                      />
-                      <label
-                        htmlFor={`gal-img-${key}`}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Edit photo
-                      </label>
+                      {canEditMedia ? (
+                        <>
+                          <input
+                            type="file"
+                            id={`gal-img-${key}`}
+                            className="hidden"
+                            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                            onChange={(e) => handleReplaceImage(e, row)}
+                          />
+                          <label
+                            htmlFor={`gal-img-${key}`}
+                            className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Edit photo
+                          </label>
+                        </>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => deleteRow(row)}
@@ -366,7 +393,8 @@ export default function AdminGallery() {
                         Title
                       </span>
                       <input
-                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy"
+                        readOnly={!isRowEditing(row)}
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy read-only:bg-bg-cloud/80"
                         value={row.title}
                         onChange={(e) => updateRow(key, { title: e.target.value })}
                       />
@@ -377,7 +405,8 @@ export default function AdminGallery() {
                         Category
                       </span>
                       <input
-                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        readOnly={!isRowEditing(row)}
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm text-navy read-only:bg-bg-cloud/80"
                         value={row.category}
                         onChange={(e) => updateRow(key, { category: e.target.value })}
                         placeholder="e.g. Job work"
@@ -389,7 +418,8 @@ export default function AdminGallery() {
                         Link URL (optional)
                       </span>
                       <input
-                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-xs text-navy"
+                        readOnly={!isRowEditing(row)}
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-xs text-navy read-only:bg-bg-cloud/80"
                         value={row.linkUrl ?? ''}
                         onChange={(e) => updateRow(key, { linkUrl: e.target.value || null })}
                         placeholder="https://…"
@@ -401,8 +431,9 @@ export default function AdminGallery() {
                         Sort order
                       </span>
                       <input
+                        readOnly={!isRowEditing(row)}
                         type="number"
-                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy read-only:bg-bg-cloud/80"
                         value={row.sortOrder}
                         onChange={(e) => updateRow(key, { sortOrder: Number(e.target.value) })}
                       />
@@ -411,17 +442,21 @@ export default function AdminGallery() {
                     <button
                       type="button"
                       disabled={!!uploadingId || !!savingId}
-                      onClick={() => saveRow(row)}
+                      onClick={() => handleSaveOrEdit(row)}
                       className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white hover:opacity-95 disabled:opacity-50"
                     >
-                      <Save className="h-4 w-4" />
-                      {row._isNew ? 'Create card' : 'Save changes'}
+                      {row._isNew || editingKey === key ? (
+                        <Save className="h-4 w-4" />
+                      ) : (
+                        <Pencil className="h-4 w-4" />
+                      )}
+                      {row._isNew ? 'Create card' : editingKey === key ? 'Save changes' : 'Edit changes'}
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -431,9 +466,13 @@ export default function AdminGallery() {
         message !== 'Deleting…' &&
         !uploadingId &&
         !savingId && (
-          <div className="fixed bottom-8 right-8 animate-in fade-in slide-in-from-bottom-4 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-8 right-8 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl"
+          >
             {message}
-          </div>
+          </motion.div>
         )}
     </div>
   );

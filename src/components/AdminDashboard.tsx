@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Save, Trash2, Upload } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
+import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import type { PublicService } from '@/src/types/service';
 
 const PLACEHOLDER_IMAGE =
@@ -25,6 +27,8 @@ export default function AdminDashboard() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Existing cards are view-only until "Edit changes"; new cards are always editable. */
+  const [editingKey, setEditingKey] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -40,6 +44,7 @@ export default function AdminDashboard() {
       setMessage('Could not load services.');
     } finally {
       setLoading(false);
+      setEditingKey(null);
     }
   }, [router]);
 
@@ -58,6 +63,11 @@ export default function AdminDashboard() {
 
   function rowKey(r: Row) {
     return r._isNew ? r._clientId! : r.id;
+  }
+
+  function isRowEditing(row: Row): boolean {
+    if (row._isNew) return true;
+    return editingKey === rowKey(row);
   }
 
   async function handleReplaceImage(e: React.ChangeEvent<HTMLInputElement>, row: Row) {
@@ -179,10 +189,21 @@ export default function AdminDashboard() {
       }
       setTimeout(() => setMessage(null), 3000);
       await load();
+      setEditingKey(null);
     } finally {
       setSavingId(null);
       setBusy(false);
     }
+  }
+
+  function handleSaveOrEdit(row: Row) {
+    const key = rowKey(row);
+    if (row._isNew) {
+      void saveRow(row);
+      return;
+    }
+    if (editingKey === key) void saveRow(row);
+    else setEditingKey(key);
   }
 
   async function deleteRow(row: Row) {
@@ -209,6 +230,10 @@ export default function AdminDashboard() {
   }
 
   function addExpertise() {
+    const cid =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `tmp-${Date.now()}`;
     setItems((prev) => {
       const nextSortOrder =
         prev.length === 0 ? 0 : Math.min(...prev.map((r) => r.sortOrder)) - 1;
@@ -220,13 +245,11 @@ export default function AdminDashboard() {
         description: '',
         sortOrder: nextSortOrder,
         _isNew: true,
-        _clientId:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `tmp-${Date.now()}`,
+        _clientId: cid,
       };
       return [newRow, ...prev];
     });
+    setEditingKey(cid);
     window.alert(
       'New expertise card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add title and description, then save.',
     );
@@ -254,13 +277,7 @@ export default function AdminDashboard() {
       )}
 
       <section>
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-navy">Expertise</h2>
-            <p className="text-sm text-muted-grey">
-              Same layout as the homepage. Hover a photo to replace it; edit title and description on each card, then Save.
-            </p>
-          </div>
+        <div className="mb-4 flex flex-wrap justify-end gap-4">
           <button
             type="button"
             onClick={addExpertise}
@@ -273,33 +290,44 @@ export default function AdminDashboard() {
 
         {/* Mirrors Services section: bg + grid */}
         <div className="rounded-2xl border border-border-grey/60 bg-bg-steel/30 px-4 py-8 sm:px-6">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div
+            className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            variants={adminListContainer}
+            initial="hidden"
+            animate="show"
+          >
             {items.map((row) => {
               const key = rowKey(row);
               const src = row.imageUrl?.trim() ? row.imageUrl : PLACEHOLDER_IMAGE;
+              const canEditMedia = isRowEditing(row);
 
               return (
-                <div
+                <motion.div
                   key={key}
+                  variants={adminListItem}
                   className="flex flex-col overflow-hidden rounded-3xl border border-white bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-machine-orange/30 hover:shadow-xl"
                 >
                   <div className="group relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-bg-cloud">
                     <img src={src} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center gap-3 bg-navy/60 opacity-0 transition-opacity group-hover:opacity-100">
-                      <input
-                        type="file"
-                        id={`ex-img-${key}`}
-                        className="hidden"
-                        accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                        onChange={(e) => handleReplaceImage(e, row)}
-                      />
-                      <label
-                        htmlFor={`ex-img-${key}`}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Edit photo
-                      </label>
+                      {canEditMedia ? (
+                        <>
+                          <input
+                            type="file"
+                            id={`ex-img-${key}`}
+                            className="hidden"
+                            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                            onChange={(e) => handleReplaceImage(e, row)}
+                          />
+                          <label
+                            htmlFor={`ex-img-${key}`}
+                            className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Edit photo
+                          </label>
+                        </>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => deleteRow(row)}
@@ -316,7 +344,8 @@ export default function AdminDashboard() {
                       <label className="block">
                         <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">ID (slug)</span>
                         <input
-                          className="mt-1 w-full rounded-lg border border-border-grey px-2 py-1.5 font-mono text-xs text-navy"
+                          readOnly={!isRowEditing(row)}
+                          className="mt-1 w-full rounded-lg border border-border-grey px-2 py-1.5 font-mono text-xs text-navy read-only:bg-bg-cloud/80"
                           value={row.id}
                           onChange={(e) => updateRow(key, { id: e.target.value })}
                           placeholder="e.g. vmc-milling"
@@ -329,7 +358,8 @@ export default function AdminDashboard() {
                     <label className="block">
                       <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Title</span>
                       <input
-                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy"
+                        readOnly={!isRowEditing(row)}
+                        className="mt-1 w-full rounded-lg border border-border-grey px-2 py-2 text-sm font-extrabold text-navy read-only:bg-bg-cloud/80"
                         value={row.name}
                         onChange={(e) => updateRow(key, { name: e.target.value })}
                       />
@@ -338,8 +368,9 @@ export default function AdminDashboard() {
                     <label className="block flex-1">
                       <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Description</span>
                       <textarea
+                        readOnly={!isRowEditing(row)}
                         rows={4}
-                        className="mt-1 w-full resize-y rounded-lg border border-border-grey px-2 py-2 text-sm leading-relaxed text-muted-grey"
+                        className="mt-1 w-full resize-y rounded-lg border border-border-grey px-2 py-2 text-sm leading-relaxed text-muted-grey read-only:bg-bg-cloud/80"
                         value={row.description}
                         onChange={(e) => updateRow(key, { description: e.target.value })}
                       />
@@ -348,8 +379,9 @@ export default function AdminDashboard() {
                     <label className="block">
                       <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Sort order</span>
                       <input
+                        readOnly={!isRowEditing(row)}
                         type="number"
-                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy"
+                        className="mt-1 w-full max-w-[8rem] rounded-lg border border-border-grey px-2 py-2 text-sm text-navy read-only:bg-bg-cloud/80"
                         value={row.sortOrder}
                         onChange={(e) => updateRow(key, { sortOrder: Number(e.target.value) })}
                       />
@@ -358,17 +390,21 @@ export default function AdminDashboard() {
                     <button
                       type="button"
                       disabled={!!uploadingId || !!savingId}
-                      onClick={() => saveRow(row)}
+                      onClick={() => handleSaveOrEdit(row)}
                       className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white hover:opacity-95 disabled:opacity-50"
                     >
-                      <Save className="h-4 w-4" />
-                      {row._isNew ? 'Create card' : 'Save changes'}
+                      {row._isNew || editingKey === key ? (
+                        <Save className="h-4 w-4" />
+                      ) : (
+                        <Pencil className="h-4 w-4" />
+                      )}
+                      {row._isNew ? 'Create card' : editingKey === key ? 'Save changes' : 'Edit changes'}
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -378,9 +414,13 @@ export default function AdminDashboard() {
         message !== 'Deleting…' &&
         !uploadingId &&
         !savingId && (
-          <div className="fixed bottom-8 right-8 animate-in fade-in slide-in-from-bottom-4 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-8 right-8 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-2xl"
+          >
             {message}
-          </div>
+          </motion.div>
         )}
     </div>
   );

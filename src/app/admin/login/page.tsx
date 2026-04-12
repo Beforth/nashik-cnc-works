@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { COMPANY } from '@/src/constants';
 
 export default function AdminLoginPage() {
@@ -37,7 +38,12 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border-grey bg-white p-8 shadow-lg">
+      <motion.div
+        className="w-full max-w-md rounded-2xl border border-border-grey bg-white p-8 shadow-lg"
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
         <h1 className="text-xl font-extrabold text-navy">Admin sign in</h1>
         <p className="mt-1 text-sm font-semibold text-navy">{COMPANY.siteFullName}</p>
         <p className="mt-1 text-sm text-muted-grey">Manage services and content on the website.</p>
@@ -74,7 +80,7 @@ export default function AdminLoginPage() {
             ← Back to site
           </a>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

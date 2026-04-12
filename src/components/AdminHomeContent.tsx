@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { Trash2, Save, Upload, Plus } from 'lucide-react';
 import { COMPANY } from '@/src/constants';
 
@@ -203,7 +204,12 @@ export default function AdminHomeContent() {
   if (loading) return <p className="p-8 text-center text-muted-grey">Loading settings...</p>;
 
   return (
-    <div className="space-y-12 relative">
+    <motion.div
+      className="relative space-y-12"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    >
       {/* Loading/Saving Overlay */}
       {(message === 'Saving changes...' || uploading || addingHero) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/20 backdrop-blur-[2px]">
@@ -217,10 +223,6 @@ export default function AdminHomeContent() {
       )}
 
       <section>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-navy">Company Information</h2>
-          <p className="text-sm text-muted-grey">Manage company name, contact details and address shown across the site.</p>
-        </div>
         <form onSubmit={saveSettings} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl border border-border-grey shadow-sm">
           <div className="space-y-4 md:col-span-2">
             <label className="block">
@@ -289,13 +291,7 @@ export default function AdminHomeContent() {
       </section>
 
       <section>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-navy">Hero section</h2>
-            <p className="text-sm text-muted-grey">
-              Carousel slides on the home hero. Add a card, then use Edit to upload an image. Alt text helps accessibility.
-            </p>
-          </div>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={addHeroCard}
@@ -357,10 +353,14 @@ export default function AdminHomeContent() {
       </section>
 
       {message && message !== 'Saving changes...' && !uploading && !addingHero && (
-        <div className="fixed bottom-8 right-8 bg-navy text-white px-6 py-3 rounded-xl shadow-2xl animate-in fade-in slide-in-from-bottom-4">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-8 right-8 rounded-xl bg-navy px-6 py-3 text-white shadow-2xl"
+        >
           {message}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
