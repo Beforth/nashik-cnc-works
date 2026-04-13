@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { requireAdminSession } from '@/src/lib/require-admin';
 
 export async function GET() {
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
         sortOrder: typeof sortOrder === 'number' ? sortOrder : 0,
       },
     });
+    revalidatePublicCmsCache();
     return NextResponse.json(created, { status: 201 });
   } catch (e: unknown) {
     const msg = e && typeof e === 'object' && 'code' in e && e.code === 'P2002' ? 'Service id already exists' : 'Create failed';

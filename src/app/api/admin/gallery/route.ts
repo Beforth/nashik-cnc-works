@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
 
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
     const item = await prisma.galleryItem.create({
       data: { title, imageUrl, category, linkUrl, sortOrder },
     });
+    revalidatePublicCmsCache();
     return NextResponse.json(item, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Create failed' }, { status: 400 });
@@ -94,6 +96,7 @@ export async function PATCH(req: Request) {
       where: { id },
       data: patch,
     });
+    revalidatePublicCmsCache();
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Update failed' }, { status: 400 });
@@ -111,5 +114,6 @@ export async function DELETE(req: Request) {
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
   await prisma.galleryItem.delete({ where: { id } });
+  revalidatePublicCmsCache();
   return NextResponse.json({ success: true });
 }

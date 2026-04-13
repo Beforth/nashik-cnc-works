@@ -7,7 +7,14 @@ import { Menu, X, ChevronRight, MapPin, Phone, Mail } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { COMPANY } from '../constants';
 
-export default function Navbar({ settings }: { settings?: any }) {
+export default function Navbar({
+  settings,
+  /** Where the logo goes (main site home). City pages should pass `/${slug}`. */
+  homeHref = '/',
+}: {
+  settings?: any;
+  homeHref?: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -66,8 +73,9 @@ export default function Navbar({ settings }: { settings?: any }) {
       <nav className="px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl px-6 py-3">
           <Link
-            href="/"
-            className="flex min-w-0 max-w-[min(100%,20rem)] items-center gap-2.5 text-lg font-extrabold leading-tight text-navy md:max-w-none md:gap-3 md:text-xl"
+            href={homeHref}
+            className="flex min-w-0 max-w-[min(100%,20rem)] items-center gap-2.5 text-lg font-extrabold leading-tight text-navy transition-opacity hover:opacity-90 md:max-w-none md:gap-3 md:text-xl"
+            aria-label="Go to homepage"
           >
             <Image
               src="/logo.png"

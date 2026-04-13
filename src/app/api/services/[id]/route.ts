@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { requireAdminSession } from '@/src/lib/require-admin';
 
 export async function PATCH(
@@ -34,6 +35,7 @@ export async function PATCH(
       where: { id },
       data,
     });
+    revalidatePublicCmsCache();
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: 'Update failed' }, { status: 400 });
@@ -50,6 +52,7 @@ export async function DELETE(
   const { id } = await context.params;
   try {
     await prisma.service.delete({ where: { id } });
+    revalidatePublicCmsCache();
     return new NextResponse(null, { status: 204 });
   } catch {
     return NextResponse.json({ error: 'Delete failed' }, { status: 400 });

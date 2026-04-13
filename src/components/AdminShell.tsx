@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AdminDashboard from '@/src/components/AdminDashboard';
 import AdminHomeContent from '@/src/components/AdminHomeContent';
@@ -111,7 +112,11 @@ export default function AdminShell() {
       <header className="sticky top-0 z-30 border-b border-border-grey bg-white/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 md:flex-nowrap md:gap-4 md:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-none md:flex-initial">
-            <div className="flex min-w-0 items-center gap-2.5">
+            <Link
+              href="/"
+              className="flex min-w-0 items-center gap-2.5 rounded-xl outline-none ring-machine-orange/40 transition-opacity hover:opacity-90 focus-visible:ring-2"
+              aria-label="Go to website homepage"
+            >
               <Image
                 src="/logo.png"
                 alt=""
@@ -125,7 +130,7 @@ export default function AdminShell() {
                 </p>
                 <p className="hidden text-xs font-medium text-muted-grey sm:block">Admin</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Desktop navbar — same “pill rail” idea as the public site */}

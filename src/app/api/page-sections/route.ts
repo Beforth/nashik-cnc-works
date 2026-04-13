@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDefaultPageLayoutResponse } from '@/src/lib/page-layout-default';
-import { getGalleryItems } from '@/src/lib/gallery-content';
+import { getPageSectionsCmsBundle } from '@/src/lib/cms-cache';
 import { getMergedGalleryItems } from '@/src/lib/gallery-display';
-import { getHeroImages, getSiteSettings } from '@/src/lib/site-content';
 
 /**
  * Layout API for DynamicPage. Injects live DB content into sections.
@@ -12,11 +11,7 @@ export async function GET(request: Request) {
   const slug = searchParams.get('slug');
 
   const body = getDefaultPageLayoutResponse();
-  const [heroImages, settings, galleryRaw] = await Promise.all([
-    getHeroImages(),
-    getSiteSettings(),
-    getGalleryItems(),
-  ]);
+  const { heroImages, settings, galleryRaw } = await getPageSectionsCmsBundle();
   const galleryItems = getMergedGalleryItems(galleryRaw);
 
   const nav = body.sections.find((s) => s.componentType === 'NAVBAR_SECTION');

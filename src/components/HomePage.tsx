@@ -54,7 +54,7 @@ const HomePage = ({ slug, settings, heroImages, services, galleryItems, infrastr
 
   return (
     <div className="min-h-screen">
-      <Navbar settings={settings} />
+      <Navbar settings={settings} homeHref={slug ? `/${slug}` : '/'} />
       <Hero city={city} settings={settings} heroImages={heroImages} />
 
 

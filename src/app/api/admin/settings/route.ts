@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
 
@@ -31,5 +32,6 @@ export async function PATCH(req: Request) {
     update: data,
   });
 
+  revalidatePublicCmsCache();
   return NextResponse.json(updated);
 }
