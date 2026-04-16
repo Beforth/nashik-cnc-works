@@ -143,18 +143,18 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
   return (
     <section
       id="home"
-      className="relative pt-28 pb-12 sm:pt-32 sm:pb-20 px-4 overflow-hidden bg-white sm:bg-white bg-[radial-gradient(circle_at_top_right,#E8F1F8_0%,transparent_40%),radial-gradient(circle_at_bottom_left,#EEF1F6_0%,transparent_40%)] min-h-[90vh] flex items-center"
+      className="relative min-h-[90vh] flex items-center overflow-hidden bg-white bg-[radial-gradient(circle_at_top_right,var(--color-orange-light)_0%,transparent_42%),radial-gradient(circle_at_bottom_left,var(--color-bg-steel)_0%,transparent_42%)] px-4 pt-28 pb-12 sm:bg-white sm:pt-32 sm:pb-20"
       aria-labelledby="hero-main-title"
     >
       {/* --- SVG Background Pattern --- */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.2] sm:opacity-[0.4]" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 560">
             <g mask="url(#SvgjsMask1002)" fill="none">
-                <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
-                <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
-                <path d="M1478.41 460.15C1335.73 457.11 1173.73 280.32 942.27 264.15 710.81 247.98 766.36 18.37 674.2-3.08" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
-                <path d="M1691.59 371.9C1510.53 369.11 1278.77 154.3 1002.79 147.9 726.81 141.5 753.84-13.51 658.39-17.74" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
-                <path d="M1662.34 244.57C1530.84 247.05 1422.24 420.25 1165.73 418.17 909.22 416.09 831.02 15.66 669.12-12.98" stroke="rgba(0, 83, 145, 0.58)" strokeWidth="2"></path>
+                <path d="M1559.34 378.41C1407.15 373.73 1302.06 152.66 997.55 143.21 693.05 133.76 588.09-88.65 435.77-93.41" stroke="rgba(234, 88, 12, 0.5)" strokeWidth="2"></path>
+                <path d="M1561.59 367.31C1463.64 367.03 1368.83 297.31 1176.08 297.31 983.32 297.31 1003.89 376.55 790.56 367.31 577.23 358.07 544.84-28.84 405.05-70.18" stroke="rgba(234, 88, 12, 0.5)" strokeWidth="2"></path>
+                <path d="M1478.41 460.15C1335.73 457.11 1173.73 280.32 942.27 264.15 710.81 247.98 766.36 18.37 674.2-3.08" stroke="rgba(234, 88, 12, 0.5)" strokeWidth="2"></path>
+                <path d="M1691.59 371.9C1510.53 369.11 1278.77 154.3 1002.79 147.9 726.81 141.5 753.84-13.51 658.39-17.74" stroke="rgba(234, 88, 12, 0.5)" strokeWidth="2"></path>
+                <path d="M1662.34 244.57C1530.84 247.05 1422.24 420.25 1165.73 418.17 909.22 416.09 831.02 15.66 669.12-12.98" stroke="rgba(234, 88, 12, 0.5)" strokeWidth="2"></path>
             </g>
             <defs>
                 <mask id="SvgjsMask1002">
@@ -167,17 +167,18 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
       {/* Engineering Dot Grid */}
       <div 
         className="absolute inset-0 opacity-[0.15] sm:opacity-[0.25]" 
-        style={{ 
-          backgroundImage: `radial-gradient(#cbd5e1 1.5px, transparent 1.5px)`,
-          backgroundSize: '30px 30px'
-        }} 
+        style={{
+          backgroundImage:
+            'radial-gradient(color-mix(in srgb, var(--color-machine-orange) 38%, transparent) 1.5px, transparent 1.5px)',
+          backgroundSize: '30px 30px',
+        }}
         aria-hidden 
       />
       
       {/* Subtle Precision Lines */}
-      <div className="absolute top-[20%] left-0 w-full h-px bg-gradient-to-r from-transparent via-border-grey/40 to-transparent opacity-60" />
-      <div className="absolute top-[80%] left-0 w-full h-px bg-gradient-to-r from-transparent via-border-grey/40 to-transparent opacity-60" />
-      <div className="absolute left-[15%] top-0 w-px h-full bg-gradient-to-b from-transparent via-border-grey/40 to-transparent opacity-60" />
+      <div className="absolute top-[20%] left-0 h-px w-full bg-gradient-to-r from-transparent via-machine-orange/35 to-transparent opacity-70" />
+      <div className="absolute top-[80%] left-0 h-px w-full bg-gradient-to-r from-transparent via-machine-orange/35 to-transparent opacity-70" />
+      <div className="absolute top-0 left-[15%] h-full w-px bg-gradient-to-b from-transparent via-machine-orange/35 to-transparent opacity-70" />
 
       {/* Pulsing Precision Markers */}
       {[...Array(3)].map((_, i) => (
@@ -287,7 +288,7 @@ export default function Hero({ city, settings, heroImages }: { city: CityData, s
             className="lg:col-span-5 relative h-[350px] sm:h-[450px] lg:h-full min-h-[350px] lg:min-h-[500px] mt-2 lg:mt-0 flex items-center justify-center [perspective:1000px]"
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] border border-dashed border-machine-orange/30 rounded-full animate-[spin_60s_linear_infinite]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] border border-dashed border-navy/20 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] border border-dashed border-machine-orange/25 rounded-full animate-[spin_40s_linear_infinite_reverse]" />
 
             {/* group + clip: 3D rotate on the same node as overflow-hidden breaks hover/clipping in several browsers */}
             <motion.div

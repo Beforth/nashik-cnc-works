@@ -3,6 +3,7 @@
 import SectionHeading from './SectionHeading';
 import WhatsAppIcon from './WhatsAppIcon';
 import { COMPANY } from '../constants';
+import { indianMobileDigitsForWaMe } from '../lib/indian-mobile-wa';
 import { cn } from '../lib/utils';
 import type { GalleryCardItem } from '@/src/lib/gallery-display';
 
@@ -18,7 +19,7 @@ export default function JobsGallerySection({
   settings,
   topPaddingClassName = '',
 }: JobsGallerySectionProps) {
-  const phone = settings?.phone || COMPANY.phone;
+  const phoneDigits = indianMobileDigitsForWaMe(settings?.phone ?? COMPANY.phone);
 
   return (
     <section
@@ -37,7 +38,7 @@ export default function JobsGallerySection({
         />
         <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {items.map((item, i) => {
-            const waHref = `https://wa.me/91${phone}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`;
+            const waHref = `https://wa.me/91${phoneDigits}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`;
             const href =
               typeof item.linkUrl === 'string' && item.linkUrl.trim().length > 0
                 ? item.linkUrl.trim()

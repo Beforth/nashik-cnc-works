@@ -30,11 +30,12 @@ export default function Navbar({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  /** Same landing as the logo (`/` or `/${citySlug}`) so city pages keep correct section anchors. */
   const menuLinks = [
-    { label: 'Services', href: '/#services' },
-    { label: 'Machines', href: '/#machines' },
-    { label: 'Gallery', href: '/gallery' },
-    { label: 'Contact', href: '/#contact' },
+    { label: 'Services', href: `${homeHref}#services` },
+    { label: 'Machines', href: `${homeHref}#machines` },
+    { label: 'Gallery', href: `${homeHref}#gallery` },
+    { label: 'Contact', href: `${homeHref}#contact` },
   ] as const;
 
   return (
@@ -116,7 +117,10 @@ export default function Navbar({
           </div>
 
           <div className="hidden md:block">
-            <a href="/#enquiry" className="bg-machine-orange text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-navy transition-colors shadow-sm">
+            <a
+              href={`${homeHref}#enquiry`}
+              className="bg-machine-orange text-white text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-navy transition-colors shadow-sm"
+            >
               Get Quote
             </a>
           </div>
@@ -163,8 +167,8 @@ export default function Navbar({
                   <ChevronRight size={18} className="text-border-grey group-hover:text-machine-orange transition-transform group-hover:translate-x-1" />
                 </motion.a>
               ))}
-              <a 
-                href="/#enquiry" 
+              <a
+                href={`${homeHref}#enquiry`}
                 className="bg-gradient-to-r from-machine-orange to-amber text-white text-center font-bold py-4 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2"
                 onClick={() => setIsOpen(false)}
               >

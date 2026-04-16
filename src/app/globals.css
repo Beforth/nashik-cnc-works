@@ -6,11 +6,11 @@
   
   --color-navy: #1C2B3A;
   --color-steel: #2E4A6B;
-  /* Brand accent — matches public/logo.png (~#005391); class names unchanged */
-  --color-machine-orange: #005391;
-  --color-orange-light: #e8f1f8;
-  --color-amber: #1a6eb8;
-  --color-amber-light: #f0f5fa;
+  /* Brand accent — industrial orange (Tailwind-style tokens; class names unchanged) */
+  --color-machine-orange: #ea580c;
+  --color-orange-light: #ffedd5;
+  --color-amber: #f59e0b;
+  --color-amber-light: #fef3c7;
   --color-bg-cloud: #F5F7FA;
   --color-bg-steel: #EEF1F6;
   --color-border-grey: #DDE3EC;
