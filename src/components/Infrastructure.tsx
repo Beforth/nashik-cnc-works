@@ -135,7 +135,7 @@ export default function Infrastructure({ items }: { items?: any[] }) {
                         <img
                           src={displayItems[activeIndex].imageUrl}
                           alt=""
-                          className="pointer-events-none h-full w-full object-cover opacity-60 mix-blend-luminosity grayscale contrast-125"
+                          className="pointer-events-none h-full w-full object-cover"
                           draggable={false}
                         />
                         <button

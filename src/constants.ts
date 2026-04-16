@@ -238,15 +238,16 @@ export const MACHINES = [
   },
 ];
 
+/** `iconKey` matches Prisma seed / `getServiceIcon` — used when merging catalog into admin industries. */
 export const INDUSTRIES = [
-  { name: 'Power sector', icon: Zap },
-  { name: 'Automobile industry', icon: Car },
-  { name: 'CNC turned components', icon: Cpu },
-  { name: 'Bush & clamp shaft', icon: Layers },
-  { name: 'Factory / manufacturing', icon: Factory },
-  { name: 'Works contract', icon: ClipboardCheck },
-  { name: 'Industrial plant & equipment', icon: Building2 },
-  { name: 'General engineering', icon: Construction },
+  { name: 'Power sector', icon: Zap, iconKey: 'Zap' },
+  { name: 'Automobile industry', icon: Car, iconKey: 'Car' },
+  { name: 'CNC turned components', icon: Cpu, iconKey: 'Cpu' },
+  { name: 'Bush & clamp shaft', icon: Layers, iconKey: 'Layers' },
+  { name: 'Factory / manufacturing', icon: Factory, iconKey: 'Factory' },
+  { name: 'Works contract', icon: ClipboardCheck, iconKey: 'ClipboardCheck' },
+  { name: 'Industrial plant & equipment', icon: Building2, iconKey: 'Building2' },
+  { name: 'General engineering', icon: Construction, iconKey: 'Construction' },
 ];
 
 export const STEPS = [

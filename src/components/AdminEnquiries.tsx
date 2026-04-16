@@ -287,6 +287,7 @@ export default function AdminEnquiries() {
                             className={cn(
                               'inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide',
                               statusBadgeClass(row.status),
+                              row.status === 'NEW' && 'admin-enquiry-status-new-blink',
                             )}
                           >
                             {statusLabel(row.status)}

@@ -5,10 +5,20 @@ import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
 
 export async function GET() {
-  const items = await prisma.industryItem.findMany({
-    orderBy: { sortOrder: 'asc' },
-  });
-  return NextResponse.json(items);
+  const store = await cookies();
+  if (!verifyAdminSessionToken(store.get(COOKIE_NAME)?.value)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const items = await prisma.industryItem.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+    return NextResponse.json(items);
+  } catch (e) {
+    console.error('[GET /api/admin/industries]', e);
+    return NextResponse.json({ error: 'Failed to load industries' }, { status: 500 });
+  }
 }
 
 function parseCreateBody(raw: unknown) {

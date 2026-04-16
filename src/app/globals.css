@@ -41,6 +41,28 @@
   }
 }
 
+@keyframes admin-enquiry-new-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.38;
+  }
+}
+
+@layer utilities {
+  .admin-enquiry-status-new-blink {
+    animation: admin-enquiry-new-blink 1.15s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-enquiry-status-new-blink {
+      animation: none;
+    }
+  }
+}
+
 @layer base {
   html {
     /* Fixed Navbar: anchor jumps (#services, #enquiry, …) land with the heading below the bar */
