@@ -1,12 +1,11 @@
 'use client';
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Upload, Send, MapPin, Plus, Minus } from 'lucide-react';
+import { motion } from 'motion/react';
+import { CheckCircle2, Send, MapPin } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 
 const EnquiryForm = () => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success'>('idle');
-  const [showDrawing, setShowDrawing] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitWarning, setSubmitWarning] = useState<string | null>(null);
 
@@ -235,36 +234,6 @@ const EnquiryForm = () => {
                       className="block w-full px-5 py-4 text-navy bg-bg-cloud/30 border border-border-grey rounded-2xl appearance-none focus:outline-none focus:border-machine-orange focus:bg-white peer transition-all resize-none"
                     />
                     <label htmlFor="reqs" className="absolute text-sm font-bold text-muted-grey duration-300 transform -translate-y-1/2 scale-75 top-0 z-10 origin-[0] left-4 bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-6 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-0 peer-focus:scale-75 peer-focus:-translate-y-1/2 peer-focus:text-machine-orange pointer-events-none">Detailed Requirements</label>
-                  </div>
-
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowDrawing(!showDrawing)}
-                      className="flex items-center gap-2 text-sm font-extrabold text-navy hover:text-machine-orange transition-colors"
-                    >
-                      <div className="w-6 h-6 rounded-md bg-bg-steel flex items-center justify-center text-navy">
-                        {showDrawing ? <Minus size={14} /> : <Plus size={14} />}
-                      </div>
-                      Add Project Drawing (Optional)
-                    </button>
-                    
-                    <AnimatePresence>
-                      {showDrawing && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="relative border-2 border-dashed border-border-grey rounded-2xl p-6 text-center hover:border-machine-orange hover:bg-machine-orange/5 transition-all cursor-pointer group">
-                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
-                            <Upload className="mx-auto text-muted-grey group-hover:text-machine-orange mb-2 transition-colors" size={24} />
-                            <p className="text-xs font-bold text-muted-grey group-hover:text-navy">Click to upload drawing (PDF, DXF, IMG)</p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </div>
 
                   <div className="pt-2">

@@ -2,9 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
-import { Mail, Phone, Trash2, User, Calendar, Tag } from 'lucide-react';
-import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
+import { Trash2, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
 type EnquiryRow = {
@@ -18,8 +16,6 @@ type EnquiryRow = {
   createdAt: string;
 };
 
-const STATUS_OPTIONS = ['NEW', 'READ', 'REPLIED', 'ARCHIVED'] as const;
-
 function formatWhen(iso: string) {
   try {
     return new Date(iso).toLocaleString('en-IN', {
@@ -31,12 +27,36 @@ function formatWhen(iso: string) {
   }
 }
 
+function statusBadgeClass(status: string) {
+  switch (status) {
+    case 'NEW':
+      return 'bg-machine-orange/15 text-machine-orange ring-1 ring-machine-orange/25';
+    case 'READ':
+      return 'bg-amber/15 text-amber ring-1 ring-amber/30';
+    case 'REPLIED':
+      return 'bg-machine-green/15 text-machine-green ring-1 ring-machine-green/25';
+    case 'ARCHIVED':
+      return 'bg-muted-grey/20 text-muted-grey ring-1 ring-border-grey';
+    default:
+      return 'bg-border-grey/60 text-muted-grey';
+  }
+}
+
+function statusLabel(status: string) {
+  if (status === 'NEW') return 'New';
+  if (status === 'READ') return 'Read';
+  if (status === 'REPLIED') return 'Replied';
+  if (status === 'ARCHIVED') return 'Archived';
+  return status;
+}
+
 export default function AdminEnquiries() {
   const router = useRouter();
   const [rows, setRows] = useState<EnquiryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -86,7 +106,19 @@ export default function AdminEnquiries() {
     load();
   }, [load]);
 
-  async function setStatus(id: string, status: string) {
+  function toggleRow(id: string) {
+    if (expandedId === id) {
+      setExpandedId(null);
+      return;
+    }
+    const target = rows.find((r) => r.id === id);
+    setExpandedId(id);
+    if (target?.status === 'NEW') {
+      void setStatus(id, 'READ');
+    }
+  }
+
+  async function setStatus(id: string, status: string): Promise<boolean> {
     setUpdatingId(id);
     setMessage(null);
     try {
@@ -99,11 +131,13 @@ export default function AdminEnquiries() {
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         setMessage(data.error ?? 'Could not update status.');
-        return;
+        return false;
       }
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+      return true;
     } catch {
       setMessage('Could not update status.');
+      return false;
     } finally {
       setUpdatingId(null);
     }
@@ -123,6 +157,7 @@ export default function AdminEnquiries() {
         return;
       }
       setRows((prev) => prev.filter((r) => r.id !== id));
+      setExpandedId((prev) => (prev === id ? null : prev));
     } catch {
       setMessage('Delete failed.');
     }
@@ -144,6 +179,11 @@ export default function AdminEnquiries() {
           </p>
         ) : null}
 
+        <p className="mb-4 text-sm text-muted-grey">
+          Sr. is the row order in this table (1 = newest). Status stays <strong className="text-navy">New</strong> until you
+          expand the row to view the message; then it becomes <strong className="text-navy">Read</strong> automatically.
+        </p>
+
         {rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border-grey bg-white/80 px-6 py-16 text-center">
             <p className="text-muted-grey">No enquiries yet.</p>
@@ -152,107 +192,139 @@ export default function AdminEnquiries() {
             </p>
           </div>
         ) : (
-          <motion.ul
-            className="space-y-4"
-            variants={adminListContainer}
-            initial="hidden"
-            animate="show"
-          >
-            {rows.map((row) => (
-              <motion.li
-                key={row.id}
-                variants={adminListItem}
-                className="overflow-hidden rounded-2xl border border-border-grey bg-white shadow-sm"
-              >
-                <div className="flex flex-col gap-4 border-b border-border-grey/80 bg-bg-steel/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        'rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide',
-                        row.status === 'NEW'
-                          ? 'bg-machine-orange/15 text-machine-orange'
-                          : row.status === 'READ'
-                            ? 'bg-navy/10 text-navy'
-                            : 'bg-muted-grey/15 text-muted-grey',
-                      )}
-                    >
-                      {row.status}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-muted-grey">
-                      <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      {formatWhen(row.createdAt)}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <label className="flex items-center gap-2 text-xs font-bold text-muted-grey">
-                      Status
-                      <select
-                        value={row.status}
-                        disabled={updatingId === row.id}
-                        onChange={(e) => setStatus(row.id, e.target.value)}
-                        className="rounded-lg border border-border-grey bg-white px-2 py-1.5 text-sm font-semibold text-navy disabled:opacity-50"
+          <div className="overflow-x-auto rounded-2xl border border-border-grey bg-white shadow-sm">
+            <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-border-grey bg-bg-steel/50 text-[10px] font-black uppercase tracking-widest text-muted-grey">
+                  <th className="w-12 whitespace-nowrap px-2 py-3 text-center" scope="col">
+                    Sr.
+                  </th>
+                  <th className="w-10 px-2 py-3" scope="col">
+                    <span className="sr-only">Expand</span>
+                  </th>
+                  <th className="whitespace-nowrap px-3 py-3" scope="col">
+                    Received
+                  </th>
+                  <th className="min-w-[8rem] px-3 py-3" scope="col">
+                    Name
+                  </th>
+                  <th className="min-w-[7rem] px-3 py-3" scope="col">
+                    Phone
+                  </th>
+                  <th className="min-w-[10rem] px-3 py-3" scope="col">
+                    Subject
+                  </th>
+                  <th className="min-w-[9.5rem] px-3 py-3" scope="col">
+                    Status
+                  </th>
+                  <th className="w-24 px-2 py-3 text-center" scope="col">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => {
+                  const open = expandedId === row.id;
+                  const serial = index + 1;
+                  return (
+                    <React.Fragment key={row.id}>
+                      <tr
+                        className={cn(
+                          'border-b border-border-grey/80 transition-colors',
+                          open ? 'bg-orange-light/40' : 'hover:bg-bg-cloud/80',
+                        )}
                       >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => remove(row.id, row.name)}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border-grey bg-white px-3 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-50"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-3 p-4 sm:p-5">
-                  <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    <span className="flex items-center gap-2 text-sm font-bold text-navy">
-                      <User className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
-                      {row.name}
-                    </span>
-                    <a
-                      href={`tel:${row.phone.replace(/\s/g, '')}`}
-                      className="flex items-center gap-2 text-sm font-semibold text-navy hover:text-machine-orange hover:underline"
-                    >
-                      <Phone className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
-                      {row.phone}
-                    </a>
-                    {row.email ? (
-                      <a
-                        href={`mailto:${row.email}`}
-                        className="flex min-w-0 items-center gap-2 text-sm font-semibold text-navy hover:text-machine-orange hover:underline"
-                      >
-                        <Mail className="h-4 w-4 shrink-0 text-machine-orange" aria-hidden />
-                        <span className="truncate">{row.email}</span>
-                      </a>
-                    ) : null}
-                  </div>
-
-                  {row.subject ? (
-                    <div className="flex items-start gap-2 text-sm">
-                      <Tag className="mt-0.5 h-4 w-4 shrink-0 text-muted-grey" aria-hidden />
-                      <span className="font-bold text-navy">{row.subject}</span>
-                    </div>
-                  ) : null}
-
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
-                      Message
-                    </p>
-                    <pre className="mt-1 whitespace-pre-wrap break-words rounded-xl bg-bg-cloud/80 p-4 text-sm leading-relaxed text-navy">
-                      {row.message}
-                    </pre>
-                  </div>
-                </div>
-              </motion.li>
-            ))}
-          </motion.ul>
+                        <td className="px-2 py-2 align-middle text-center tabular-nums">
+                          <span className="inline-flex min-w-[1.75rem] justify-center rounded-md bg-bg-steel/80 px-1.5 py-1 text-xs font-black text-navy">
+                            {serial}
+                          </span>
+                        </td>
+                        <td className="px-2 py-2 align-middle">
+                          <button
+                            type="button"
+                            onClick={() => toggleRow(row.id)}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-navy hover:bg-white hover:ring-1 hover:ring-border-grey"
+                            aria-expanded={open}
+                            aria-controls={`enquiry-panel-${row.id}`}
+                            id={`enquiry-trigger-${row.id}`}
+                          >
+                            {open ? (
+                              <ChevronDown className="h-5 w-5 shrink-0" aria-hidden />
+                            ) : (
+                              <ChevronRight className="h-5 w-5 shrink-0" aria-hidden />
+                            )}
+                          </button>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 align-middle text-xs text-muted-grey">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 shrink-0 text-machine-orange/80" aria-hidden />
+                            {formatWhen(row.createdAt)}
+                          </span>
+                        </td>
+                        <td className="max-w-[12rem] px-3 py-2 align-middle">
+                          <button
+                            type="button"
+                            onClick={() => toggleRow(row.id)}
+                            className="w-full truncate text-left font-bold text-navy hover:text-machine-orange hover:underline"
+                          >
+                            {row.name}
+                          </button>
+                        </td>
+                        <td className="max-w-[9rem] truncate px-3 py-2 align-middle font-medium text-navy">
+                          <a
+                            href={`tel:${row.phone.replace(/\s/g, '')}`}
+                            className="hover:text-machine-orange hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {row.phone}
+                          </a>
+                        </td>
+                        <td className="max-w-[14rem] truncate px-3 py-2 align-middle text-muted-grey">
+                          {row.subject ?? '—'}
+                        </td>
+                        <td className="min-w-[6rem] px-3 py-2 align-middle">
+                          <span
+                            className={cn(
+                              'inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide',
+                              statusBadgeClass(row.status),
+                            )}
+                          >
+                            {statusLabel(row.status)}
+                          </span>
+                        </td>
+                        <td className="px-2 py-2 align-middle text-center">
+                          <button
+                            type="button"
+                            onClick={() => remove(row.id, row.name)}
+                            className="inline-flex items-center justify-center rounded-lg border border-border-grey bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
+                            title="Delete enquiry"
+                            aria-label={`Delete enquiry from ${row.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden />
+                          </button>
+                        </td>
+                      </tr>
+                      {open ? (
+                        <tr className="border-b border-border-grey bg-bg-cloud/50">
+                          <td colSpan={8} className="p-0" id={`enquiry-panel-${row.id}`}>
+                            <div
+                              className="px-4 py-4 sm:px-6 sm:py-5"
+                              role="region"
+                              aria-labelledby={`enquiry-trigger-${row.id}`}
+                            >
+                              <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl border border-border-grey bg-white p-4 text-sm leading-relaxed text-navy">
+                                {row.message}
+                              </pre>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>
