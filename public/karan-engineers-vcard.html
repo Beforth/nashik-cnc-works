@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karan Engineers & Fabrication, Nashik</title>
+<meta name="description" content="Karan Engineers & Fabrication, Nashik — job work, machined components, turning, milling &amp; CNC. GST 27AVRPK3981G1Z1. View catalogue on IndiaMART.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --orange:#E65C00;
+    --orange-dark:#b34700;
+    --orange-light:#fff3ec;
+    --orange-mid:#ff7a2b;
+    --orange-pale:#fff8f4;
+    --text:#222;
+    --subtext:#666;
+    --border:#e8e8e8;
+    --white:#fff;
+    --radius:10px;
+    --shadow:0 2px 12px rgba(230,92,0,0.10);
+  }
+
+  body{
+    font-family:'Poppins',sans-serif;
+    background:#f5f5f5;
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  /* ── WRAPPER ── */
+  .page{max-width:480px;margin:0 auto;background:#fff;position:relative;padding-bottom:80px}
+
+  /* ── TOP BAR ── */
+  .top-bar{background:var(--orange);color:#fff;text-align:center;padding:8px 16px;font-size:12px;letter-spacing:0.5px}
+  .top-bar strong{font-weight:600}
+
+  /* ── HERO ── */
+  .hero{background:linear-gradient(135deg,var(--orange-dark) 0%,var(--orange) 60%,var(--orange-mid) 100%);padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none}
+  .hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none}
+  .hero-logo{width:112px;height:76px;border-radius:var(--radius);border:3px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.95);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;letter-spacing:1px;overflow:hidden;padding:6px 10px}
+  .hero-logo img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+  .hero h1{font-size:20px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px}
+  .hero .tagline{font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px}
+  .views-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);border-radius:20px;padding:4px 12px;font-size:11px;color:#fff}
+
+  /* ── ACTION BUTTONS ── */
+  .actions{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--border)}
+  .act-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;text-decoration:none;color:var(--text);cursor:pointer;background:#fff;border:none;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .act-btn:hover{background:var(--orange-pale)}
+  .act-btn:not(:last-child){border-right:1px solid var(--border)}
+  .act-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--orange-light)}
+  .act-label{font-size:10px;font-weight:500;color:var(--subtext)}
+
+  /* ── CONTACT INFO ROW ── */
+  .contact-strip{background:#fff;padding:0 16px;border-bottom:1px solid var(--border)}
+  .cinfo-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .cinfo-row:last-child{border-bottom:none}
+  .cinfo-icon{width:36px;height:36px;min-width:36px;border-radius:8px;background:var(--orange-light);display:flex;align-items:center;justify-content:center}
+  .cinfo-text{display:flex;flex-direction:column;gap:2px}
+  .cinfo-text a,.cinfo-text span{font-size:13px;color:var(--text);text-decoration:none;line-height:1.5}
+  .cinfo-text a:hover{color:var(--orange)}
+
+  /* ── SAVE CARD BUTTON ── */
+  .save-card-btn{display:block;text-align:center;margin:14px 16px;padding:12px;background:var(--orange);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0.3px;transition:background 0.15s}
+  .save-card-btn:hover{background:var(--orange-dark)}
+
+  /* ── SECTION ── */
+  .section{background:#fff;margin-top:10px;padding:20px 16px}
+  .section-title{font-size:16px;font-weight:700;color:var(--orange);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--orange-light);display:flex;align-items:center;gap:8px}
+  .section-title::before{content:'';display:inline-block;width:4px;height:18px;background:var(--orange);border-radius:2px}
+
+  /* ── ABOUT TABLE ── */
+  .about-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+  .about-table td{padding:9px 12px;border:1px solid var(--border)}
+  .about-table td:first-child{font-weight:600;color:var(--subtext);background:var(--orange-pale);width:42%;white-space:nowrap}
+  .about-table td:last-child{color:var(--text)}
+
+  /* ── SPECIALITIES ── */
+  .spec-heading{font-size:13px;font-weight:600;color:var(--text);margin:14px 0 10px}
+  .spec-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  .spec-list li{font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+  .spec-list li::before{content:'✔';color:var(--orange);font-size:12px;margin-top:2px;flex-shrink:0}
+  .about-desc{font-size:13px;color:var(--subtext);line-height:1.8;margin-top:12px}
+  .about-desc strong{color:var(--text)}
+
+  /* ── SERVICES ── */
+  .services-list{display:flex;flex-direction:column;gap:14px}
+  .service-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  .service-card-inner{display:flex;align-items:stretch;gap:0}
+  .service-img{width:100px;min-width:100px;height:100px;object-fit:cover;background:#f0f0f0}
+  .service-info{padding:10px 12px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .service-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+  .service-desc{font-size:12px;color:var(--subtext);line-height:1.5;margin-bottom:8px}
+  .enq-btn{display:inline-block;padding:6px 14px;background:var(--orange);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:background 0.15s;align-self:flex-start}
+  .enq-btn:hover{background:var(--orange-dark)}
+
+  /* ── PAYMENT ── */
+  .payment-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px}
+  .payment-table td{padding:9px 12px;border:1px solid var(--border)}
+  .payment-table td:first-child{font-weight:600;color:var(--subtext);background:var(--orange-pale);width:42%}
+  .payment-table td:last-child{color:var(--text);font-weight:500}
+  .payment-sub{font-size:13px;font-weight:600;color:var(--text);margin:14px 0 10px}
+
+  /* ── GALLERY ── */
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .gal-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:#f0f0f0;display:block}
+
+  /* ── FEEDBACK ── */
+  .feedback-form{display:flex;flex-direction:column;gap:10px}
+  .rating-row{display:flex;gap:8px;flex-wrap:wrap}
+  .rating-opt{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;color:var(--subtext);cursor:pointer;transition:all 0.15s;background:#fff}
+  .rating-opt:hover,.rating-opt.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .fb-input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;resize:vertical;min-height:80px;width:100%;transition:border 0.15s}
+  .fb-input:focus{border-color:var(--orange)}
+  .fb-name{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;transition:border 0.15s}
+  .fb-name:focus{border-color:var(--orange)}
+  .fb-submit{padding:11px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .fb-submit:hover{background:var(--orange-dark)}
+  .fb-success{display:none;background:#fff3ec;border:1px solid var(--orange);color:var(--orange-dark);padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+
+  /* ── ENQUIRY FORM ── */
+  .enq-form{display:flex;flex-direction:column;gap:10px}
+  .enq-form input,.enq-form textarea,.enq-form select{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;transition:border 0.15s;background:#fff;color:var(--text)}
+  .enq-form input:focus,.enq-form textarea:focus,.enq-form select:focus{border-color:var(--orange)}
+  .enq-form textarea{min-height:80px;resize:vertical}
+  .enq-submit{padding:12px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .enq-submit:hover{background:var(--orange-dark)}
+
+  /* ── SHARE ── */
+  .share-url-box{background:var(--orange-pale);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--subtext);word-break:break-all;margin-bottom:12px}
+  .share-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .share-btn{flex:1;min-width:130px;padding:10px;text-align:center;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all 0.15s;text-decoration:none;display:inline-block}
+  .share-btn-primary{background:var(--orange);color:#fff}
+  .share-btn-primary:hover{background:var(--orange-dark)}
+  .share-btn-outline{background:#fff;color:var(--orange);border:1.5px solid var(--orange)}
+  .share-btn-outline:hover{background:var(--orange-light)}
+  .qr-wrap{text-align:center;margin-top:4px}
+  .qr-wrap img{width:130px;height:130px;border-radius:8px;border:1px solid var(--border)}
+  .qr-label{font-size:12px;color:var(--subtext);margin-top:8px}
+  .whatsapp-share{display:flex;gap:8px;align-items:center;margin-top:14px}
+  .wa-prefix{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;width:70px;text-align:center;color:var(--subtext)}
+  .wa-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none}
+  .wa-input:focus{border-color:var(--orange)}
+  .wa-send{padding:10px 16px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--border);display:flex;overflow-x:auto;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.08)}
+  .bottom-nav::-webkit-scrollbar{display:none}
+  .nav-item{flex:1;min-width:56px;padding:8px 4px;text-align:center;font-size:9px;font-weight:600;color:var(--subtext);text-decoration:none;letter-spacing:0.4px;transition:color 0.15s;white-space:nowrap}
+  .nav-item:hover,.nav-item.active{color:var(--orange)}
+  .nav-icon{display:flex;align-items:center;justify-content:center;margin:0 auto 3px;width:22px;height:22px;color:inherit}
+  .nav-icon svg{width:20px;height:20px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ── FOOTER ── */
+  .footer{background:var(--orange);color:rgba(255,255,255,0.85);text-align:center;padding:14px 16px;font-size:12px;margin-top:10px}
+  .footer a{color:#fff;font-weight:600;text-decoration:none}
+
+  /* ── COPY SUCCESS ── */
+  .copy-toast{display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+</style>
+</head>
+<body>
+
+<div class="copy-toast" id="copyToast">Profile link copied!</div>
+
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">GST <strong>27AVRPK3981G1Z1</strong> · Nashik, Maharashtra</div>
+
+  <!-- HERO / HOME -->
+  <div class="hero" id="home-section">
+    <div class="hero-logo"><img src="/logo.png" width="96" height="64" alt="Karan Engineers &amp; Fabrication"></div>
+    <h1>Karan Engineers &amp; Fabrication</h1>
+    <p class="tagline">Job work, machined components &amp; turning machine job — Nashik, Maharashtra, India.</p>
+    <a class="views-badge" href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit">
+      <span aria-hidden="true">↗</span> IndiaMART catalogue
+    </a>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="actions">
+    <a class="act-btn" href="tel:+919423928362">
+      <div class="act-icon">
+        <svg width="18" height="18" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <span class="act-label">Call Me</span>
+    </a>
+    <a class="act-btn" href="https://wa.me/919423928362?text=Hello%2C%20I%20would%20like%20to%20get%20a%20quote%20from%20Karan%20Engineers%20%26%20Fabrication." target="_blank" rel="noopener noreferrer">
+      <div class="act-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#E65C00"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </div>
+      <span class="act-label">Whatsapp</span>
+    </a>
+    <a class="act-btn" href="https://www.google.com/maps/place/Karan+Engineers+%26+Fabrication+-+CNC+VMC+MACHINING+Jobwork+Nashik/@19.9597879,73.7467695,1640m/data=!3m1!1e3!4m6!3m5!1s0x3bddeca9b8ef1663:0x1bec7d08fd8b7fec!8m2!3d19.9585443!4d73.7463225!16s%2Fg%2F11f37gyxrq?entry=ttu&amp;g_ep=EgoyMDI2MDMyMy4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer">
+      <div class="act-icon">
+        <svg width="18" height="18" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <span class="act-label">Direction</span>
+    </a>
+    <a class="act-btn" href="mailto:mr.dinesheng@gmail.com" rel="noopener noreferrer">
+      <div class="act-icon">
+        <svg width="18" height="18" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <span class="act-label">Mail</span>
+    </a>
+  </div>
+
+  <!-- CONTACT INFO STRIP -->
+  <div class="contact-strip">
+    <div class="cinfo-row">
+      <div class="cinfo-icon">
+        <svg width="16" height="16" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="cinfo-text">
+        <a href="https://www.google.com/maps/place/Karan+Engineers+%26+Fabrication+-+CNC+VMC+MACHINING+Jobwork+Nashik/@19.9597879,73.7467695,1640m/data=!3m1!1e3!4m6!3m5!1s0x3bddeca9b8ef1663:0x1bec7d08fd8b7fec!8m2!3d19.9585443!4d73.7463225!16s%2Fg%2F11f37gyxrq?entry=ttu&amp;g_ep=EgoyMDI2MDMyMy4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer">MIDC Ambad, Nashik, Maharashtra, 422010</a>
+      </div>
+    </div>
+    <div class="cinfo-row">
+      <div class="cinfo-icon">
+        <svg width="16" height="16" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="cinfo-text">
+        <a href="mailto:mr.dinesheng@gmail.com">mr.dinesheng@gmail.com</a>
+      </div>
+    </div>
+    <div class="cinfo-row">
+      <div class="cinfo-icon">
+        <svg width="16" height="16" fill="none" stroke="#E65C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="cinfo-text">
+        <a href="tel:+919423928362">+91 94239 28362</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SITE -->
+  <a class="save-card-btn" href="/">Visit full website</a>
+
+  <!-- ══════════════ ABOUT US ══════════════ -->
+  <div class="section" id="about-us-section">
+    <div class="section-title">About Us</div>
+
+    <table class="about-table">
+      <tr><td>Business Name :</td><td>Karan Engineers &amp; Fabrication</td></tr>
+      <tr><td>Nature Of Business :</td><td>Service Provider and Others</td></tr>
+      <tr><td>GST Number :</td><td>27AVRPK3981G1Z1</td></tr>
+      <tr><td>GST Registration :</td><td>01-07-2017</td></tr>
+      <tr><td>Contact Person :</td><td>Mr. Dinesh Khairnar</td></tr>
+      <tr><td>IndiaMART :</td><td><a href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer" style="color:var(--orange)">dinesh-eng</a></td></tr>
+    </table>
+
+    <p class="spec-heading">Our Specialities</p>
+    <ul class="spec-list">
+      <li>Complete client satisfaction</li>
+      <li>Ethical business policies</li>
+      <li>Affordable &amp; competitive pricing</li>
+      <li>High-precision quality components</li>
+      <li>Reliable and on-time delivery</li>
+      <li>Ability to undertake bulk orders</li>
+      <li>Always in touch with our customers</li>
+      <li>Transparent dealings</li>
+      <li>100% accuracy with advanced CNC/VMC technology</li>
+      <li>We listen, we understand, we provide solutions</li>
+      <li>A great experience with happy clients</li>
+    </ul>
+
+    <p class="about-desc">
+      <strong>Karan Engineers &amp; Fabrication, Nashik</strong> — job work, machined components, turning, milling &amp; CNC (GST <strong>27AVRPK3981G1Z1</strong>). Based in <strong>MIDC Ambad, Nashik, Maharashtra</strong>, we supply high-precision job work and machined parts for the <strong>power sector, automobile industry</strong>, and general engineering.<br><br>
+      Share your drawing via WhatsApp, email, IndiaMART enquiry, or the enquiry form on our website — we review scope, quote, manufacture to agreed drawings, then inspect, pack, and dispatch.
+    </p>
+  </div>
+
+  <!-- ══════════════ OUR SERVICES ══════════════ -->
+  <div class="section" id="products-services-section">
+    <div class="section-title">Our Services</div>
+
+    <div class="services-list">
+
+      <div class="service-card">
+        <div class="service-card-inner">
+          <img class="service-img" src="https://5.imimg.com/data5/AL/TH/UV/NSDMERP-20762121/20762121-product-1541063333096-500x500.jpg" alt="Turning Machine Job" referrerpolicy="no-referrer">
+          <div class="service-info">
+            <div>
+              <p class="service-name">Turning Machine Job</p>
+              <p class="service-desc">CNC and conventional turning job work for shafts, pins, and cylindrical parts as per your drawings.</p>
+            </div>
+            <a class="enq-btn" href="https://wa.me/919423928362?text=Hello%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20Turning%20Machine%20Job." target="_blank" rel="noopener noreferrer">Enquiry</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-inner">
+          <img class="service-img" src="https://5.imimg.com/data5/LK/RX/UB/NSDMERP-20762121/20762121-product-1541063338370-500x500.jpg" alt="Milling Machine Job" referrerpolicy="no-referrer">
+          <div class="service-info">
+            <div>
+              <p class="service-name">Milling Machine Job</p>
+              <p class="service-desc">Milling job work for flats, pockets, slots, and prismatic features with repeatable accuracy.</p>
+            </div>
+            <a class="enq-btn" href="https://wa.me/919423928362?text=Hello%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20Milling%20Machine%20Job." target="_blank" rel="noopener noreferrer">Enquiry</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-inner">
+          <img class="service-img" src="https://5.imimg.com/data5/TA/RH/RA/NSDMERP-20762121/20762121-product-1541063342172-500x500.jpg" alt="CNC Machine Job" referrerpolicy="no-referrer">
+          <div class="service-info">
+            <div>
+              <p class="service-name">CNC Machine Job</p>
+              <p class="service-desc">CNC machining job work for complex profiles and production batches from Nashik.</p>
+            </div>
+            <a class="enq-btn" href="https://wa.me/919423928362?text=Hello%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20CNC%20Machine%20Job." target="_blank" rel="noopener noreferrer">Enquiry</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-inner">
+          <img class="service-img" src="https://5.imimg.com/data5/RM/AA/MY-20762121/components-for-power-sector-500x500.jpg" alt="Machined Components" referrerpolicy="no-referrer">
+          <div class="service-info">
+            <div>
+              <p class="service-name">Machined Components</p>
+              <p class="service-desc">Components for power sector and automobile industry; CNC turned components, bush, clamp shaft, and related parts.</p>
+            </div>
+            <a class="enq-btn" href="https://wa.me/919423928362?text=Hello%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20Machined%20Components." target="_blank" rel="noopener noreferrer">Enquiry</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ HOW WE WORK (matches site #services journey) ══════════════ -->
+  <div class="section" id="how-we-work-section">
+    <div class="section-title">How we work</div>
+
+    <table class="about-table">
+      <tr><td>1. Share Drawing</td><td>Send via WhatsApp, email, IndiaMART enquiry, or our enquiry form.</td></tr>
+      <tr><td>2. Get Quote</td><td>We review your requirement and respond with scope and pricing.</td></tr>
+      <tr><td>3. Manufacturing</td><td>Job work and component manufacture as per agreed drawings and schedule.</td></tr>
+      <tr><td>4. Delivery</td><td>Inspection, packing, and dispatch to your location.</td></tr>
+    </table>
+
+    <p style="font-size:12px;color:var(--subtext);margin-top:12px;line-height:1.6">UPI, bank transfer, and invoicing details are shared when you confirm an order — contact us on <a href="tel:+919423928362" style="color:var(--orange)">+91 94239 28362</a> or WhatsApp.</p>
+  </div>
+
+  <!-- ══════════════ GALLERY ══════════════ -->
+  <div class="section" id="gallery-section">
+    <div class="section-title">Gallery</div>
+    <div class="gallery-grid">
+      <img class="gal-img" src="https://5.imimg.com/data5/AL/TH/UV/NSDMERP-20762121/20762121-product-1541063333096-500x500.jpg" alt="Turning Machine Job" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/LK/RX/UB/NSDMERP-20762121/20762121-product-1541063338370-500x500.jpg" alt="Milling Machine Job" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/TA/RH/RA/NSDMERP-20762121/20762121-product-1541063342172-500x500.jpg" alt="CNC Machine Job" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/VF/EG/EW/NSDMERP-20762121/20762121-product-1541063345687-500x500.jpg" alt="CNC Turned Components" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/RM/AA/MY-20762121/components-for-power-sector-500x500.jpg" alt="Components for Power Sector" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/KU/BL/MY-20762121/components-for-automobile-industry-500x500.jpg" alt="Components for Automobile Industry" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/NV/BI/JM/NSDMERP-20762121/20762121-product-1541063343725-500x500.jpg" alt="Bush" loading="lazy" referrerpolicy="no-referrer">
+      <img class="gal-img" src="https://5.imimg.com/data5/UQ/RV/QZ/NSDMERP-20762121/20762121-product-1541063336555-500x500.jpg" alt="Clamp Shaft" loading="lazy" referrerpolicy="no-referrer">
+    </div>
+  </div>
+
+  <!-- ══════════════ FEEDBACK ══════════════ -->
+  <div class="section" id="feedback-section">
+    <div class="section-title">Feedbacks</div>
+
+    <div class="feedback-form">
+      <p style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">Give Feedback</p>
+      <div class="rating-row" id="ratingRow">
+        <span class="rating-opt" onclick="selectRating(this)">Excellent</span>
+        <span class="rating-opt" onclick="selectRating(this)">Very Good</span>
+        <span class="rating-opt" onclick="selectRating(this)">Average</span>
+        <span class="rating-opt" onclick="selectRating(this)">Poor</span>
+        <span class="rating-opt" onclick="selectRating(this)">Terrible</span>
+      </div>
+      <input class="fb-name" type="text" placeholder="Your Name" id="fbName">
+      <textarea class="fb-input" placeholder="Write your feedback here..." id="fbText"></textarea>
+      <button class="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
+      <div class="fb-success" id="fbSuccess">✔ Success: Feedback Given Successfully.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ENQUIRY FORM ══════════════ -->
+  <div class="section" id="enquiry-section">
+    <div class="section-title">Enquiry Form</div>
+
+    <div class="enq-form">
+      <input type="text" placeholder="Your Name *" id="enqName">
+      <input type="tel" placeholder="Phone Number *" id="enqPhone">
+      <input type="email" placeholder="Email Address" id="enqEmail">
+      <select id="enqService">
+        <option value="" disabled selected>Select Service...</option>
+        <option>Turning Machine Job</option>
+        <option>Milling Machine Job</option>
+        <option>CNC Machine Job</option>
+        <option>Machined Components</option>
+        <option>Other</option>
+      </select>
+      <textarea placeholder="Describe your requirements..." id="enqMsg"></textarea>
+      <button class="enq-submit" onclick="submitEnquiry()">Send Enquiry via WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ SHARE ══════════════ -->
+  <div class="section" id="share-section">
+    <div class="section-title">Share</div>
+
+    <div class="share-url-box" id="shareUrl">Loading…</div>
+
+    <div class="share-btns">
+      <button type="button" class="share-btn share-btn-primary" onclick="copyProfile()">Copy Profile Link</button>
+      <button type="button" class="share-btn share-btn-outline" onclick="shareProfileWhatsApp()">Share on WhatsApp</button>
+    </div>
+
+    <div class="qr-wrap">
+      <img id="qrImg" src="" alt="QR Code for this profile page">
+      <p class="qr-label">Scan QR to open profile</p>
+      <button class="share-btn share-btn-outline" style="margin-top:8px;width:auto;padding:8px 20px;font-size:12px" onclick="downloadQR()">Save QR</button>
+    </div>
+
+    <p style="font-size:12px;color:var(--subtext);margin-top:16px;margin-bottom:6px">Share profile to any WhatsApp number:</p>
+    <div class="whatsapp-share">
+      <div class="wa-prefix">+91</div>
+      <input class="wa-input" type="tel" placeholder="Enter number" id="waNumber" maxlength="10">
+      <button class="wa-send" onclick="shareToNumber()">Share</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2026 <a href="/">Website home</a> · <a href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer">IndiaMART</a>
+  </div>
+
+</div><!-- end .page -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a class="nav-item" href="#home-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>HOME</a>
+  <a class="nav-item" href="#about-us-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>ABOUT US</a>
+  <a class="nav-item" href="#products-services-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.76z"/></svg></span>SERVICES</a>
+  <a class="nav-item" href="#how-we-work-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>WORK</a>
+  <a class="nav-item" href="#gallery-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>GALLERY</a>
+  <a class="nav-item" href="#feedback-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>FEEDBACK</a>
+  <a class="nav-item" href="#enquiry-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span>ENQUIRY</a>
+  <a class="nav-item" href="#share-section"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>SHARE</a>
+</nav>
+
+<script>
+function profileUrl(){
+  return window.location.origin + '/profile';
+}
+function selectRating(el){
+  document.querySelectorAll('.rating-opt').forEach(function(o){ o.classList.remove('active'); });
+  el.classList.add('active');
+}
+function submitFeedback(){
+  var name=document.getElementById('fbName').value.trim();
+  var text=document.getElementById('fbText').value.trim();
+  var rated=document.querySelector('.rating-opt.active');
+  if(!rated){alert('Please select a rating.');return;}
+  if(!name){alert('Please enter your name.');return;}
+  var s=document.getElementById('fbSuccess');
+  s.style.display='block';
+  document.getElementById('fbName').value='';
+  document.getElementById('fbText').value='';
+  document.querySelectorAll('.rating-opt').forEach(function(o){ o.classList.remove('active'); });
+  setTimeout(function(){ s.style.display='none'; },4000);
+}
+function submitEnquiry(){
+  var name=document.getElementById('enqName').value.trim();
+  var phone=document.getElementById('enqPhone').value.trim();
+  var emailEl=document.getElementById('enqEmail');
+  var email=emailEl?emailEl.value.trim():'';
+  var service=document.getElementById('enqService').value;
+  var msg=document.getElementById('enqMsg').value.trim();
+  if(!name||!phone){alert('Please fill in required fields.');return;}
+  var line='Hello, I would like to get a quote for '+(service||'your services')+'.';
+  var body='\n\nName: '+name+'\nPhone: +91 '+phone+(email?'\nEmail: '+email:'')+(msg?'\nDetails: '+msg:'');
+  window.open('https://wa.me/919423928362?text='+encodeURIComponent(line+body),'_blank','noopener,noreferrer');
+}
+function copyProfile(){
+  var url=profileUrl();
+  if(navigator.clipboard){navigator.clipboard.writeText(url).catch(function(){});}
+  else{var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(t);}
+  var toast=document.getElementById('copyToast');
+  toast.style.display='block';
+  setTimeout(function(){ toast.style.display='none'; },2500);
+}
+function shareProfileWhatsApp(){
+  var msg='Karan Engineers & Fabrication, Nashik — profile: '+profileUrl();
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+}
+function downloadQR(){
+  var a=document.createElement('a');
+  a.href='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+encodeURIComponent(profileUrl())+'&color=E65C00';
+  a.download='karan-engineers-profile-qr.png';
+  a.target='_blank';
+  a.rel='noopener noreferrer';
+  a.click();
+}
+function shareToNumber(){
+  var num=document.getElementById('waNumber').value.trim();
+  if(num.length<10){alert('Please enter a valid 10-digit number.');return;}
+  var text='Karan Engineers & Fabrication, Nashik — '+profileUrl();
+  window.open('https://wa.me/91'+num+'?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');
+}
+function syncShareAssets(){
+  var pu=profileUrl();
+  var box=document.getElementById('shareUrl');
+  if(box) box.textContent=pu;
+  var qr=document.getElementById('qrImg');
+  if(qr) qr.src='https://api.qrserver.com/v1/create-qr-code/?size=130x130&data='+encodeURIComponent(pu)+'&color=E65C00';
+}
+document.addEventListener('DOMContentLoaded',syncShareAssets);
+</script>
+
+</body>
+</html>

@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Trash2, Save, Upload, Plus } from 'lucide-react';
+import { Trash2, Save, Upload, Plus, Pencil } from 'lucide-react';
 import { COMPANY } from '@/src/constants';
+import { cn } from '@/src/lib/utils';
 
 /** Matches Prisma defaults so the form never mounts with undefined fields after a failed/partial load. */
 const DEFAULT_SITE_SETTINGS = {
@@ -37,6 +38,8 @@ export default function AdminHomeContent() {
   const [message, setMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [addingHero, setAddingHero] = useState(false);
+  const [editingHeroId, setEditingHeroId] = useState<string | null>(null);
+  const [savingHeroId, setSavingHeroId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -188,16 +191,34 @@ export default function AdminHomeContent() {
     }
   }
 
-  async function saveHeroAlt(id: string, alt: string) {
-    const normalized = alt.trim() || 'Hero slide';
-    const res = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ alt: normalized }),
-    });
-    if (res.ok) {
-      setHeroImages((prev) => prev.map((h) => (h.id === id ? { ...h, alt: normalized } : h)));
+  async function saveHeroCard(id: string) {
+    const row = heroImages.find((h) => h.id === id);
+    if (!row) return;
+    const normalized = (row.alt || '').trim() || 'Hero slide';
+    setSavingHeroId(id);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alt: normalized }),
+      });
+      if (res.ok) {
+        setHeroImages((prev) => prev.map((h) => (h.id === id ? { ...h, alt: normalized } : h)));
+        setEditingHeroId(null);
+        setMessage('Hero card saved.');
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        const j = await res.json().catch(() => ({}));
+        setMessage((j as { error?: string }).error ?? 'Could not save hero card.');
+        setTimeout(() => setMessage(null), 4000);
+      }
+    } catch {
+      setMessage('Could not save hero card.');
+      setTimeout(() => setMessage(null), 4000);
+    } finally {
+      setSavingHeroId(null);
     }
   }
 
@@ -291,7 +312,7 @@ export default function AdminHomeContent() {
       </section>
 
       <section>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-start">
           <button
             type="button"
             onClick={addHeroCard}
@@ -303,52 +324,91 @@ export default function AdminHomeContent() {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {heroImages.map((img) => (
-            <div
-              key={img.id}
-              className="overflow-hidden rounded-2xl border border-border-grey bg-white shadow-sm"
-            >
-              <div className="group relative aspect-video overflow-hidden">
-                <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-navy/60 opacity-0 transition-opacity group-hover:opacity-100">
-                  <input
-                    type="file"
-                    id={`replace-${img.id}`}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleReplace(e, img.id)}
-                  />
-                  <label
-                    htmlFor={`replace-${img.id}`}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-navy transition-colors hover:bg-machine-orange hover:text-white"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Edit
+          {heroImages.map((img) => {
+            const isEditing = editingHeroId === img.id;
+            const isSaving = savingHeroId === img.id;
+            return (
+              <div
+                key={img.id}
+                className={cn(
+                  'overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors',
+                  isEditing ? 'border-machine-orange ring-2 ring-machine-orange/25' : 'border-border-grey',
+                )}
+              >
+                <div className="relative aspect-video overflow-hidden bg-bg-cloud">
+                  <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
+                </div>
+
+                <div className="space-y-3 border-t border-border-grey p-3">
+                  <label className="block">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
+                      Alt text
+                    </span>
+                    <input
+                      readOnly={!isEditing}
+                      className="mt-1 block w-full rounded-lg border border-border-grey px-2 py-1.5 text-sm text-navy read-only:bg-bg-cloud/80 read-only:text-muted-grey"
+                      value={img.alt}
+                      onChange={(e) =>
+                        setHeroImages((prev) =>
+                          prev.map((h) => (h.id === img.id ? { ...h, alt: e.target.value } : h)),
+                        )
+                      }
+                    />
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => deleteHeroImage(img.id)}
-                    className="rounded-xl bg-white/10 p-2 text-white transition-colors hover:bg-red-500"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isEditing || !!savingHeroId || uploading}
+                      onClick={() => setEditingHeroId(img.id)}
+                      className="inline-flex flex-1 min-w-[5.5rem] items-center justify-center gap-1.5 rounded-lg border border-border-grey bg-white px-3 py-2 text-xs font-bold text-navy hover:bg-bg-cloud disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!isEditing || isSaving || uploading}
+                      onClick={() => void saveHeroCard(img.id)}
+                      className="inline-flex flex-1 min-w-[5.5rem] items-center justify-center gap-1.5 rounded-lg bg-navy px-3 py-2 text-xs font-bold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                      {isSaving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!!savingHeroId || uploading}
+                      onClick={() => deleteHeroImage(img.id)}
+                      className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-white p-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      title="Delete card"
+                      aria-label="Delete hero card"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {isEditing ? (
+                    <div className="border-t border-border-grey pt-3">
+                      <input
+                        type="file"
+                        id={`replace-${img.id}`}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => handleReplace(e, img.id)}
+                      />
+                      <label
+                        htmlFor={`replace-${img.id}`}
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-machine-orange/50 bg-machine-orange/5 px-3 py-2 text-xs font-bold text-machine-orange hover:bg-machine-orange/10"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Replace hero image
+                      </label>
+                    </div>
+                  ) : null}
                 </div>
               </div>
-              <label className="block border-t border-border-grey p-3">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Alt text</span>
-                <input
-                  className="mt-1 block w-full rounded-lg border border-border-grey px-2 py-1.5 text-sm text-navy"
-                  value={img.alt}
-                  onChange={(e) =>
-                    setHeroImages((prev) =>
-                      prev.map((h) => (h.id === img.id ? { ...h, alt: e.target.value } : h)),
-                    )
-                  }
-                  onBlur={(e) => saveHeroAlt(img.id, e.target.value)}
-                />
-              </label>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

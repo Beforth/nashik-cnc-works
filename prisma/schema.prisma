@@ -76,6 +76,6 @@ model Enquiry {
   phone     String
   subject   String?
   message   String
-  status    String   @default("NEW") // NEW, READ, REPLIED, ARCHIVED
+  status    String   @default("NEW") // NEW | READ
   createdAt DateTime @default(now())
 }

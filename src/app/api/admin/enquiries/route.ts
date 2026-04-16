@@ -3,7 +3,7 @@ import { prisma } from '@/src/lib/db';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
 
-const STATUSES = ['NEW', 'READ', 'REPLIED', 'ARCHIVED'] as const;
+const STATUSES = ['NEW', 'READ'] as const;
 
 /** Enquiries contain PII — admin session required for all methods. */
 export async function GET() {

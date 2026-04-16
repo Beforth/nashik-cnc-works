@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trash2, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
+import { Trash2, Calendar, ChevronRight, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
 type EnquiryRow = {
@@ -33,10 +33,6 @@ function statusBadgeClass(status: string) {
       return 'bg-machine-orange/15 text-machine-orange ring-1 ring-machine-orange/25';
     case 'READ':
       return 'bg-amber/15 text-amber ring-1 ring-amber/30';
-    case 'REPLIED':
-      return 'bg-machine-green/15 text-machine-green ring-1 ring-machine-green/25';
-    case 'ARCHIVED':
-      return 'bg-muted-grey/20 text-muted-grey ring-1 ring-border-grey';
     default:
       return 'bg-border-grey/60 text-muted-grey';
   }
@@ -45,10 +41,11 @@ function statusBadgeClass(status: string) {
 function statusLabel(status: string) {
   if (status === 'NEW') return 'New';
   if (status === 'READ') return 'Read';
-  if (status === 'REPLIED') return 'Replied';
-  if (status === 'ARCHIVED') return 'Archived';
   return status;
 }
+
+const STATUS_FILTER_OPTIONS = ['ALL', 'NEW', 'READ'] as const;
+type StatusFilter = (typeof STATUS_FILTER_OPTIONS)[number];
 
 export default function AdminEnquiries() {
   const router = useRouter();
@@ -57,6 +54,8 @@ export default function AdminEnquiries() {
   const [message, setMessage] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,6 +104,27 @@ export default function AdminEnquiries() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const filteredRows = useMemo(() => {
+    let list = rows;
+    if (statusFilter !== 'ALL') {
+      list = list.filter((r) => r.status === statusFilter);
+    }
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((r) => {
+      const blob = [r.name, r.phone, r.email ?? '', r.subject ?? '', r.message]
+        .join('\n')
+        .toLowerCase();
+      return blob.includes(q);
+    });
+  }, [rows, searchQuery, statusFilter]);
+
+  useEffect(() => {
+    if (expandedId && !filteredRows.some((r) => r.id === expandedId)) {
+      setExpandedId(null);
+    }
+  }, [expandedId, filteredRows]);
 
   function toggleRow(id: string) {
     if (expandedId === id) {
@@ -179,11 +199,6 @@ export default function AdminEnquiries() {
           </p>
         ) : null}
 
-        <p className="mb-4 text-sm text-muted-grey">
-          Sr. is the row order in this table (1 = newest). Status stays <strong className="text-navy">New</strong> until you
-          expand the row to view the message; then it becomes <strong className="text-navy">Read</strong> automatically.
-        </p>
-
         {rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border-grey bg-white/80 px-6 py-16 text-center">
             <p className="text-muted-grey">No enquiries yet.</p>
@@ -192,6 +207,47 @@ export default function AdminEnquiries() {
             </p>
           </div>
         ) : (
+          <>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="relative min-w-0 flex-1 sm:min-w-[16rem] sm:max-w-md">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-grey"
+                  aria-hidden
+                />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search name, phone, email, subject, message…"
+                  className="w-full rounded-xl border border-border-grey bg-white py-2.5 pl-10 pr-3 text-sm text-navy placeholder:text-muted-grey focus:border-machine-orange focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
+                  aria-label="Search enquiries"
+                />
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <label htmlFor="enquiry-status-filter" className="text-xs font-bold uppercase tracking-wide text-muted-grey">
+                  Status
+                </label>
+                <select
+                  id="enquiry-status-filter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  className="rounded-xl border border-border-grey bg-white px-3 py-2 text-sm font-semibold text-navy focus:border-machine-orange focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
+                >
+                  {STATUS_FILTER_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s === 'ALL' ? 'All statuses' : statusLabel(s)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {filteredRows.length === 0 ? (
+              <div className="rounded-2xl border border-border-grey bg-bg-cloud/50 px-6 py-12 text-center">
+                <p className="font-semibold text-navy">No enquiries match your search or filter.</p>
+                <p className="mt-2 text-sm text-muted-grey">Try clearing the search box or setting status to “All statuses”.</p>
+              </div>
+            ) : (
           <div className="overflow-x-auto rounded-2xl border border-border-grey bg-white shadow-sm">
             <table className="w-full min-w-[880px] border-collapse text-left text-sm">
               <thead>
@@ -223,7 +279,7 @@ export default function AdminEnquiries() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, index) => {
+                {filteredRows.map((row, index) => {
                   const open = expandedId === row.id;
                   const serial = index + 1;
                   return (
@@ -326,6 +382,8 @@ export default function AdminEnquiries() {
               </tbody>
             </table>
           </div>
+            )}
+          </>
         )}
       </section>
     </div>

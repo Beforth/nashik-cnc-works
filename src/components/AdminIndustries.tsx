@@ -225,12 +225,7 @@ export default function AdminIndustries() {
       )}
 
       <section>
-        <p className="mb-4 text-sm text-muted-grey">
-          All sectors are listed in sort order. Rows from the site catalog that are not in the database yet show as{' '}
-          <strong className="text-navy">Pending</strong> — use Create row to save them.
-        </p>
-
-        <div className="mb-4 flex flex-wrap justify-end gap-4">
+        <div className="mb-4 flex flex-wrap justify-start gap-4">
           <button
             type="button"
             onClick={addIndustry}

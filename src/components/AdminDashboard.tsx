@@ -277,7 +277,7 @@ export default function AdminDashboard() {
       )}
 
       <section>
-        <div className="mb-4 flex flex-wrap justify-end gap-4">
+        <div className="mb-4 flex flex-wrap justify-start gap-4">
           <button
             type="button"
             onClick={addExpertise}

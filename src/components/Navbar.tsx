@@ -7,6 +7,13 @@ import { Menu, X, ChevronRight, MapPin, Phone, Mail } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { COMPANY } from '../constants';
 
+/** One line before contact name: comma after Maharashtra, single trailing period. */
+function formatTopRailAddress(addr: string): string {
+  let s = (addr || COMPANY.tagline).trim().replace(/\.+$/, '');
+  s = s.replace(/Maharashtra\s*,?\s*422010/i, 'Maharashtra, 422010');
+  return `${s}.`;
+}
+
 export default function Navbar({
   settings,
   /** Where the logo goes (main site home). City pages should pass `/${slug}`. */
@@ -23,6 +30,10 @@ export default function Navbar({
   const address = settings?.address || COMPANY.tagline;
   const phone = settings?.phone || COMPANY.phone;
   const phoneDisplay = settings?.phoneFormatted || COMPANY.contactPhoneDisplay;
+  const railAddress = formatTopRailAddress(address);
+  const contactLabel = settings?.contactName ?? COMPANY.contactName;
+  const phoneDigits = String(phone).replace(/\D/g, '').slice(-10);
+  const railText = `${companyName} , ${railAddress} ${contactLabel} , Mo. +91 ${phoneDigits}`;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -53,7 +64,7 @@ export default function Navbar({
             }}
             className="flex items-center gap-4 text-sm font-normal pr-10 shrink-0"
           >
-            <span>{companyName} , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
+            <span>{railText}</span>
           </motion.div>
           <motion.div 
             initial={{ x: "0%" }}
@@ -65,7 +76,7 @@ export default function Navbar({
             }}
             className="flex items-center gap-4 text-sm font-normal pr-10 shrink-0"
           >
-            <span>{companyName} , {address}. Mr. Dinesh Khairnar Mo. {phoneDisplay}</span>
+            <span>{railText}</span>
           </motion.div>
         </div>
       </div>
