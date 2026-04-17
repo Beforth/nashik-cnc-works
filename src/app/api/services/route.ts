@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { requireAdminSession } from '@/src/lib/require-admin';
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
       sortOrder?: number;
     };
 
-    const { id, iconKey, name, imageUrl, description, sortOrder } = body;
+    const { id, iconKey, name, imageUrl, description } = body;
     if (!id || !ID_RE.test(id)) {
       return NextResponse.json(
         { error: 'Invalid id: use lowercase letters, numbers, and hyphens only (e.g. cnc-milling).' },
@@ -39,6 +40,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const sortOrder = await nextSortOrderForPrepend(() =>
+      prisma.service.findFirst({
+        orderBy: { sortOrder: 'asc' },
+        select: { sortOrder: true },
+      }),
+    );
+
     const created = await prisma.service.create({
       data: {
         id,
@@ -46,7 +54,7 @@ export async function POST(request: Request) {
         name,
         imageUrl,
         description,
-        sortOrder: typeof sortOrder === 'number' ? sortOrder : 0,
+        sortOrder,
       },
     });
     revalidatePublicCmsCache();

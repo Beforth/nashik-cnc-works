@@ -32,6 +32,24 @@ export async function getHomeCmsBundle() {
   return loadHomeCmsBundle();
 }
 
+/** Profile page only needs settings + services + gallery — avoids hero / industry / infra queries. */
+const loadProfileCmsBundle = unstable_cache(
+  async () => {
+    const [settings, services, galleryRaw] = await Promise.all([
+      getSiteSettings(),
+      getServices(),
+      getGalleryItems(),
+    ]);
+    return { settings, services, galleryRaw };
+  },
+  ['profile-cms-bundle-v1'],
+  { revalidate: REVALIDATE_SECONDS, tags: [CMS_PUBLIC_CACHE_TAG] },
+);
+
+export async function getProfileCmsBundle() {
+  return loadProfileCmsBundle();
+}
+
 const loadGalleryPageCmsBundle = unstable_cache(
   async () => {
     const [settings, galleryRaw] = await Promise.all([getSiteSettings(), getGalleryItems()]);

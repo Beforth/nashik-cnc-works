@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
@@ -23,9 +24,7 @@ function parseCreateBody(raw: unknown) {
     typeof body.iconKey === 'string' && body.iconKey.trim().length > 0
       ? body.iconKey.trim()
       : 'Wrench';
-  const sortOrder =
-    typeof body.sortOrder === 'number' && Number.isFinite(body.sortOrder) ? body.sortOrder : 0;
-  return { name, specs, imageUrl, iconKey, sortOrder };
+  return { name, specs, imageUrl, iconKey };
 }
 
 function parsePatchBody(raw: unknown) {
@@ -54,10 +53,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { name, specs, imageUrl, iconKey, sortOrder } = parseCreateBody(await req.json());
+    const { name, specs, imageUrl, iconKey } = parseCreateBody(await req.json());
     if (!name || !specs) {
       return NextResponse.json({ error: 'Name and specifications are required.' }, { status: 400 });
     }
+    const sortOrder = await nextSortOrderForPrepend(() =>
+      prisma.infrastructureItem.findFirst({
+        orderBy: { sortOrder: 'asc' },
+        select: { sortOrder: true },
+      }),
+    );
     const item = await prisma.infrastructureItem.create({
       data: { name, specs, imageUrl, iconKey, sortOrder },
     });

@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+.vcard-scope {
+  --orange: #E65C00;
+  --orange-dark: #b34700;
+  --orange-light: #fff3ec;
+  --orange-mid: #ff7a2b;
+  --orange-pale: #fff8f4;
+  --text: #222;
+  --subtext: #666;
+  --border: #e8e8e8;
+  --white: #fff;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(230,92,0,0.10);
+  font-family: 'Poppins', sans-serif;
+  background: #f5f5f5;
+  color: var(--text);
+  min-height: 100vh;
+}
+.vcard-scope *, .vcard-scope *::before, .vcard-scope *::after {
+  box-sizing: border-box;
+}
+
+  /* ── WRAPPER ── */
+  .vcard-scope .page{max-width:480px;margin:0 auto;background:#fff;position:relative;padding-bottom:80px}
+
+  /* ── TOP BAR ── */
+  .vcard-scope .top-bar{background:var(--orange);color:#fff;text-align:center;padding:8px 16px;font-size:12px;letter-spacing:0.5px}
+  .vcard-scope .top-bar strong{font-weight:600}
+
+  /* ── HERO ── */
+  .vcard-scope .hero{background:linear-gradient(135deg,var(--orange-dark) 0%,var(--orange) 60%,var(--orange-mid) 100%);padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden}
+  .vcard-scope .hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none}
+  .vcard-scope .hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none}
+  .vcard-scope .hero-logo{width:112px;height:76px;border-radius:var(--radius);border:3px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.95);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;letter-spacing:1px;overflow:hidden;padding:6px 10px}
+  .vcard-scope .hero-logo img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+  .vcard-scope .hero h1{font-size:20px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px}
+  .vcard-scope .hero .tagline{font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px}
+  .vcard-scope .views-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);border-radius:20px;padding:4px 12px;font-size:11px;color:#fff}
+
+  /* ── ACTION BUTTONS ── */
+  .vcard-scope .actions{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--border)}
+  .vcard-scope .act-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;text-decoration:none;color:var(--text);cursor:pointer;background:#fff;border:none;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .vcard-scope .act-btn:hover{background:var(--orange-pale)}
+  .vcard-scope .act-btn:not(:last-child){border-right:1px solid var(--border)}
+  .vcard-scope .act-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--orange-light)}
+  .vcard-scope .act-label{font-size:10px;font-weight:500;color:var(--subtext)}
+
+  /* ── CONTACT INFO ROW ── */
+  .vcard-scope .contact-strip{background:#fff;padding:0 16px;border-bottom:1px solid var(--border)}
+  .vcard-scope .cinfo-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .vcard-scope .cinfo-row:last-child{border-bottom:none}
+  .vcard-scope .cinfo-icon{width:36px;height:36px;min-width:36px;border-radius:8px;background:var(--orange-light);display:flex;align-items:center;justify-content:center}
+  .vcard-scope .cinfo-text{display:flex;flex-direction:column;gap:2px}
+  .vcard-scope .cinfo-text a, .vcard-scope .cinfo-text span{font-size:13px;color:var(--text);text-decoration:none;line-height:1.5}
+  .vcard-scope .cinfo-text a:hover{color:var(--orange)}
+
+  /* ── SAVE CARD BUTTON ── */
+  .vcard-scope .save-card-btn{display:block;text-align:center;margin:14px 16px;padding:12px;background:var(--orange);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0.3px;transition:background 0.15s}
+  .vcard-scope .save-card-btn:hover{background:var(--orange-dark)}
+
+  /* ── SECTION ── */
+  .vcard-scope .section{background:#fff;margin-top:10px;padding:20px 16px}
+  .vcard-scope .section-title{font-size:16px;font-weight:700;color:var(--orange);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--orange-light);display:flex;align-items:center;gap:8px}
+  .vcard-scope .section-title::before{content:'';display:inline-block;width:4px;height:18px;background:var(--orange);border-radius:2px}
+
+  /* ── ABOUT TABLE ── */
+  .vcard-scope .about-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+  .vcard-scope .about-table td{padding:9px 12px;border:1px solid var(--border)}
+  .vcard-scope .about-table td:first-child{font-weight:600;color:var(--subtext);background:var(--orange-pale);width:42%;white-space:nowrap}
+  .vcard-scope .about-table td:last-child{color:var(--text)}
+
+  /* ── SPECIALITIES ── */
+  .vcard-scope .spec-heading{font-size:13px;font-weight:600;color:var(--text);margin:14px 0 10px}
+  .vcard-scope .spec-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  .vcard-scope .spec-list li{font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+  .vcard-scope .spec-list li::before{content:'✔';color:var(--orange);font-size:12px;margin-top:2px;flex-shrink:0}
+  .vcard-scope .about-desc{font-size:13px;color:var(--subtext);line-height:1.8;margin-top:12px}
+  .vcard-scope .about-desc strong{color:var(--text)}
+
+  /* ── SERVICES ── */
+  .vcard-scope .services-list{display:flex;flex-direction:column;gap:14px}
+  .vcard-scope .service-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  .vcard-scope .service-card-inner{display:flex;align-items:stretch;gap:0}
+  .vcard-scope .service-img{width:100px;min-width:100px;height:100px;object-fit:cover;background:#f0f0f0}
+  .vcard-scope .service-info{padding:10px 12px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .vcard-scope .service-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+  .vcard-scope .service-desc{font-size:12px;color:var(--subtext);line-height:1.5;margin-bottom:8px}
+  .vcard-scope .enq-btn{display:inline-block;padding:6px 14px;background:var(--orange);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:background 0.15s;align-self:flex-start}
+  .vcard-scope .enq-btn:hover{background:var(--orange-dark)}
+
+  /* ── PAYMENT ── */
+  .vcard-scope .payment-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px}
+  .vcard-scope .payment-table td{padding:9px 12px;border:1px solid var(--border)}
+  .vcard-scope .payment-table td:first-child{font-weight:600;color:var(--subtext);background:var(--orange-pale);width:42%}
+  .vcard-scope .payment-table td:last-child{color:var(--text);font-weight:500}
+  .vcard-scope .payment-sub{font-size:13px;font-weight:600;color:var(--text);margin:14px 0 10px}
+
+  /* ── GALLERY ── */
+  .vcard-scope .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .vcard-scope .gal-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:#f0f0f0;display:block}
+
+  /* ── FEEDBACK ── */
+  .vcard-scope .feedback-form{display:flex;flex-direction:column;gap:10px}
+  .vcard-scope .rating-row{display:flex;gap:8px;flex-wrap:wrap}
+  .vcard-scope .rating-opt{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;color:var(--subtext);cursor:pointer;transition:all 0.15s;background:#fff;font-family:inherit;-webkit-appearance:none;appearance:none}
+  .vcard-scope .rating-opt:hover, .vcard-scope .rating-opt.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .vcard-scope .fb-input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;resize:vertical;min-height:80px;width:100%;transition:border 0.15s}
+  .vcard-scope .fb-input:focus{border-color:var(--orange)}
+  .vcard-scope .fb-name{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;transition:border 0.15s}
+  .vcard-scope .fb-name:focus{border-color:var(--orange)}
+  .vcard-scope .fb-submit{padding:11px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .vcard-scope .fb-submit:hover{background:var(--orange-dark)}
+  .vcard-scope .fb-success{display:none;background:#fff3ec;border:1px solid var(--orange);color:var(--orange-dark);padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+
+  /* ── ENQUIRY FORM ── */
+  .vcard-scope .enq-form{display:flex;flex-direction:column;gap:10px}
+  .vcard-scope .enq-form input, .vcard-scope .enq-form textarea, .vcard-scope .enq-form select{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;transition:border 0.15s;background:#fff;color:var(--text)}
+  .vcard-scope .enq-form input:focus, .vcard-scope .enq-form textarea:focus, .vcard-scope .enq-form select:focus{border-color:var(--orange)}
+  .vcard-scope .enq-form textarea{min-height:80px;resize:vertical}
+  .vcard-scope .enq-submit{padding:12px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s}
+  .vcard-scope .enq-submit:hover{background:var(--orange-dark)}
+  .vcard-scope .enq-submit:disabled{opacity:0.65;cursor:not-allowed}
+  .vcard-scope .enq-error{margin:0;background:#fef2f2;border:1px solid #f87171;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+  .vcard-scope .enq-warning{margin:0;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+  .vcard-scope .enq-success{display:none;margin:0;background:#fff3ec;border:1px solid var(--orange);color:var(--orange-dark);padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+  .vcard-scope .enq-success.is-visible{display:block}
+
+  /* ── SHARE ── */
+  .vcard-scope .share-url-box{background:var(--orange-pale);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--subtext);word-break:break-all;margin-bottom:12px}
+  .vcard-scope .share-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .vcard-scope .share-btn{flex:1;min-width:130px;padding:10px;text-align:center;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all 0.15s;text-decoration:none;display:inline-block}
+  .vcard-scope .share-btn-primary{background:var(--orange);color:#fff}
+  .vcard-scope .share-btn-primary:hover{background:var(--orange-dark)}
+  .vcard-scope .share-btn-outline{background:#fff;color:var(--orange);border:1.5px solid var(--orange)}
+  .vcard-scope .share-btn-outline:hover{background:var(--orange-light)}
+  .vcard-scope .qr-wrap{text-align:center;margin-top:4px}
+  .vcard-scope .qr-wrap img{width:130px;height:130px;border-radius:8px;border:1px solid var(--border)}
+  .vcard-scope .qr-label{font-size:12px;color:var(--subtext);margin-top:8px}
+  .vcard-scope .whatsapp-share{display:flex;gap:8px;align-items:center;margin-top:14px}
+  .vcard-scope .wa-prefix{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;width:70px;text-align:center;color:var(--subtext)}
+  .vcard-scope .wa-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none}
+  .vcard-scope .wa-input:focus{border-color:var(--orange)}
+  .vcard-scope .wa-send{padding:10px 16px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
+
+  /* ── BOTTOM NAV ── */
+  .vcard-scope .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--border);display:flex;overflow-x:auto;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.08)}
+  .vcard-scope .bottom-nav::-webkit-scrollbar{display:none}
+  .vcard-scope .nav-item{flex:1;min-width:56px;padding:8px 4px;text-align:center;font-size:9px;font-weight:600;color:var(--subtext);text-decoration:none;letter-spacing:0.4px;transition:color 0.15s;white-space:nowrap}
+  .vcard-scope .nav-item:hover, .vcard-scope .nav-item.active{color:var(--orange)}
+  .vcard-scope .nav-icon{display:flex;align-items:center;justify-content:center;margin:0 auto 3px;width:22px;height:22px;color:inherit}
+  .vcard-scope .nav-icon svg{width:20px;height:20px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ── FOOTER ── */
+  .vcard-scope .footer{background:var(--orange);color:rgba(255,255,255,0.85);text-align:center;padding:14px 16px;font-size:12px;margin-top:10px}
+  .vcard-scope .footer a{color:#fff;font-weight:600;text-decoration:none}
+
+  /* ── COPY SUCCESS ── */
+  .vcard-scope .copy-toast{display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+  .vcard-scope .copy-toast.is-visible{display:block}
+  .vcard-scope .fb-success.is-visible{display:block}

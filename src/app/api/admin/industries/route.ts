@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
@@ -28,9 +29,7 @@ function parseCreateBody(raw: unknown) {
     typeof body.iconKey === 'string' && body.iconKey.trim().length > 0
       ? body.iconKey.trim()
       : 'Factory';
-  const sortOrder =
-    typeof body.sortOrder === 'number' && Number.isFinite(body.sortOrder) ? body.sortOrder : 0;
-  return { name, iconKey, sortOrder };
+  return { name, iconKey };
 }
 
 function parsePatchBody(raw: unknown) {
@@ -50,10 +49,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { name, iconKey, sortOrder } = parseCreateBody(await req.json());
+    const { name, iconKey } = parseCreateBody(await req.json());
     if (!name) {
       return NextResponse.json({ error: 'Name is required.' }, { status: 400 });
     }
+    const sortOrder = await nextSortOrderForPrepend(() =>
+      prisma.industryItem.findFirst({
+        orderBy: { sortOrder: 'asc' },
+        select: { sortOrder: true },
+      }),
+    );
     const item = await prisma.industryItem.create({
       data: { name, iconKey, sortOrder },
     });

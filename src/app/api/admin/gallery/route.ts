@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
@@ -28,9 +29,7 @@ function parseCreateBody(raw: unknown) {
     typeof body.linkUrl === 'string' && body.linkUrl.trim().length > 0
       ? body.linkUrl.trim()
       : null;
-  const sortOrder =
-    typeof body.sortOrder === 'number' && Number.isFinite(body.sortOrder) ? body.sortOrder : 0;
-  return { title, imageUrl, category, linkUrl, sortOrder };
+  return { title, imageUrl, category, linkUrl };
 }
 
 function parsePatchBody(raw: unknown) {
@@ -59,13 +58,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { title, imageUrl, category, linkUrl, sortOrder } = parseCreateBody(await req.json());
+    const { title, imageUrl, category, linkUrl } = parseCreateBody(await req.json());
     if (!title || !imageUrl || !category) {
       return NextResponse.json(
         { error: 'Title, image URL, and category are required.' },
         { status: 400 },
       );
     }
+    const sortOrder = await nextSortOrderForPrepend(() =>
+      prisma.galleryItem.findFirst({
+        orderBy: { sortOrder: 'asc' },
+        select: { sortOrder: true },
+      }),
+    );
     const item = await prisma.galleryItem.create({
       data: { title, imageUrl, category, linkUrl, sortOrder },
     });

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Karan Engineers & Fabrication, Nashik</title>
-<meta name="description" content="Karan Engineers & Fabrication, Nashik — job work, machined components, turning, milling &amp; CNC. GST 27AVRPK3981G1Z1. View catalogue on IndiaMART.">
+<meta name="description" content="Karan Engineers & Fabrication, Nashik — job work, machined components, turning, milling &amp; CNC. GST 27AVRPK3981G1Z1.">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
@@ -130,6 +130,11 @@
   .enq-form textarea{min-height:80px;resize:vertical}
   .enq-submit{padding:12px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s}
   .enq-submit:hover{background:var(--orange-dark)}
+  .enq-submit:disabled{opacity:0.65;cursor:not-allowed}
+  .enq-feedback{display:none;margin:0;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500}
+  .enq-feedback.is-error{display:block;background:#fef2f2;border:1px solid #f87171;color:#b91c1c}
+  .enq-feedback.is-warn{display:block;background:#fffbeb;border:1px solid #f59e0b;color:#92400e}
+  .enq-feedback.is-ok{display:block;background:#fff3ec;border:1px solid var(--orange);color:var(--orange-dark)}
 
   /* ── SHARE ── */
   .share-url-box{background:var(--orange-pale);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--subtext);word-break:break-all;margin-bottom:12px}
@@ -178,9 +183,12 @@
     <div class="hero-logo"><img src="/logo.png" width="96" height="64" alt="Karan Engineers &amp; Fabrication"></div>
     <h1>Karan Engineers &amp; Fabrication</h1>
     <p class="tagline">Job work, machined components &amp; turning machine job — Nashik, Maharashtra, India.</p>
-    <a class="views-badge" href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit">
-      <span aria-hidden="true">↗</span> IndiaMART catalogue
-    </a>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:10px">
+      <span class="views-badge" id="profileViewsWrap" role="status" aria-live="polite" aria-atomic="true" title="How many times this profile page was opened">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;opacity:.95"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span id="profileViewCount">…</span> views
+      </span>
+    </div>
   </div>
 
   <!-- ACTION BUTTONS -->
@@ -252,7 +260,6 @@
       <tr><td>GST Number :</td><td>27AVRPK3981G1Z1</td></tr>
       <tr><td>GST Registration :</td><td>01-07-2017</td></tr>
       <tr><td>Contact Person :</td><td>Mr. Dinesh Khairnar</td></tr>
-      <tr><td>IndiaMART :</td><td><a href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer" style="color:var(--orange)">dinesh-eng</a></td></tr>
     </table>
 
     <p class="spec-heading">Our Specialities</p>
@@ -272,7 +279,7 @@
 
     <p class="about-desc">
       <strong>Karan Engineers &amp; Fabrication, Nashik</strong> — job work, machined components, turning, milling &amp; CNC (GST <strong>27AVRPK3981G1Z1</strong>). Based in <strong>MIDC Ambad, Nashik, Maharashtra</strong>, we supply high-precision job work and machined parts for the <strong>power sector, automobile industry</strong>, and general engineering.<br><br>
-      Share your drawing via WhatsApp, email, IndiaMART enquiry, or the enquiry form on our website — we review scope, quote, manufacture to agreed drawings, then inspect, pack, and dispatch.
+      Share your drawing via WhatsApp, email, or the enquiry form on our website — we review scope, quote, manufacture to agreed drawings, then inspect, pack, and dispatch.
     </p>
   </div>
 
@@ -342,7 +349,7 @@
     <div class="section-title">How we work</div>
 
     <table class="about-table">
-      <tr><td>1. Share Drawing</td><td>Send via WhatsApp, email, IndiaMART enquiry, or our enquiry form.</td></tr>
+      <tr><td>1. Share Drawing</td><td>Send via WhatsApp, email, or our enquiry form.</td></tr>
       <tr><td>2. Get Quote</td><td>We review your requirement and respond with scope and pricing.</td></tr>
       <tr><td>3. Manufacturing</td><td>Job work and component manufacture as per agreed drawings and schedule.</td></tr>
       <tr><td>4. Delivery</td><td>Inspection, packing, and dispatch to your location.</td></tr>
@@ -381,7 +388,7 @@
       </div>
       <input class="fb-name" type="text" placeholder="Your Name" id="fbName">
       <textarea class="fb-input" placeholder="Write your feedback here..." id="fbText"></textarea>
-      <button class="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
+      <button type="button" class="fb-submit" id="fbSubmitBtn" onclick="submitFeedback()">Submit Feedback</button>
       <div class="fb-success" id="fbSuccess">✔ Success: Feedback Given Successfully.</div>
     </div>
   </div>
@@ -390,11 +397,11 @@
   <div class="section" id="enquiry-section">
     <div class="section-title">Enquiry Form</div>
 
-    <div class="enq-form">
-      <input type="text" placeholder="Your Name *" id="enqName">
-      <input type="tel" placeholder="Phone Number *" id="enqPhone">
-      <input type="email" placeholder="Email Address" id="enqEmail">
-      <select id="enqService">
+    <form class="enq-form" onsubmit="submitEnquiry(event)" novalidate>
+      <input type="text" placeholder="Your Name *" id="enqName" name="enqName" autocomplete="name" maxlength="200" required>
+      <input type="tel" placeholder="Phone Number * (10 digits)" id="enqPhone" name="enqPhone" autocomplete="tel" maxlength="40" inputmode="numeric" required>
+      <input type="email" placeholder="Email Address *" id="enqEmail" name="enqEmail" autocomplete="email" maxlength="254" required>
+      <select id="enqService" name="enqService">
         <option value="" disabled selected>Select Service...</option>
         <option>Turning Machine Job</option>
         <option>Milling Machine Job</option>
@@ -402,9 +409,10 @@
         <option>Machined Components</option>
         <option>Other</option>
       </select>
-      <textarea placeholder="Describe your requirements..." id="enqMsg"></textarea>
-      <button class="enq-submit" onclick="submitEnquiry()">Send Enquiry via WhatsApp</button>
-    </div>
+      <textarea placeholder="Describe your requirements..." id="enqMsg" name="enqMsg" maxlength="10000"></textarea>
+      <p id="enqFeedback" class="enq-feedback" role="status" aria-live="polite"></p>
+      <button type="submit" class="enq-submit">Send</button>
+    </form>
   </div>
 
   <!-- ══════════════ SHARE ══════════════ -->
@@ -434,7 +442,7 @@
 
   <!-- FOOTER -->
   <div class="footer">
-    © 2026 <a href="/">Website home</a> · <a href="https://www.indiamart.com/dinesh-eng/" target="_blank" rel="noopener noreferrer">IndiaMART</a>
+    © 2026 <a href="/">Website home</a>
   </div>
 
 </div><!-- end .page -->
@@ -465,24 +473,126 @@ function submitFeedback(){
   var rated=document.querySelector('.rating-opt.active');
   if(!rated){alert('Please select a rating.');return;}
   if(!name){alert('Please enter your name.');return;}
+  var rating=rated.textContent.trim();
   var s=document.getElementById('fbSuccess');
-  s.style.display='block';
-  document.getElementById('fbName').value='';
-  document.getElementById('fbText').value='';
-  document.querySelectorAll('.rating-opt').forEach(function(o){ o.classList.remove('active'); });
-  setTimeout(function(){ s.style.display='none'; },4000);
+  var btn=document.getElementById('fbSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+  fetch('/api/feedback',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({rating:rating,name:name,message:text})
+  })
+  .then(function(res){
+    return res.text().then(function(t){
+      var data={};
+      try{data=t?JSON.parse(t):{};}catch(e){}
+      if(!res.ok){
+        var msg=(data&&data.error)?data.error:('Could not save ('+res.status+').');
+        throw new Error(msg);
+      }
+      s.style.display='block';
+      document.getElementById('fbName').value='';
+      document.getElementById('fbText').value='';
+      document.querySelectorAll('.rating-opt').forEach(function(o){ o.classList.remove('active'); });
+      setTimeout(function(){ s.style.display='none'; },4000);
+    });
+  })
+  .catch(function(err){
+    alert(err.message||'Could not save feedback. Check your connection or try the main website.');
+  })
+  .finally(function(){
+    if(btn){btn.disabled=false;btn.textContent='Submit Feedback';}
+  });
 }
-function submitEnquiry(){
+function parseIndianMobile10(raw){
+  var d=raw.replace(/\D/g,'');
+  if(d.length>=12&&d.indexOf('91')===0)d=d.slice(2);
+  if(d.length===11&&d.charAt(0)==='0')d=d.slice(1);
+  if(d.length>10)d=d.slice(-10);
+  if(d.length!==10||/^0+$/.test(d))return null;
+  if(!/^[6-9]\d{9}$/.test(d))return null;
+  return d;
+}
+function isValidEmailFormat(s){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s||'').trim());
+}
+function submitEnquiry(e){
+  if(e&&e.preventDefault)e.preventDefault();
   var name=document.getElementById('enqName').value.trim();
-  var phone=document.getElementById('enqPhone').value.trim();
+  var phoneRaw=document.getElementById('enqPhone').value.trim();
   var emailEl=document.getElementById('enqEmail');
   var email=emailEl?emailEl.value.trim():'';
-  var service=document.getElementById('enqService').value;
+  var serviceSelect=document.getElementById('enqService');
+  var service=serviceSelect?(serviceSelect.value||'').trim():'';
   var msg=document.getElementById('enqMsg').value.trim();
-  if(!name||!phone){alert('Please fill in required fields.');return;}
-  var line='Hello, I would like to get a quote for '+(service||'your services')+'.';
-  var body='\n\nName: '+name+'\nPhone: +91 '+phone+(email?'\nEmail: '+email:'')+(msg?'\nDetails: '+msg:'');
-  window.open('https://wa.me/919423928362?text='+encodeURIComponent(line+body),'_blank','noopener,noreferrer');
+  var phoneDigits=parseIndianMobile10(phoneRaw);
+  var fb=document.getElementById('enqFeedback');
+  var btn=document.querySelector('.enq-submit');
+  function showFb(cls,text){
+    if(!fb)return;
+    fb.className='enq-feedback '+cls;
+    fb.textContent=text;
+  }
+  function clearFb(){
+    if(!fb)return;
+    fb.className='enq-feedback';
+    fb.textContent='';
+  }
+  clearFb();
+  if(!name){
+    showFb('is-error','Please enter your name.');
+    return;
+  }
+  if(name.length<2){
+    showFb('is-error','Please enter your name (at least 2 characters).');
+    return;
+  }
+  if(!phoneDigits){
+    showFb('is-error','Please enter a valid 10-digit Indian mobile number.');
+    return;
+  }
+  if(!email){
+    showFb('is-error','Please enter your email address.');
+    return;
+  }
+  if(!isValidEmailFormat(email)){
+    showFb('is-error','Please enter a valid email address.');
+    return;
+  }
+  if(btn){btn.disabled=true;btn.textContent='Sending…';}
+  var material=service||'General enquiry';
+  var requirements=['Source: Digital profile (/profile)',msg].filter(Boolean).join('\n\n');
+  fetch('/api/enquiry',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,phone:phoneDigits,email:email,material:material,qty:'',requirements:requirements})
+  })
+  .then(function(res){
+    return res.text().then(function(t){
+      var data={};
+      try{data=t?JSON.parse(t):{};}catch(e){}
+      if(!res.ok){
+        throw new Error((data&&data.error)?data.error:'Could not save your enquiry.');
+      }
+      if(data.warning){
+        showFb('is-warn',data.warning);
+      }else{
+        showFb('is-ok','Thank you — your enquiry was received. We will get back to you soon.');
+      }
+      document.getElementById('enqName').value='';
+      document.getElementById('enqPhone').value='';
+      if(emailEl)emailEl.value='';
+      if(serviceSelect)serviceSelect.selectedIndex=0;
+      document.getElementById('enqMsg').value='';
+      setTimeout(function(){clearFb();},6000);
+    });
+  })
+  .catch(function(err){
+    showFb('is-error',err.message||'Could not save your enquiry.');
+  })
+  .finally(function(){
+    if(btn){btn.disabled=false;btn.textContent='Send';}
+  });
 }
 function copyProfile(){
   var url=profileUrl();
@@ -517,7 +627,31 @@ function syncShareAssets(){
   var qr=document.getElementById('qrImg');
   if(qr) qr.src='https://api.qrserver.com/v1/create-qr-code/?size=130x130&data='+encodeURIComponent(pu)+'&color=E65C00';
 }
-document.addEventListener('DOMContentLoaded',syncShareAssets);
+function recordProfileView(){
+  var el=document.getElementById('profileViewCount');
+  function setText(s){
+    if(!el) return;
+    el.textContent=s;
+  }
+  setText('…');
+  fetch('/api/profile-view',{method:'POST',headers:{'Accept':'application/json'}})
+    .then(function(res){
+      return res.text().then(function(t){
+        var d={};
+        try{d=t?JSON.parse(t):{};}catch(e){}
+        if(res.ok&&typeof d.count==='number'){
+          try{ setText(Number(d.count).toLocaleString('en-IN')); }catch(e2){ setText(String(d.count)); }
+        }else{
+          setText('—');
+        }
+      });
+    })
+    .catch(function(){ setText('—'); });
+}
+document.addEventListener('DOMContentLoaded',function(){
+  syncShareAssets();
+  recordProfileView();
+});
 </script>
 
 </body>

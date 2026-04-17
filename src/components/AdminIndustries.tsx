@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Pencil, Plus, Save, Trash2 } from 'lucide-react';
 import { mergeCatalogIntoDbIndustryAdminRows } from '@/src/lib/industry-display';
+import { AdminIconKeyField } from '@/src/components/admin/AdminIconKeyField';
+import { getServiceIcon } from '@/src/lib/service-icons';
 import { cn } from '@/src/lib/utils';
 
 type IndustryRow = {
@@ -237,17 +239,20 @@ export default function AdminIndustries() {
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-border-grey/60 bg-white shadow-sm">
-          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[780px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-border-grey bg-bg-steel/50 text-[10px] font-black uppercase tracking-widest text-muted-grey">
                 <th className="w-12 px-3 py-3 text-center" scope="col">
                   Sr.
                 </th>
+                <th className="w-16 px-3 py-3 text-center" scope="col">
+                  Icon
+                </th>
                 <th className="min-w-[12rem] px-3 py-3" scope="col">
                   Name
                 </th>
-                <th className="min-w-[8rem] px-3 py-3" scope="col">
-                  Icon key
+                <th className="min-w-[9rem] px-3 py-3" scope="col">
+                  Lucide icon
                 </th>
                 <th className="w-28 px-3 py-3" scope="col">
                   Sort
@@ -263,7 +268,7 @@ export default function AdminIndustries() {
             <tbody>
               {sortedDisplay.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-grey">
+                  <td colSpan={7} className="px-4 py-12 text-center text-muted-grey">
                     No industries loaded.
                   </td>
                 </tr>
@@ -272,6 +277,7 @@ export default function AdminIndustries() {
                   const key = rowKey(row);
                   const canEdit = isRowEditing(row);
                   const serial = index + 1;
+                  const IconComp = getServiceIcon(row.iconKey || 'Factory');
 
                   return (
                     <tr
@@ -287,6 +293,15 @@ export default function AdminIndustries() {
                         </span>
                       </td>
                       <td className="px-3 py-2 align-middle">
+                        <span
+                          className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-border-grey bg-machine-orange/10 text-machine-orange"
+                          title={`iconKey: ${row.iconKey || 'Factory'}`}
+                        >
+                          <IconComp size={22} className="shrink-0" aria-hidden />
+                          <span className="sr-only">Icon for {row.iconKey || 'Factory'}</span>
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 align-middle">
                         <input
                           readOnly={!canEdit}
                           className="w-full min-w-0 rounded-lg border border-transparent bg-transparent px-1 py-1 text-sm font-bold text-navy read-only:border-transparent read-only:bg-transparent focus:border-machine-orange focus:bg-white focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
@@ -296,12 +311,13 @@ export default function AdminIndustries() {
                         />
                       </td>
                       <td className="px-3 py-2 align-middle">
-                        <input
-                          readOnly={!canEdit}
-                          className="w-full max-w-[10rem] rounded-lg border border-transparent bg-transparent px-1 py-1 font-mono text-xs text-navy read-only:border-transparent read-only:bg-transparent focus:border-machine-orange focus:bg-white focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
-                          value={row.iconKey}
-                          onChange={(e) => updateRow(key, { iconKey: e.target.value })}
-                          placeholder="e.g. Factory"
+                        <AdminIconKeyField
+                          iconKey={row.iconKey}
+                          onChange={(k) => updateRow(key, { iconKey: k })}
+                          editable={canEdit}
+                          fallback="Factory"
+                          showPreview={false}
+                          selectClassName="max-w-[11rem] text-xs font-semibold"
                         />
                       </td>
                       <td className="px-3 py-2 align-middle">

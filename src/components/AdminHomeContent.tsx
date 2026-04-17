@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Trash2, Save, Upload, Plus, Pencil } from 'lucide-react';
 import { COMPANY } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
+import AdminAnalyticsSection from '@/src/components/AdminAnalyticsSection';
 
 /** Matches Prisma defaults so the form never mounts with undefined fields after a failed/partial load. */
 const DEFAULT_SITE_SETTINGS = {
@@ -242,6 +243,8 @@ export default function AdminHomeContent() {
           </div>
         </div>
       )}
+
+      <AdminAnalyticsSection />
 
       <section>
         <form onSubmit={saveSettings} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl border border-border-grey shadow-sm">

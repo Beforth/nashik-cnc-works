@@ -13,6 +13,7 @@ import Services from './Services';
 import Infrastructure from './Infrastructure';
 import HsnCodes from './HsnCodes';
 import HowItWorks from './HowItWorks';
+import FeedbackSection from './FeedbackSection';
 import EnquiryForm from './EnquiryForm';
 import Footer from './Footer';
 import StickyActions from './StickyActions';
@@ -98,6 +99,8 @@ const HomePage = ({ slug, settings, heroImages, services, galleryItems, infrastr
       <HowItWorks />
 
       <JobsGallerySection items={displayGalleryItems} settings={settings} />
+
+      <FeedbackSection />
 
       <EnquiryForm />
       <Footer />

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
 import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
 import { cookies } from 'next/headers';
@@ -32,12 +33,13 @@ export async function POST(req: Request) {
   }
 
   const body = (await req.json().catch(() => ({}))) as { url?: string; alt?: string };
-  const first = await prisma.heroImage.findFirst({
-    orderBy: { sortOrder: 'asc' },
-    select: { sortOrder: true },
-  });
   /** New slides appear first in the carousel (lower sortOrder = earlier). */
-  const sortOrder = (first?.sortOrder ?? 0) - 1;
+  const sortOrder = await nextSortOrderForPrepend(() =>
+    prisma.heroImage.findFirst({
+      orderBy: { sortOrder: 'asc' },
+      select: { sortOrder: true },
+    }),
+  );
   const url =
     typeof body.url === 'string' && body.url.trim().length > 0 ? body.url.trim() : HERO_PLACEHOLDER_URL;
   const alt =

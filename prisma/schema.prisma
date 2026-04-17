@@ -79,3 +79,18 @@ model Enquiry {
   status    String   @default("NEW") // NEW | READ
   createdAt DateTime @default(now())
 }
+
+model Feedback {
+  id        String   @id @default(cuid())
+  rating    String
+  name      String
+  message   String   @default("")
+  createdAt DateTime @default(now())
+}
+
+/** Singleton row: digital profile page (`/profile`) open count. */
+model ProfileViewStat {
+  id        String   @id @default("default")
+  viewCount Int      @default(0)
+  updatedAt DateTime @updatedAt
+}

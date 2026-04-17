@@ -46,6 +46,7 @@ export default function Navbar({
     { label: 'Services', href: `${homeHref}#services` },
     { label: 'Machines', href: `${homeHref}#machines` },
     { label: 'Gallery', href: `${homeHref}#gallery` },
+    { label: 'Feedback', href: `${homeHref}#feedback` },
     { label: 'Contact', href: `${homeHref}#contact` },
   ] as const;
 

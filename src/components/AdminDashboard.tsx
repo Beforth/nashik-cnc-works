@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
 import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import type { PublicService } from '@/src/types/service';
+import { AdminIconKeyField } from '@/src/components/admin/AdminIconKeyField';
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml,' +
@@ -39,7 +40,9 @@ export default function AdminDashboard() {
         return;
       }
       const data: PublicService[] = await res.json();
-      setItems(data.sort(sortRows).map((r) => ({ ...r })));
+      setItems(
+        data.sort(sortRows).map((r) => ({ ...r, iconKey: r.iconKey || 'Wrench' })),
+      );
     } catch {
       setMessage('Could not load services.');
     } finally {
@@ -364,6 +367,20 @@ export default function AdminDashboard() {
                         onChange={(e) => updateRow(key, { name: e.target.value })}
                       />
                     </label>
+
+                    <div className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">
+                        Icon
+                      </span>
+                      <div className="mt-1">
+                        <AdminIconKeyField
+                          iconKey={row.iconKey}
+                          onChange={(k) => updateRow(key, { iconKey: k })}
+                          editable={isRowEditing(row)}
+                          fallback="Wrench"
+                        />
+                      </div>
+                    </div>
 
                     <label className="block flex-1">
                       <span className="text-[10px] font-bold uppercase tracking-wide text-muted-grey">Description</span>

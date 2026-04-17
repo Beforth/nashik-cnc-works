@@ -10,6 +10,7 @@ import AdminGallery from '@/src/components/AdminGallery';
 import AdminInfrastructure from '@/src/components/AdminInfrastructure';
 import AdminIndustries from '@/src/components/AdminIndustries';
 import AdminEnquiries from '@/src/components/AdminEnquiries';
+import AdminFeedback from '@/src/components/AdminFeedback';
 import {
   LogOut,
   LayoutDashboard,
@@ -18,6 +19,7 @@ import {
   Building2,
   Image as ImageIcon,
   MessageSquare,
+  MessageSquareQuote,
   Menu,
   X,
 } from 'lucide-react';
@@ -31,6 +33,7 @@ const MENU_ITEMS = [
   { id: 'infrastructure', label: 'Infrastructure', icon: Building2 },
   { id: 'industries', label: 'Industries', icon: Factory },
   { id: 'gallery', label: 'Jobs Gallery', icon: ImageIcon },
+  { id: 'feedback', label: 'Feedback', icon: MessageSquareQuote },
   { id: 'enquiry', label: 'Enquiry', icon: MessageSquare },
 ] as const;
 
@@ -287,6 +290,9 @@ export default function AdminShell() {
         </AdminTabPanel>
         <AdminTabPanel tabId="gallery" activeTab={activeTab} visited={visitedTabs}>
           <AdminGallery />
+        </AdminTabPanel>
+        <AdminTabPanel tabId="feedback" activeTab={activeTab} visited={visitedTabs}>
+          <AdminFeedback />
         </AdminTabPanel>
         <AdminTabPanel tabId="enquiry" activeTab={activeTab} visited={visitedTabs}>
           <AdminEnquiries />

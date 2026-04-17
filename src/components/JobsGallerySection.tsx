@@ -39,10 +39,9 @@ export default function JobsGallerySection({
         <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {items.map((item, i) => {
             const waHref = `https://wa.me/91${phoneDigits}?text=${encodeURIComponent(`Hello, I would like to get a quote for ${item.title}.`)}`;
-            const href =
-              typeof item.linkUrl === 'string' && item.linkUrl.trim().length > 0
-                ? item.linkUrl.trim()
-                : waHref;
+            const rawLink = typeof item.linkUrl === 'string' ? item.linkUrl.trim() : '';
+            const isIndiaMart = /^https?:\/\/([^/?#]+\.)?indiamart\.com\b/i.test(rawLink);
+            const href = rawLink && !isIndiaMart ? rawLink : waHref;
             const isExternal = /^https?:\/\//i.test(href);
             return (
               <div

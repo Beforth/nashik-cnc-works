@@ -25,7 +25,9 @@ function parseBody(raw: unknown) {
   const name = typeof o.name === 'string' ? o.name.trim() : '';
   const phone = typeof o.phone === 'string' ? o.phone.trim() : '';
   const email = typeof o.email === 'string' ? o.email.trim() : '';
-  const material = typeof o.material === 'string' ? o.material.trim() : '';
+  const materialRaw = typeof o.material === 'string' ? o.material.trim() : '';
+  const service = typeof o.service === 'string' ? o.service.trim() : '';
+  const material = materialRaw || service;
   const qty = typeof o.qty === 'string' ? o.qty.trim() : String(o.qty ?? '').trim();
   const requirements = typeof o.requirements === 'string' ? o.requirements.trim() : '';
   return { name, phone, email, material, qty, requirements };

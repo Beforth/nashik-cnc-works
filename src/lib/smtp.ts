@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 import { COMPANY } from '@/src/constants';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmailFormat } from '@/src/lib/email-format';
 
 function escapeHtml(s: string): string {
   return s
@@ -26,7 +25,7 @@ export function getDefaultMailTo(): string {
 }
 
 export function isValidEmail(s: string): boolean {
-  return EMAIL_RE.test(s.trim());
+  return isValidEmailFormat(s);
 }
 
 function createTransport() {

@@ -1,8 +1,15 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trash2, Calendar, ChevronRight, ChevronDown, Search } from 'lucide-react';
+import {
+  Trash2,
+  Calendar,
+  ChevronRight,
+  ChevronDown,
+  ChevronLeft,
+  Search,
+} from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
 type EnquiryRow = {
@@ -47,84 +54,119 @@ function statusLabel(status: string) {
 const STATUS_FILTER_OPTIONS = ['ALL', 'NEW', 'READ'] as const;
 type StatusFilter = (typeof STATUS_FILTER_OPTIONS)[number];
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+
 export default function AdminEnquiries() {
   const router = useRouter();
   const [rows, setRows] = useState<EnquiryRow[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(20);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
+  const [listEpoch, setListEpoch] = useState(0);
+  const prevDebouncedQ = useRef<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/admin/enquiries', { credentials: 'include' });
-      const text = await res.text();
-      if (res.status === 401) {
-        router.replace('/admin/login');
-        return;
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQ(searchQuery.trim()), 300);
+    return () => window.clearTimeout(t);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      if (prevDebouncedQ.current !== debouncedQ) {
+        prevDebouncedQ.current = debouncedQ;
+        if (page !== 1) {
+          setPage(1);
+          return;
+        }
       }
-      let parsed: unknown;
+
+      setLoading(true);
+      setMessage(null);
       try {
-        parsed = text.trim() ? JSON.parse(text) : [];
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize: String(pageSize),
+        });
+        if (statusFilter !== 'ALL') params.set('status', statusFilter);
+        if (debouncedQ) params.set('q', debouncedQ);
+
+        const res = await fetch(`/api/admin/enquiries?${params}`, { credentials: 'include' });
+        const text = await res.text();
+        if (res.status === 401) {
+          router.replace('/admin/login');
+          return;
+        }
+        let parsed: unknown;
+        try {
+          parsed = text.trim() ? JSON.parse(text) : {};
+        } catch {
+          if (!cancelled) {
+            setMessage('Could not load enquiries.');
+            setRows([]);
+            setTotal(0);
+          }
+          return;
+        }
+        if (!res.ok) {
+          const err =
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            'error' in parsed &&
+            typeof (parsed as { error?: string }).error === 'string'
+              ? (parsed as { error: string }).error
+              : 'Could not load enquiries.';
+          if (!cancelled) {
+            setMessage(err);
+            setRows([]);
+            setTotal(0);
+          }
+          return;
+        }
+        const data = parsed as { items?: unknown; total?: unknown };
+        if (!Array.isArray(data.items) || typeof data.total !== 'number') {
+          if (!cancelled) {
+            setMessage('Could not load enquiries.');
+            setRows([]);
+            setTotal(0);
+          }
+          return;
+        }
+        if (cancelled) return;
+        setRows(data.items as EnquiryRow[]);
+        setTotal(data.total);
+        const maxPage = Math.max(1, Math.ceil(data.total / pageSize));
+        if (page > maxPage) setPage(maxPage);
       } catch {
-        setMessage('Could not load enquiries.');
-        setRows([]);
-        return;
+        if (!cancelled) {
+          setMessage('Could not load enquiries.');
+          setRows([]);
+          setTotal(0);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      if (!res.ok) {
-        const err =
-          typeof parsed === 'object' &&
-          parsed !== null &&
-          'error' in parsed &&
-          typeof (parsed as { error?: string }).error === 'string'
-            ? (parsed as { error: string }).error
-            : 'Could not load enquiries.';
-        setMessage(err);
-        setRows([]);
-        return;
-      }
-      if (!Array.isArray(parsed)) {
-        setMessage('Could not load enquiries.');
-        setRows([]);
-        return;
-      }
-      setRows(parsed as EnquiryRow[]);
-    } catch {
-      setMessage('Could not load enquiries.');
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [router, page, pageSize, statusFilter, debouncedQ, listEpoch]);
 
   useEffect(() => {
-    load();
-  }, [load]);
-
-  const filteredRows = useMemo(() => {
-    let list = rows;
-    if (statusFilter !== 'ALL') {
-      list = list.filter((r) => r.status === statusFilter);
-    }
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter((r) => {
-      const blob = [r.name, r.phone, r.email ?? '', r.subject ?? '', r.message]
-        .join('\n')
-        .toLowerCase();
-      return blob.includes(q);
-    });
-  }, [rows, searchQuery, statusFilter]);
-
-  useEffect(() => {
-    if (expandedId && !filteredRows.some((r) => r.id === expandedId)) {
+    if (expandedId && !rows.some((r) => r.id === expandedId)) {
       setExpandedId(null);
     }
-  }, [expandedId, filteredRows]);
+  }, [expandedId, rows]);
 
   function toggleRow(id: string) {
     if (expandedId === id) {
@@ -176,14 +218,19 @@ export default function AdminEnquiries() {
         setMessage(data.error ?? 'Delete failed.');
         return;
       }
-      setRows((prev) => prev.filter((r) => r.id !== id));
       setExpandedId((prev) => (prev === id ? null : prev));
+      setListEpoch((n) => n + 1);
     } catch {
       setMessage('Delete failed.');
     }
   }
 
-  if (loading) {
+  const hasActiveFilters = statusFilter !== 'ALL' || debouncedQ.length > 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const rangeFrom = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeTo = Math.min(page * pageSize, total);
+
+  if (loading && rows.length === 0 && total === 0) {
     return <p className="p-8 text-center text-muted-grey">Loading enquiries…</p>;
   }
 
@@ -199,7 +246,7 @@ export default function AdminEnquiries() {
           </p>
         ) : null}
 
-        {rows.length === 0 ? (
+        {total === 0 && !hasActiveFilters && !loading ? (
           <div className="rounded-2xl border border-dashed border-border-grey bg-white/80 px-6 py-16 text-center">
             <p className="text-muted-grey">No enquiries yet.</p>
             <p className="mt-2 text-sm text-muted-grey">
@@ -230,7 +277,10 @@ export default function AdminEnquiries() {
                 <select
                   id="enquiry-status-filter"
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value as StatusFilter);
+                    setPage(1);
+                  }}
                   className="rounded-xl border border-border-grey bg-white px-3 py-2 text-sm font-semibold text-navy focus:border-machine-orange focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
                 >
                   {STATUS_FILTER_OPTIONS.map((s) => (
@@ -242,7 +292,7 @@ export default function AdminEnquiries() {
               </div>
             </div>
 
-            {filteredRows.length === 0 ? (
+            {total === 0 && hasActiveFilters && !loading ? (
               <div className="rounded-2xl border border-border-grey bg-bg-cloud/50 px-6 py-12 text-center">
                 <p className="font-semibold text-navy">No enquiries match your search or filter.</p>
                 <p className="mt-2 text-sm text-muted-grey">Try clearing the search box or setting status to “All statuses”.</p>
@@ -279,9 +329,9 @@ export default function AdminEnquiries() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRows.map((row, index) => {
+                {rows.map((row, index) => {
                   const open = expandedId === row.id;
-                  const serial = index + 1;
+                  const serial = (page - 1) * pageSize + index + 1;
                   return (
                     <React.Fragment key={row.id}>
                       <tr
@@ -383,6 +433,63 @@ export default function AdminEnquiries() {
             </table>
           </div>
             )}
+
+            {total > 0 ? (
+              <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-border-grey/80 bg-bg-steel/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-muted-grey">
+                  Showing{' '}
+                  <span className="font-bold tabular-nums text-navy">
+                    {rangeFrom}–{rangeTo}
+                  </span>{' '}
+                  of <span className="font-bold tabular-nums text-navy">{total}</span>
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-grey">
+                    Per page
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        const n = Number(e.target.value);
+                        if (n === 10 || n === 20 || n === 50) {
+                          setPageSize(n);
+                          setPage(1);
+                        }
+                      }}
+                      className="rounded-lg border border-border-grey bg-white px-2 py-1.5 text-sm font-semibold text-navy focus:border-machine-orange focus:outline-none focus:ring-1 focus:ring-machine-orange/30"
+                    >
+                      {PAGE_SIZE_OPTIONS.map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      disabled={page <= 1 || loading}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-grey bg-white text-navy hover:bg-bg-cloud disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="h-5 w-5" aria-hidden />
+                    </button>
+                    <span className="min-w-[7rem] px-2 text-center text-sm font-semibold tabular-nums text-navy">
+                      Page {page} / {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={page >= totalPages || loading}
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-grey bg-white text-navy hover:bg-bg-cloud disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="h-5 w-5" aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </>
         )}
       </section>
