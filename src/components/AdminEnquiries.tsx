@@ -11,6 +11,7 @@ import {
   Search,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 
 type EnquiryRow = {
   id: string;
@@ -57,6 +58,7 @@ type StatusFilter = (typeof STATUS_FILTER_OPTIONS)[number];
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 export default function AdminEnquiries() {
+  const { confirm } = useAdminDialogs();
   const router = useRouter();
   const [rows, setRows] = useState<EnquiryRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -70,6 +72,8 @@ export default function AdminEnquiries() {
   const [debouncedQ, setDebouncedQ] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [listEpoch, setListEpoch] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const prevDebouncedQ = useRef<string | null>(null);
 
   useEffect(() => {
@@ -163,6 +167,20 @@ export default function AdminEnquiries() {
   }, [router, page, pageSize, statusFilter, debouncedQ, listEpoch]);
 
   useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, pageSize, statusFilter, debouncedQ]);
+
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (rows.some((r) => r.id === id)) next.add(id);
+      }
+      return next;
+    });
+  }, [rows]);
+
+  useEffect(() => {
     if (expandedId && !rows.some((r) => r.id === expandedId)) {
       setExpandedId(null);
     }
@@ -206,7 +224,12 @@ export default function AdminEnquiries() {
   }
 
   async function remove(id: string, name: string) {
-    if (!confirm(`Delete enquiry from “${name}”? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete enquiry?',
+      message: `Delete enquiry from “${name}”? This cannot be undone.`,
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     setMessage(null);
     try {
       const res = await fetch(`/api/admin/enquiries?id=${encodeURIComponent(id)}`, {
@@ -218,10 +241,78 @@ export default function AdminEnquiries() {
         setMessage(data.error ?? 'Delete failed.');
         return;
       }
+      setSelectedIds((prev) => {
+        const n = new Set(prev);
+        n.delete(id);
+        return n;
+      });
       setExpandedId((prev) => (prev === id ? null : prev));
       setListEpoch((n) => n + 1);
     } catch {
       setMessage('Delete failed.');
+    }
+  }
+
+  async function bulkRemove() {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    const ok = await confirm({
+      title: `Delete ${ids.length} ${ids.length === 1 ? 'enquiry' : 'enquiries'}?`,
+      message:
+        'Permanently remove the selected enquiries from the database. This cannot be undone.\n\nOnly the rows you checked on this page are included (up to 100 per action).',
+      confirmText: 'Delete all',
+    });
+    if (!ok) return;
+    setBulkDeleting(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/admin/enquiries/bulk-delete', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; deleted?: number };
+      if (!res.ok) {
+        setMessage(data.error ?? 'Bulk delete failed.');
+        return;
+      }
+      setSelectedIds(new Set());
+      setExpandedId(null);
+      setListEpoch((n) => n + 1);
+      setMessage(`Deleted ${typeof data.deleted === 'number' ? data.deleted : ids.length} record(s).`);
+      window.setTimeout(() => setMessage(null), 4000);
+    } catch {
+      setMessage('Bulk delete failed.');
+    } finally {
+      setBulkDeleting(false);
+    }
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+
+  function toggleSelectAllPage() {
+    const onPage = rows.map((r) => r.id);
+    const allOn = onPage.length > 0 && onPage.every((id) => selectedIds.has(id));
+    if (allOn) {
+      setSelectedIds((prev) => {
+        const n = new Set(prev);
+        onPage.forEach((id) => n.delete(id));
+        return n;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const n = new Set(prev);
+        onPage.forEach((id) => n.add(id));
+        return n;
+      });
     }
   }
 
@@ -239,7 +330,12 @@ export default function AdminEnquiries() {
       <section>
         {message ? (
           <p
-            className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"
+            className={cn(
+              'mb-4 rounded-xl border px-4 py-3 text-sm font-semibold',
+              message.startsWith('Deleted')
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                : 'border-red-200 bg-red-50 text-red-800',
+            )}
             role="alert"
           >
             {message}
@@ -298,10 +394,46 @@ export default function AdminEnquiries() {
                 <p className="mt-2 text-sm text-muted-grey">Try clearing the search box or setting status to “All statuses”.</p>
               </div>
             ) : (
+          <>
+            <div className="mb-3 flex flex-col gap-2 rounded-xl border border-border-grey/80 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-grey">
+                {selectedIds.size > 0 ? (
+                  <>
+                    <span className="font-black tabular-nums text-navy">{selectedIds.size}</span> selected on this page
+                  </>
+                ) : (
+                  <>Use the checkboxes to select enquiries, then delete in one step (max 100).</>
+                )}
+              </p>
+              <button
+                type="button"
+                disabled={selectedIds.size === 0 || bulkDeleting || loading}
+                onClick={() => void bulkRemove()}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+                {bulkDeleting ? 'Deleting…' : 'Delete selected'}
+              </button>
+            </div>
           <div className="overflow-x-auto rounded-2xl border border-border-grey bg-white shadow-sm">
-            <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[920px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-border-grey bg-bg-steel/50 text-[10px] font-black uppercase tracking-widest text-muted-grey">
+                  <th className="w-10 px-2 py-3 text-center" scope="col">
+                    <input
+                      type="checkbox"
+                      disabled={loading || rows.length === 0 || bulkDeleting}
+                      checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+                      ref={(el) => {
+                        if (!el) return;
+                        const n = rows.filter((r) => selectedIds.has(r.id)).length;
+                        el.indeterminate = n > 0 && n < rows.length;
+                      }}
+                      onChange={() => toggleSelectAllPage()}
+                      className="h-4 w-4 rounded border-border-grey text-machine-orange focus:ring-machine-orange"
+                      aria-label="Select all on this page"
+                    />
+                  </th>
                   <th className="w-12 whitespace-nowrap px-2 py-3 text-center" scope="col">
                     Sr.
                   </th>
@@ -340,6 +472,17 @@ export default function AdminEnquiries() {
                           open ? 'bg-orange-light/40' : 'hover:bg-bg-cloud/80',
                         )}
                       >
+                        <td className="px-2 py-2 align-middle text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(row.id)}
+                            disabled={bulkDeleting}
+                            onChange={() => toggleSelect(row.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-4 w-4 rounded border-border-grey text-machine-orange focus:ring-machine-orange"
+                            aria-label={`Select enquiry from ${row.name}`}
+                          />
+                        </td>
                         <td className="px-2 py-2 align-middle text-center tabular-nums">
                           <span className="inline-flex min-w-[1.75rem] justify-center rounded-md bg-bg-steel/80 px-1.5 py-1 text-xs font-black text-navy">
                             {serial}
@@ -413,7 +556,7 @@ export default function AdminEnquiries() {
                       </tr>
                       {open ? (
                         <tr className="border-b border-border-grey bg-bg-cloud/50">
-                          <td colSpan={8} className="p-0" id={`enquiry-panel-${row.id}`}>
+                          <td colSpan={9} className="p-0" id={`enquiry-panel-${row.id}`}>
                             <div
                               className="px-4 py-4 sm:px-6 sm:py-5"
                               role="region"
@@ -432,6 +575,7 @@ export default function AdminEnquiries() {
               </tbody>
             </table>
           </div>
+          </>
             )}
 
             {total > 0 ? (

@@ -1,6 +1,7 @@
 import { COMPANY } from '@/src/constants';
 import { PROFILE_SERVICES } from '@/src/components/profile/profile-data';
 import { getProfileCmsBundle } from '@/src/lib/cms-cache';
+import { prisma } from '@/src/lib/db';
 import { getMergedGalleryItems } from '@/src/lib/gallery-display';
 import type {
   ProfileCmsGalleryImage,
@@ -32,7 +33,13 @@ function settingsFromDb(s: Awaited<ReturnType<typeof getProfileCmsBundle>>['sett
 
 /** Uses the profile CMS cache (settings + services + gallery only); revalidates with admin via `cms-public` tag. */
 export async function getProfileCmsPayload(): Promise<ProfileCmsPayload> {
-  const { settings, services, galleryRaw } = await getProfileCmsBundle();
+  const [{ settings, services, galleryRaw }, viewRow] = await Promise.all([
+    getProfileCmsBundle(),
+    prisma.profileViewStat.findUnique({
+      where: { id: 'default' },
+      select: { viewCount: true },
+    }),
+  ]);
   const settingsOut = settingsFromDb(settings);
 
   let servicesOut: ProfileCmsService[] = (services ?? []).map((svc) => ({
@@ -57,5 +64,10 @@ export async function getProfileCmsPayload(): Promise<ProfileCmsPayload> {
     alt: g.title,
   }));
 
-  return { settings: settingsOut, services: servicesOut, galleryImages };
+  return {
+    settings: settingsOut,
+    services: servicesOut,
+    galleryImages,
+    profileViewCount: viewRow?.viewCount ?? 0,
+  };
 }

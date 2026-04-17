@@ -7,6 +7,7 @@ import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
 import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import type { PublicService } from '@/src/types/service';
 import { AdminIconKeyField } from '@/src/components/admin/AdminIconKeyField';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml,' +
@@ -21,6 +22,7 @@ function sortRows(a: Row, b: Row) {
 }
 
 export default function AdminDashboard() {
+  const { alert, confirm } = useAdminDialogs();
   const router = useRouter();
   const [items, setItems] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -214,7 +216,12 @@ export default function AdminDashboard() {
       setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    if (!confirm(`Delete “${row.name}”? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete expertise?',
+      message: `Delete “${row.name}”? This cannot be undone.`,
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     setBusy(true);
     setMessage('Deleting…');
     const res = await fetch(`/api/services/${encodeURIComponent(row.id)}`, {
@@ -232,7 +239,7 @@ export default function AdminDashboard() {
     await load();
   }
 
-  function addExpertise() {
+  async function addExpertise() {
     const cid =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -253,8 +260,9 @@ export default function AdminDashboard() {
       return [newRow, ...prev];
     });
     setEditingKey(cid);
-    window.alert(
+    await alert(
       'New expertise card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add title and description, then save.',
+      'Card added',
     );
   }
 

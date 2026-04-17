@@ -1,39 +1,19 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, MessageSquare, Star } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { BarChart3, Eye, MessageSquare } from 'lucide-react';
 
-type SeriesRow = { date: string; enquiries: number; feedback: number };
+type SeriesRow = { date: string; enquiries: number };
 
 type AnalyticsPayload = {
   rangeDays: number;
   series: SeriesRow[];
-  feedbackByRating: Record<string, number>;
-  totalsInRange: { enquiries: number; feedback: number };
-  totalsAllTime: { enquiries: number; feedback: number };
-  averageSatisfactionInRange: number | null;
+  totalsInRange: { enquiries: number };
+  totalsAllTime: { enquiries: number };
+  profileViewsTotal: number;
 };
-
-const RATING_ORDER = ['Excellent', 'Very Good', 'Average', 'Poor', 'Terrible'] as const;
-
-function ratingBarColor(label: string): string {
-  switch (label) {
-    case 'Excellent':
-      return 'bg-emerald-500';
-    case 'Very Good':
-      return 'bg-green-500';
-    case 'Average':
-      return 'bg-amber-500';
-    case 'Poor':
-      return 'bg-orange-500';
-    case 'Terrible':
-      return 'bg-red-500';
-    default:
-      return 'bg-muted-grey';
-  }
-}
 
 export default function AdminAnalyticsSection() {
   const router = useRouter();
@@ -73,24 +53,10 @@ export default function AdminAnalyticsSection() {
     if (!data?.series.length) return 1;
     let m = 1;
     for (const d of data.series) {
-      m = Math.max(m, d.enquiries + d.feedback, d.enquiries, d.feedback);
+      m = Math.max(m, d.enquiries);
     }
     return m;
   }, [data]);
-
-  const ratingBars = useMemo(() => {
-    if (!data) return [];
-    const raw = data.feedbackByRating;
-    const ordered = RATING_ORDER.map((label) => ({
-      label,
-      count: raw[label] ?? 0,
-    }));
-    const extra = Object.entries(raw).filter(([k]) => !RATING_ORDER.includes(k as (typeof RATING_ORDER)[number]));
-    const extras = extra.map(([label, count]) => ({ label, count }));
-    return [...ordered, ...extras];
-  }, [data]);
-
-  const maxRating = useMemo(() => Math.max(1, ...ratingBars.map((b) => b.count)), [ratingBars]);
 
   if (loading) {
     return (
@@ -108,7 +74,11 @@ export default function AdminAnalyticsSection() {
     );
   }
 
-  const { rangeDays, series, totalsInRange, totalsAllTime, averageSatisfactionInRange } = data;
+  const { rangeDays, series, totalsInRange, totalsAllTime, profileViewsTotal } = data;
+  const viewsDisplay =
+    typeof profileViewsTotal === 'number'
+      ? profileViewsTotal.toLocaleString('en-IN')
+      : String(profileViewsTotal ?? 0);
 
   return (
     <section className="space-y-8">
@@ -119,7 +89,8 @@ export default function AdminAnalyticsSection() {
             Analytics
           </h2>
           <p className="mt-1 text-sm text-muted-grey">
-            Last {rangeDays} days (UTC days) — enquiries vs feedback volume, and rating mix from feedback.
+            Last {rangeDays} days (UTC) — enquiry volume and all-time digital profile (/profile) views on the official
+            site.
           </p>
         </div>
         <button
@@ -131,61 +102,47 @@ export default function AdminAnalyticsSection() {
         </button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-border-grey bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-grey">
             <MessageSquare className="h-4 w-4 text-navy" aria-hidden />
             Enquiries ({rangeDays}d)
           </div>
           <p className="mt-2 text-3xl font-black tabular-nums text-navy">{totalsInRange.enquiries}</p>
-          <p className="mt-1 text-xs text-muted-grey">All time: {totalsAllTime.enquiries}</p>
+          <p className="mt-1 text-xs text-muted-grey">All time: {totalsAllTime.enquiries.toLocaleString('en-IN')}</p>
         </div>
         <div className="rounded-2xl border border-border-grey bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-grey">
-            <Star className="h-4 w-4 text-machine-orange" aria-hidden />
-            Feedback ({rangeDays}d)
+            <Eye className="h-4 w-4 text-machine-orange" aria-hidden />
+            Profile views (all time)
           </div>
-          <p className="mt-2 text-3xl font-black tabular-nums text-machine-orange">{totalsInRange.feedback}</p>
-          <p className="mt-1 text-xs text-muted-grey">All time: {totalsAllTime.feedback}</p>
-        </div>
-        <div className="rounded-2xl border border-border-grey bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-2">
-          <div className="text-[10px] font-black uppercase tracking-widest text-muted-grey">Avg. satisfaction</div>
-          <p className="mt-2 text-3xl font-black tabular-nums text-navy">
-            {averageSatisfactionInRange != null ? `${averageSatisfactionInRange} / 5` : '—'}
-          </p>
-          <p className="mt-1 text-xs text-muted-grey">
-            From feedback ratings in the last {rangeDays} days (Excellent=5 … Terrible=1).
-          </p>
+          <p className="mt-2 text-3xl font-black tabular-nums text-machine-orange">{viewsDisplay}</p>
+          <p className="mt-1 text-xs text-muted-grey">Counted only when /profile loads on your official domain.</p>
         </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="rounded-2xl border border-border-grey bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-black uppercase tracking-widest text-navy">Daily volume</h3>
+          <h3 className="text-sm font-black uppercase tracking-widest text-navy">Daily enquiries</h3>
           <p className="mt-1 text-xs text-muted-grey">
-            <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-navy" /> Enquiries</span>
-            {' · '}
-            <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-machine-orange" /> Feedback</span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-sm bg-navy" /> Enquiries per UTC day
+            </span>
           </p>
           <div className="mt-6 flex h-44 items-end gap-px sm:gap-0.5">
             {series.map((d) => {
               const hE = maxBar > 0 ? Math.round((d.enquiries / maxBar) * 100) : 0;
-              const hF = maxBar > 0 ? Math.round((d.feedback / maxBar) * 100) : 0;
               const label = d.date.slice(5);
               return (
                 <div
                   key={d.date}
                   className="flex min-w-0 flex-1 flex-col items-center justify-end gap-1"
-                  title={`${d.date}: ${d.enquiries} enquiries, ${d.feedback} feedback`}
+                  title={`${d.date}: ${d.enquiries} enquiries`}
                 >
-                  <div className="flex h-[7.5rem] w-full max-w-[14px] items-end justify-center gap-[2px] sm:max-w-[18px]">
+                  <div className="flex h-[7.5rem] w-full max-w-[18px] items-end justify-center">
                     <div
-                      className="w-[42%] min-h-0 rounded-t bg-navy/90 transition-all"
+                      className="w-[70%] min-h-0 rounded-t bg-navy/90 transition-all"
                       style={{ height: `${Math.max(hE, d.enquiries > 0 ? 8 : 0)}%` }}
-                    />
-                    <div
-                      className="w-[42%] min-h-0 rounded-t bg-machine-orange transition-all"
-                      style={{ height: `${Math.max(hF, d.feedback > 0 ? 8 : 0)}%` }}
                     />
                   </div>
                   <span className="max-w-full truncate text-[8px] font-bold text-muted-grey sm:text-[9px]" title={d.date}>
@@ -198,24 +155,25 @@ export default function AdminAnalyticsSection() {
         </div>
 
         <div className="rounded-2xl border border-border-grey bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-black uppercase tracking-widest text-navy">Feedback by rating</h3>
-          <p className="mt-1 text-xs text-muted-grey">Count of submissions in the last {rangeDays} days.</p>
-          <ul className="mt-6 space-y-3">
-            {ratingBars.map(({ label, count }) => (
-              <li key={label}>
-                <div className="mb-1 flex justify-between text-xs font-bold text-navy">
-                  <span>{label}</span>
-                  <span className="tabular-nums text-muted-grey">{count}</span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-bg-steel/80">
-                  <div
-                    className={cn('h-full rounded-full transition-all', ratingBarColor(label))}
-                    style={{ width: `${maxRating > 0 ? (count / maxRating) * 100 : 0}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+          <h3 className="text-sm font-black uppercase tracking-widest text-navy">Digital profile views</h3>
+          <p className="mt-1 text-xs text-muted-grey">
+            Total opens of the public <code className="rounded bg-bg-cloud px-1 py-0.5 text-[11px]">/profile</code>{' '}
+            page. Increments are applied on the server using your{' '}
+            <code className="rounded bg-bg-cloud px-1 py-0.5 text-[11px]">OFFICIAL_SITE_HOSTS</code> / production rules
+            so previews and localhost do not inflate the count.
+          </p>
+          <p className="mt-8 text-center text-5xl font-black tabular-nums text-machine-orange">{viewsDisplay}</p>
+          <p className="mt-2 text-center text-xs text-muted-grey">All-time total</p>
+          <p className="mt-8 text-center">
+            <Link
+              href="/profile"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-bold text-machine-orange hover:underline"
+            >
+              Open live profile →
+            </Link>
+          </p>
         </div>
       </div>
     </section>

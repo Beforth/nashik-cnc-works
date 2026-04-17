@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { COMPANY } from '@/src/constants';
 import { getProfileCmsBundle } from '@/src/lib/cms-cache';
+import './profile-card.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { settings: s } = await getProfileCmsBundle();

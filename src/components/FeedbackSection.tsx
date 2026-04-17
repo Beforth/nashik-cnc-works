@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import React, { useActionState, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { motion } from 'motion/react';
 import { CheckCircle2, MessageSquareQuote } from 'lucide-react';
 import SectionHeading from './SectionHeading';
@@ -26,7 +26,7 @@ function SubmitFeedbackButton() {
 }
 
 function ConnectedFeedbackForm({ onSendMore }: { onSendMore: () => void }) {
-  const [state, formAction] = useFormState(submitFeedbackForm, FEEDBACK_FORM_INITIAL_STATE);
+  const [state, formAction] = useActionState(submitFeedbackForm, FEEDBACK_FORM_INITIAL_STATE);
   const [rating, setRating] = useState<(typeof RATINGS)[number] | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
 

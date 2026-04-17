@@ -1,8 +1,7 @@
-import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { COOKIE_NAME, verifyAdminSessionToken } from '@/src/lib/admin-auth';
-import AdminShell from '@/src/components/AdminShell';
 
 function AdminLoading() {
   return (
@@ -12,6 +11,11 @@ function AdminLoading() {
   );
 }
 
+/** Separate chunk so `/admin` page.js stays small — avoids ChunkLoadError timeouts on heavy admin UI. */
+const AdminShell = dynamic(() => import('@/src/components/AdminShell'), {
+  loading: () => <AdminLoading />,
+});
+
 export default async function AdminPage() {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
@@ -20,9 +24,5 @@ export default async function AdminPage() {
     redirect('/admin/login');
   }
 
-  return (
-    <Suspense fallback={<AdminLoading />}>
-      <AdminShell />
-    </Suspense>
-  );
+  return <AdminShell />;
 }

@@ -11,6 +11,7 @@ import AdminInfrastructure from '@/src/components/AdminInfrastructure';
 import AdminIndustries from '@/src/components/AdminIndustries';
 import AdminEnquiries from '@/src/components/AdminEnquiries';
 import AdminFeedback from '@/src/components/AdminFeedback';
+import { AdminDialogProvider } from '@/src/components/admin/AdminDialogProvider';
 import {
   LogOut,
   LayoutDashboard,
@@ -106,6 +107,7 @@ export default function AdminShell() {
   const activeLabel = MENU_ITEMS.find((m) => m.id === activeTab)?.label ?? 'Admin';
 
   return (
+    <AdminDialogProvider>
     <motion.div
       className="min-h-screen bg-bg-cloud"
       initial={{ opacity: 0 }}
@@ -299,5 +301,6 @@ export default function AdminShell() {
         </AdminTabPanel>
       </main>
     </motion.div>
+    </AdminDialogProvider>
   );
 }

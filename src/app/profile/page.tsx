@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 import ProfileDigitalCard from '@/src/components/profile/ProfileDigitalCard';
 import { getProfileCmsPayload } from '@/src/lib/profile-cms';
-import './profile-card.css';
 
 function requestOriginFromHeaders(h: Headers): string {
   const host = h.get('x-forwarded-host')?.split(',')[0]?.trim() || h.get('host')?.trim();
@@ -14,8 +13,7 @@ function requestOriginFromHeaders(h: Headers): string {
 }
 
 export default async function ProfilePage() {
-  const h = await headers();
+  const [h, cms] = await Promise.all([headers(), getProfileCmsPayload()]);
   const initialOrigin = requestOriginFromHeaders(h);
-  const cms = await getProfileCmsPayload();
   return <ProfileDigitalCard cms={cms} initialOrigin={initialOrigin} />;
 }

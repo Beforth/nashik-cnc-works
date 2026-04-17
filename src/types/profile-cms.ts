@@ -25,4 +25,6 @@ export type ProfileCmsPayload = {
   settings: ProfileCmsSettings;
   services: ProfileCmsService[];
   galleryImages: ProfileCmsGalleryImage[];
+  /** Persisted total from DB; client POST may refresh after an official-site view. */
+  profileViewCount: number;
 };

@@ -7,6 +7,7 @@ import { Trash2, Save, Upload, Plus, Pencil } from 'lucide-react';
 import { COMPANY } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
 import AdminAnalyticsSection from '@/src/components/AdminAnalyticsSection';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 
 /** Matches Prisma defaults so the form never mounts with undefined fields after a failed/partial load. */
 const DEFAULT_SITE_SETTINGS = {
@@ -32,6 +33,7 @@ async function safeJson<T>(res: Response, fallback: T): Promise<T> {
 }
 
 export default function AdminHomeContent() {
+  const { confirm } = useAdminDialogs();
   const router = useRouter();
   const [settings, setSettings] = useState<any>(null);
   const [heroImages, setHeroImages] = useState<any[]>([]);
@@ -87,13 +89,14 @@ export default function AdminHomeContent() {
 
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault();
-    if (
-      !window.confirm(
+    const ok = await confirm({
+      title: 'Save company information?',
+      message:
         'Save these company information changes? They will be published on the live website.',
-      )
-    ) {
-      return;
-    }
+      confirmText: 'Save',
+      variant: 'neutral',
+    });
+    if (!ok) return;
     setMessage('Saving changes...');
     const res = await fetch('/api/admin/settings', {
       method: 'PATCH',
@@ -150,7 +153,12 @@ export default function AdminHomeContent() {
   }
 
   async function deleteHeroImage(id: string) {
-    if (!confirm('Delete this hero image?')) return;
+    const ok = await confirm({
+      title: 'Delete hero image?',
+      message: 'Delete this hero image? This cannot be undone.',
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/hero?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
       credentials: 'include',

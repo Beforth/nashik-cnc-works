@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
 import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import { mergeCatalogIntoDbGalleryAdminRows } from '@/src/lib/gallery-display';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml,' +
@@ -29,6 +30,7 @@ function sortRows(a: GalleryRow, b: GalleryRow) {
 }
 
 export default function AdminGallery() {
+  const { alert, confirm } = useAdminDialogs();
   const router = useRouter();
   const [items, setItems] = useState<GalleryRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -242,17 +244,21 @@ export default function AdminGallery() {
   async function deleteRow(row: GalleryRow) {
     if (row._isNew) {
       const label = row.title.trim() || 'this unsaved card';
-      if (
-        !window.confirm(
-          `Remove “${label}” from the list?\n\nNothing has been saved to the database yet.`,
-        )
-      ) {
-        return;
-      }
+      const okRemove = await confirm({
+        title: 'Remove unsaved card?',
+        message: `Remove “${label}” from the list?\n\nNothing has been saved to the database yet.`,
+        confirmText: 'Remove',
+      });
+      if (!okRemove) return;
       setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    if (!window.confirm(`Delete “${row.title}” from the website?\n\nThis cannot be undone.`)) return;
+    const okDel = await confirm({
+      title: 'Delete gallery item?',
+      message: `Delete “${row.title}” from the website?\n\nThis cannot be undone.`,
+      confirmText: 'Delete',
+    });
+    if (!okDel) return;
     setBusy(true);
     setMessage('Deleting…');
     const res = await fetch(`/api/admin/gallery?id=${encodeURIComponent(row.id)}`, {
@@ -270,7 +276,7 @@ export default function AdminGallery() {
     await load();
   }
 
-  function addPhoto() {
+  async function addPhoto() {
     const cid =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -291,8 +297,9 @@ export default function AdminGallery() {
       return [newRow, ...prev];
     });
     setEditingKey(cid);
-    window.alert(
+    await alert(
       'New Jobs Gallery card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add title and category (optional link URL), then save.',
+      'Card added',
     );
   }
 

@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Pencil, Plus, Save, Trash2, Upload } from 'lucide-react';
 import { adminListContainer, adminListItem } from '@/src/lib/admin-motion-variants';
 import { AdminIconKeyField } from '@/src/components/admin/AdminIconKeyField';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 
 const PLACEHOLDER_IMAGE =
   'data:image/svg+xml,' +
@@ -29,6 +30,7 @@ function sortRows(a: InfraRow, b: InfraRow) {
 }
 
 export default function AdminInfrastructure() {
+  const { alert, confirm } = useAdminDialogs();
   const router = useRouter();
   const [items, setItems] = useState<InfraRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -216,7 +218,12 @@ export default function AdminInfrastructure() {
       setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    if (!confirm(`Delete “${row.name}”? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete infrastructure?',
+      message: `Delete “${row.name}”? This cannot be undone.`,
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     setBusy(true);
     setMessage('Deleting…');
     const res = await fetch(`/api/admin/infrastructure?id=${encodeURIComponent(row.id)}`, {
@@ -234,7 +241,7 @@ export default function AdminInfrastructure() {
     await load();
   }
 
-  function addMachine() {
+  async function addMachine() {
     const cid =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -255,8 +262,9 @@ export default function AdminInfrastructure() {
       return [newRow, ...prev];
     });
     setEditingKey(cid);
-    window.alert(
+    await alert(
       'New infrastructure card added.\n\nIt is placed first in the list and will appear first on the website after you click Create card.\n\nUpload a photo, add name and specifications, then save.',
+      'Card added',
     );
   }
 

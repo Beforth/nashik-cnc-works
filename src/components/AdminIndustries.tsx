@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Pencil, Plus, Save, Trash2 } from 'lucide-react';
 import { mergeCatalogIntoDbIndustryAdminRows } from '@/src/lib/industry-display';
 import { AdminIconKeyField } from '@/src/components/admin/AdminIconKeyField';
+import { useAdminDialogs } from '@/src/components/admin/AdminDialogProvider';
 import { getServiceIcon } from '@/src/lib/service-icons';
 import { cn } from '@/src/lib/utils';
 
@@ -23,6 +24,7 @@ function sortRows(a: IndustryRow, b: IndustryRow) {
 }
 
 export default function AdminIndustries() {
+  const { alert, confirm } = useAdminDialogs();
   const router = useRouter();
   const [items, setItems] = useState<IndustryRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,7 +167,12 @@ export default function AdminIndustries() {
       setItems((prev) => prev.filter((r) => rowKey(r) !== rowKey(row)));
       return;
     }
-    if (!confirm(`Delete “${row.name}”? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete industry?',
+      message: `Delete “${row.name}”? This cannot be undone.`,
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     setBusy(true);
     setMessage('Deleting…');
     const res = await fetch(`/api/admin/industries?id=${encodeURIComponent(row.id)}`, {
@@ -183,7 +190,7 @@ export default function AdminIndustries() {
     await load();
   }
 
-  function addIndustry() {
+  async function addIndustry() {
     const cid =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -202,8 +209,9 @@ export default function AdminIndustries() {
       return [newRow, ...prev].sort(sortRows);
     });
     setEditingKey(cid);
-    window.alert(
+    await alert(
       'New industry row added at the top of the table.\n\nEnter the name (and icon key if needed), then click Create row to save to the database.',
+      'Row added',
     );
   }
 

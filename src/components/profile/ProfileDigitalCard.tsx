@@ -11,6 +11,14 @@ import { indianMobileDigitsForWaMe, parseIndianMobile10 } from '@/src/lib/indian
 
 const RATINGS = ['Excellent', 'Very Good', 'Average', 'Poor', 'Terrible'] as const;
 
+function formatViewCount(n: number): string {
+  try {
+    return Number(n).toLocaleString('en-IN');
+  } catch {
+    return String(n);
+  }
+}
+
 export default function ProfileDigitalCard({
   cms,
   initialOrigin = '',
@@ -29,7 +37,7 @@ export default function ProfileDigitalCard({
     [waMeNational],
   );
   const [origin, setOrigin] = useState(initialOrigin);
-  const [viewCountLabel, setViewCountLabel] = useState('…');
+  const [viewCountLabel, setViewCountLabel] = useState(() => formatViewCount(cms.profileViewCount));
   const [selectedRating, setSelectedRating] = useState<string | null>(null);
   const [fbName, setFbName] = useState('');
   const [fbText, setFbText] = useState('');
@@ -57,7 +65,6 @@ export default function ProfileDigitalCard({
 
   useEffect(() => {
     if (!origin) return;
-    setViewCountLabel('…');
     let cancelled = false;
     const run = () => {
       if (cancelled) return;
