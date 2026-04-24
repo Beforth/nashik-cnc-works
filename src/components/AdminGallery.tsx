@@ -118,6 +118,33 @@ export default function AdminGallery() {
     return editingKey === rowKey(row);
   }
 
+function isLikelyVideo(file: File): boolean {
+  if (file.type.startsWith('video/')) return true;
+  const name = file.name.toLowerCase();
+  return ['.mp4', '.webm', '.ogg', '.ogv', '.mov', '.m4v'].some((ext) => name.endsWith(ext));
+}
+
+async function isVideoLongerThan(file: File, maxSeconds: number): Promise<boolean> {
+  if (!isLikelyVideo(file)) return false;
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    const cleanup = () => URL.revokeObjectURL(url);
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      const dur = video.duration;
+      cleanup();
+      if (Number.isFinite(dur) && dur > maxSeconds) resolve(true);
+      else resolve(false);
+    };
+    video.onerror = () => {
+      cleanup();
+      resolve(false);
+    };
+    video.src = url;
+  });
+}
+
   async function handleReplaceImage(e: React.ChangeEvent<HTMLInputElement>, row: GalleryRow) {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -128,6 +155,13 @@ export default function AdminGallery() {
     setBusy(true);
     setMessage('Replacing media…');
     try {
+      if (await isVideoLongerThan(file, 60)) {
+        setMessage('Media files are too large — maximum duration is 60 seconds.');
+        setUploadingId(null);
+        setBusy(false);
+        return;
+      }
+
       const fd = new FormData();
       fd.append('file', file);
       const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, ...authFetch });
