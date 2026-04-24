@@ -13,9 +13,7 @@ export const metadata: Metadata = {
       "Job work, machined components & turning machine job — service provider from Nashik, Maharashtra, India.",
     images: [
       {
-        url: "https://cncmachiningnashik.com/logo.png",
-        width: 512,
-        height: 512,
+        url: "/apple-icon.png",
         alt: COMPANY.siteFullName,
       },
     ],
@@ -23,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["https://cncmachiningnashik.com/logo.png"],
+    images: ["/apple-icon.png"],
   },
 };
 
