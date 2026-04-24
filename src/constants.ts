@@ -62,6 +62,9 @@ export const INDIA_MART_IMAGES = {
   clampShaft: 'https://5.imimg.com/data5/UQ/RV/QZ/NSDMERP-20762121/20762121-product-1541063336555-500x500.jpg',
 } as const;
 
+/** `public/gallery/*` file name → safe URL (spaces etc.) */
+const galleryFile = (filename: string) => `/gallery/${encodeURIComponent(filename)}`;
+
 export interface GalleryItem {
   src: string;
   title: string;
@@ -117,6 +120,30 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     title: 'Clamp Shaft',
     category: 'Machined components',
     href: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267930862',
+  },
+  {
+    src: galleryFile('WhatsApp Video 2026-04-23 at 14.42.56.mp4'),
+    title: 'Workshop — 23 Apr 2026 (14:42)',
+    category: 'Workshop',
+    href: '',
+  },
+  {
+    src: galleryFile('WhatsApp Video 2026-04-23 at 14.43.12.mp4'),
+    title: 'Workshop — 23 Apr 2026 (14:43)',
+    category: 'Workshop',
+    href: '',
+  },
+  {
+    src: galleryFile('WhatsApp Video 2026-04-23 at 14.44.17.mp4'),
+    title: 'Workshop — 23 Apr 2026 (14:44)',
+    category: 'Workshop',
+    href: '',
+  },
+  {
+    src: galleryFile('ss to ms welding.mp4'),
+    title: 'SS to MS welding',
+    category: 'Workshop',
+    href: '',
   },
 ];
 

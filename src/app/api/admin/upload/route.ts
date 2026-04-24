@@ -1,6 +1,26 @@
 import { NextResponse } from 'next/server';
-import { uploadServiceImage, isCloudinaryConfigured } from '@/src/lib/cloudinary-server';
+import { uploadServiceMedia, isCloudinaryConfigured } from '@/src/lib/cloudinary-server';
 import { requireAdminSession } from '@/src/lib/require-admin';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+function guessMimeType(file: Blob, filename: string | undefined): string {
+  if (file.type && file.type !== 'application/octet-stream') {
+    return file.type;
+  }
+  const n = (filename || '').toLowerCase();
+  if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+  if (n.endsWith('.png')) return 'image/png';
+  if (n.endsWith('.webp')) return 'image/webp';
+  if (n.endsWith('.gif')) return 'image/gif';
+  if (n.endsWith('.avif')) return 'image/avif';
+  if (n.endsWith('.mp4')) return 'video/mp4';
+  if (n.endsWith('.webm')) return 'video/webm';
+  if (n.endsWith('.ogg') || n.endsWith('.ogv')) return 'video/ogg';
+  if (n.endsWith('.mov')) return 'video/quicktime';
+  return 'application/octet-stream';
+}
 
 export async function POST(request: Request) {
   const unauthorized = await requireAdminSession();
@@ -20,9 +40,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing file' }, { status: 400 });
     }
 
+    const name = file instanceof File ? file.name : undefined;
     const buffer = Buffer.from(await file.arrayBuffer());
-    const mimetype = file.type || 'application/octet-stream';
-    const url = await uploadServiceImage(buffer, mimetype);
+    const mimetype = guessMimeType(file, name);
+    const url = await uploadServiceMedia(buffer, mimetype);
     return NextResponse.json({ url });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Upload failed';

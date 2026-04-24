@@ -23,13 +23,13 @@ export function getMergedGalleryItems(
     linkUrl: item.href,
   }));
 
-  if (!dbItems?.length) {
-    return staticItems;
+  // If the DB has rows, trust them entirely (respect deletes/edits).
+  if (dbItems?.length) {
+    return dbItems;
   }
 
-  const seen = new Set(dbItems.map((d) => d.title.trim().toLowerCase()));
-  const extra = staticItems.filter((s) => !seen.has(s.title.trim().toLowerCase()));
-  return [...dbItems, ...extra];
+  // No DB rows: fall back to static catalog.
+  return staticItems;
 }
 
 /** Row shape returned by `/api/admin/gallery` (Prisma `GalleryItem`). */
@@ -54,26 +54,6 @@ export type AdminGalleryEditorRow = DbGalleryAdminRow & {
  * are marked `_isNew` so Save runs POST and persists them.
  */
 export function mergeCatalogIntoDbGalleryAdminRows(dbRows: DbGalleryAdminRow[]): AdminGalleryEditorRow[] {
-  const sorted = [...dbRows].sort((a, b) => a.sortOrder - b.sortOrder);
-  const seen = new Set(sorted.map((d) => d.title.trim().toLowerCase()));
-  let nextOrder = sorted.reduce((m, r) => Math.max(m, r.sortOrder), -1) + 1;
-  const extras: AdminGalleryEditorRow[] = [];
-
-  GALLERY_ITEMS.forEach((item, index) => {
-    const key = item.title.trim().toLowerCase();
-    if (seen.has(key)) return;
-    seen.add(key);
-    extras.push({
-      id: '',
-      title: item.title,
-      category: item.category,
-      imageUrl: item.src,
-      linkUrl: item.href,
-      sortOrder: nextOrder++,
-      _isNew: true,
-      _clientId: `catalog-${index}`,
-    });
-  });
-
-  return [...sorted, ...extras];
+  // Respect deletes/edits: show exactly what's in DB.
+  return [...dbRows].sort((a, b) => a.sortOrder - b.sortOrder);
 }

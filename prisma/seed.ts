@@ -76,6 +76,8 @@ const INDUSTRIES = [
   { name: 'General engineering', iconKey: 'Construction', sortOrder: 7 },
 ];
 
+const galleryFile = (filename: string) => `/gallery/${encodeURIComponent(filename)}`;
+
 /** Jobs gallery — mirrors `GALLERY_ITEMS` in `src/constants.ts` so admin & DB match the public section */
 const GALLERY_ITEMS = [
   {
@@ -141,6 +143,34 @@ const GALLERY_ITEMS = [
     linkUrl: 'https://www.indiamart.com/dinesh-eng/machined-components.html#20267930862',
     sortOrder: 7,
   },
+  {
+    title: 'Workshop — 23 Apr 2026 (14:42)',
+    category: 'Workshop',
+    imageUrl: galleryFile('WhatsApp Video 2026-04-23 at 14.42.56.mp4'),
+    linkUrl: null,
+    sortOrder: 8,
+  },
+  {
+    title: 'Workshop — 23 Apr 2026 (14:43)',
+    category: 'Workshop',
+    imageUrl: galleryFile('WhatsApp Video 2026-04-23 at 14.43.12.mp4'),
+    linkUrl: null,
+    sortOrder: 9,
+  },
+  {
+    title: 'Workshop — 23 Apr 2026 (14:44)',
+    category: 'Workshop',
+    imageUrl: galleryFile('WhatsApp Video 2026-04-23 at 14.44.17.mp4'),
+    linkUrl: null,
+    sortOrder: 10,
+  },
+  {
+    title: 'SS to MS welding',
+    category: 'Workshop',
+    imageUrl: galleryFile('ss to ms welding.mp4'),
+    linkUrl: null,
+    sortOrder: 11,
+  },
 ];
 
 async function main() {
@@ -177,6 +207,27 @@ async function main() {
     const existing = await prisma.industryItem.findFirst({ where: { name: row.name } });
     if (!existing) await prisma.industryItem.create({ data: row });
   }
+
+  // Jobs gallery: drop one-off test uploads & legacy titles so the catalog below can re-insert fresh URLs
+  await prisma.galleryItem.deleteMany({
+    where: {
+      OR: [
+        { title: { in: [
+          'Workshop — 23 Apr 2026 (14:42)',
+          'Workshop — 23 Apr 2026 (14:43)',
+          'Workshop — 23 Apr 2026 (14:44)',
+          'SS to MS welding',
+        ] } },
+        { title: { in: [
+          'Workshop video — 23 Apr 2026 (1)',
+          'Workshop video — 23 Apr 2026 (2)',
+          'Workshop video — 23 Apr 2026 (3)',
+          'Workshop video — 23 Apr 2026 (4)',
+        ] } },
+        { imageUrl: { contains: 'job-20260423-' } },
+      ],
+    },
+  });
 
   // Jobs gallery (admin reads only from DB; public merges with static fallback when DB empty)
   for (const row of GALLERY_ITEMS) {

@@ -38,5 +38,7 @@ export async function GET(request: Request) {
     };
   }
 
-  return NextResponse.json(body);
+  return NextResponse.json(body, {
+    headers: { 'Cache-Control': 'no-store, must-revalidate' },
+  });
 }

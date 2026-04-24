@@ -2,10 +2,14 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
 import { nextSortOrderForPrepend } from '@/src/lib/admin-sort-order';
 import { revalidatePublicCmsCache } from '@/src/lib/cms-cache';
-import { verifyAdminSessionToken, COOKIE_NAME } from '@/src/lib/admin-auth';
-import { cookies } from 'next/headers';
+import { requireAdminSession } from '@/src/lib/require-admin';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
+  const unauth = await requireAdminSession();
+  if (unauth) return unauth;
   try {
     const items = await prisma.galleryItem.findMany({
       orderBy: { sortOrder: 'asc' },
@@ -52,10 +56,8 @@ function parsePatchBody(raw: unknown) {
 }
 
 export async function POST(req: Request) {
-  const store = await cookies();
-  if (!verifyAdminSessionToken(store.get(COOKIE_NAME)?.value)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const unauth = await requireAdminSession();
+  if (unauth) return unauth;
 
   try {
     const { title, imageUrl, category, linkUrl } = parseCreateBody(await req.json());
@@ -82,10 +84,8 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const store = await cookies();
-  if (!verifyAdminSessionToken(store.get(COOKIE_NAME)?.value)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const unauth = await requireAdminSession();
+  if (unauth) return unauth;
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
@@ -109,10 +109,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const store = await cookies();
-  if (!verifyAdminSessionToken(store.get(COOKIE_NAME)?.value)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const unauth = await requireAdminSession();
+  if (unauth) return unauth;
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');

@@ -8,6 +8,8 @@ import { profileTopBarKicker } from '@/src/lib/profile-top-bar-kicker';
 import type { ProfileCmsPayload } from '@/src/types/profile-cms';
 import { isValidEmailFormat } from '@/src/lib/email-format';
 import { indianMobileDigitsForWaMe, parseIndianMobile10 } from '@/src/lib/indian-mobile-wa';
+import { isGalleryVideoUrl } from '@/src/lib/gallery-media';
+import { VideoLightbox } from '@/src/components/VideoLightbox';
 
 const RATINGS = ['Excellent', 'Very Good', 'Average', 'Poor', 'Terrible'] as const;
 
@@ -54,6 +56,9 @@ export default function ProfileDigitalCard({
   const [enqError, setEnqError] = useState<string | null>(null);
   const [enqWarning, setEnqWarning] = useState<string | null>(null);
   const [waNumber, setWaNumber] = useState('');
+  const [profileVideoLightbox, setProfileVideoLightbox] = useState<
+    { src: string; title: string; type?: 'video' | 'image' } | null
+  >(null);
 
   const profileUrl = origin ? `${origin}/profile` : '';
 
@@ -524,16 +529,45 @@ export default function ProfileDigitalCard({
         <div className="section" id="gallery-section">
           <div className="section-title">Gallery</div>
           <div className="gallery-grid">
-            {galleryImages.map((g, i) => (
-              <img
-                key={`${g.src}-${g.alt}-${i}`}
-                className="gal-img"
-                src={g.src}
-                alt={g.alt}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-            ))}
+            {galleryImages.map((g, i) =>
+              isGalleryVideoUrl(g.src) ? (
+                <button
+                  key={`${g.src}-${g.alt}-${i}`}
+                  type="button"
+                  className="gal-img relative m-0 block w-full cursor-pointer border-0 p-0"
+                  onClick={() => setProfileVideoLightbox({ src: g.src, title: g.alt })}
+                  aria-label={`Play video: ${g.alt}`}
+                >
+                  <video
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                    src={g.src}
+                    title={g.alt}
+                    aria-hidden
+                    muted
+                    loop
+                    playsInline
+                    autoPlay
+                    preload="metadata"
+                  />
+                </button>
+              ) : (
+                <button
+                  key={`${g.src}-${g.alt}-${i}`}
+                  type="button"
+                  className="gal-img relative m-0 block w-full cursor-pointer border-0 p-0"
+                  onClick={() => setProfileVideoLightbox({ src: g.src, title: g.alt, type: 'image' })}
+                  aria-label={`View image: ${g.alt}`}
+                >
+                  <img
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                    src={g.src}
+                    alt={g.alt}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                </button>
+              ),
+            )}
           </div>
         </div>
 
@@ -816,6 +850,14 @@ export default function ProfileDigitalCard({
           SHARE
         </a>
       </nav>
+      <VideoLightbox
+        value={
+          profileVideoLightbox
+            ? { ...profileVideoLightbox, type: profileVideoLightbox.type ?? 'video' }
+            : null
+        }
+        onClose={() => setProfileVideoLightbox(null)}
+      />
     </div>
   );
 }

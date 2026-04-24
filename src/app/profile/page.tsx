@@ -2,6 +2,9 @@ import { headers } from 'next/headers';
 import ProfileDigitalCard from '@/src/components/profile/ProfileDigitalCard';
 import { getProfileCmsPayload } from '@/src/lib/profile-cms';
 
+/** Ensure gallery/settings updates from admin revalidate the tag-driven CMS bundle, not a stale static shell. */
+export const dynamic = 'force-dynamic';
+
 function requestOriginFromHeaders(h: Headers): string {
   const host = h.get('x-forwarded-host')?.split(',')[0]?.trim() || h.get('host')?.trim();
   if (!host) return '';

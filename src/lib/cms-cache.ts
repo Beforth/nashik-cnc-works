@@ -1,4 +1,4 @@
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache';
 import { getSiteSettings, getHeroImages } from './site-content';
 import { getServices } from './service-content';
 import { getGalleryItems } from './gallery-content';
@@ -80,7 +80,11 @@ export async function getPageSectionsCmsBundle() {
   return loadPageSectionsCmsBundle();
 }
 
-/** Call after admin (or API) mutations that affect the public site. */
+/**
+ * Call after admin (or API) mutations that affect the public site.
+ * Revalidates the `unstable_cache` tag and the root layout so home, /gallery, /profile, and /[slug] pick up new gallery (and other CMS) data without waiting for the 60s TTL.
+ */
 export function revalidatePublicCmsCache() {
   revalidateTag(CMS_PUBLIC_CACHE_TAG);
+  revalidatePath('/', 'layout');
 }
